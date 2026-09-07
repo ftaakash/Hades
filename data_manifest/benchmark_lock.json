@@ -1,0 +1,51 @@
+{
+  "_comment": "HADES Phase 0 — Benchmark environment lock. Update this file whenever CDB version or dataset changes.",
+  "_created": "2026-09-08T00:11:00+05:30",
+  "_author": "Aakash G.S. <gsaakash@outlook.com>",
+
+  "hades_version": "0.1.0",
+  "hades_git_commit": "PENDING_FIRST_COMMIT",
+
+  "cdb": {
+    "repository": "https://github.com/simbianai/cyber_defense_benchmark",
+    "git_commit": "PENDING_FILL_AFTER_CLONE",
+    "install_path": "../cdb",
+    "note": "Run `git -C ../cdb rev-parse HEAD` and paste here after cloning"
+  },
+
+  "dataset": {
+    "name": "CDB public sample",
+    "file": "datasets/sample.json",
+    "flags_file": "datasets/sample_flags.json",
+    "n_events": 155350,
+    "seed": 176,
+    "sha256_sample": "PENDING_FILL",
+    "sha256_flags": "PENDING_FILL",
+    "note": "Run scripts/hash_dataset.py to populate SHA-256 fields"
+  },
+
+  "python": {
+    "version": "3.14.3",
+    "platform": "Windows (Administrator)"
+  },
+
+  "baseline_result": {
+    "recorded": "2026-09-07",
+    "file": "baseline_results.json",
+    "p0_random_budget20_seeds3_mean_coverage": 0.0761200062,
+    "p0_random_budget20_seeds3_pstdev_coverage": 0.005965,
+    "p1_fixed_heuristic_budget20_coverage": 0.0839366993
+  },
+
+  "scorer": {
+    "function": "benchmark.scorer.score_hunt",
+    "metric": "coverage_score_per_run",
+    "note": "CDB native scorer — do not modify semantics"
+  },
+
+  "known_performance_issue": {
+    "description": "ThreatHuntEnv.reset() inserts 155K rows one-at-a-time (~28s per reset)",
+    "fix": "hades/benchmark/fast_db.py (FastLogDatabase, executemany, batch=5000)",
+    "status": "PENDING"
+  }
+}

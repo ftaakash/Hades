@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use HADES in your research, please cite it as below."
+authors:
+  - family-names: "G.S."
+    given-names: "Aakash"
+    email: gsaakash@outlook.com
+    orcid: ""
+title: "HADES: Budgeted Evidence Acquisition for Cyber Threat Hunting Under Adversarial Telemetry"
+version: 0.1.0
+date-released: 2026-09-08
+url: "https://github.com/ftaakash/Hades"
+repository-code: "https://github.com/ftaakash/Hades"
+abstract: >
+  HADES is a benchmark and policy framework for studying budgeted sequential evidence
+  acquisition in cyber threat hunting. It constrains the CDB action space to a fixed
+  evidence-source menu and evaluates adaptive acquisition policies (P0-P5) under clean
+  and adversarial telemetry conditions.
+keywords:
+  - cybersecurity
+  - threat hunting
+  - evidence acquisition
+  - information gain
+  - adversarial telemetry
+  - benchmark
+license: MIT

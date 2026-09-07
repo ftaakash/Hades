@@ -1,0 +1,70 @@
+# ----------------------------------------------------------
+# configs/experiments/main_v1.yaml
+# HADES Main Experiment — FROZEN before final sweep
+# DO NOT MODIFY AFTER RUNNING. Create main_v2.yaml for changes.
+# ----------------------------------------------------------
+experiment_id: main_v1
+description: "Full policy × budget × regime × seed sweep"
+status: PENDING_FREEZE  # Change to FROZEN before the sweep run
+
+dataset:
+  benchmark: CDB
+  data_path: "../cdb/datasets/sample.json"
+  flags_path: "../cdb/datasets/sample_flags.json"
+  checksum: "PENDING"
+
+policies:
+  - P0_random
+  - P1_fixed_heuristic
+  - P2_relevance
+  - P3_information_gain
+  - P4_ig_cost
+  - P4b_ig_cost_reliability
+  - P5_hades
+
+budgets:
+  - 5
+  - 10
+  - 20
+  - 40
+  - 80
+
+stress_regimes:
+  - R0_clean
+  - R1_missing
+  - R2_stale
+  - R3_misleading
+  - R4_targeted
+
+seeds:
+  count: 30
+  base: 1000
+  # Stochastic policies only: P0, P3, P4, P4b, P5
+  # Deterministic policies (P1, P2) run once per budget/regime/campaign
+
+pairing:
+  # Same campaign+seed evaluated across all policies (paired comparison)
+  enforce_paired: true
+
+output:
+  raw_dir: "results/raw/main_v1"
+  checkpoint_every_n_episodes: 100
+  save_decision_traces: true
+
+statistics:
+  bootstrap_iterations: 10000
+  confidence_level: 0.95
+  correction: holm
+  primary_metric: campaign_coverage
+  primary_comparison: [P5_hades, P0_random]
+
+hades_hyperparameters:
+  # Tuned on pilot; frozen before main sweep
+  lambda: 1.0
+  mu: 1.0
+  tau: 0.05
+
+sensitivity_analysis:
+  lambda_values: [0.25, 0.5, 1.0, 2.0]
+  mu_values: [0.25, 0.5, 1.0, 2.0]
+  tau_values: [0.01, 0.05, 0.10, 0.20]

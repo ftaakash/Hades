@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.whl
+.Python
+pip-wheel-metadata/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Test / coverage
+.coverage
+.tox/
+htmlcov/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb
+
+# Data / datasets
+datasets/
+*.db
+*.sqlite
+*.sqlite3
+
+# Results — raw is committed; large sweep outputs are not
+results/raw/*.jsonl
+results/raw/*.json.gz
+!results/raw/.gitkeep
+!results/processed/.gitkeep
+!results/publication/.gitkeep
+
+# CDB sibling directory (cloned separately)
+../cdb/
+
+# Temp files from proposal extraction
+_proposal_text.txt
+_proposal_tables.txt
+
+# macOS / Windows
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Docker volumes
+.docker/
+
+# Secrets — never commit
+*.pem
+*.key
+secrets.yaml
+secrets.json

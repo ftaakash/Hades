@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  hades:
+    build: .
+    volumes:
+      - .:/workspace
+      - ../cdb:/cdb   # CDB sibling directory
+    environment:
+      - PYTHONPATH=/workspace:/cdb
+    command: bash

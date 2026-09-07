@@ -1,0 +1,47 @@
+# ----------------------------------------------------------
+# configs/experiments/pilot_v1.yaml
+# HADES Pilot Experiment — small-scale validation before main sweep
+# Purpose: verify all policies terminate, no leakage, metrics non-degenerate
+# Freeze this file before running the pilot.
+# ----------------------------------------------------------
+experiment_id: pilot_v1
+description: "Smoke-test: 2 policies × 2 budgets × 3 seeds × R0 only"
+
+dataset:
+  benchmark: CDB
+  data_path: "../cdb/datasets/sample.json"
+  flags_path: "../cdb/datasets/sample_flags.json"
+  checksum: "PENDING"  # Fill from benchmark_lock.json after CDB clone
+
+policies:
+  - P0_random
+  - P1_fixed_heuristic
+
+budgets:
+  - 10
+  - 20
+
+stress_regimes:
+  - R0_clean
+
+seeds:
+  count: 3
+  base: 1000
+  values: [1000, 1001, 1002]
+
+output:
+  raw_dir: "results/raw/pilot_v1"
+  save_decision_traces: true
+
+statistics:
+  bootstrap_iterations: 1000
+  confidence_level: 0.95
+  correction: holm
+
+pilot_checks:
+  - all_policies_terminate
+  - no_probability_invariant_violation
+  - no_leakage_detected
+  - corruption_preserves_ground_truth
+  - metrics_non_degenerate
+  - results_reproducible_same_seed

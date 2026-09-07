@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "hades-bench"
+version = "0.1.0"
+description = "Budgeted Evidence Acquisition for Cyber Threat Hunting Under Adversarial Telemetry"
+authors = [{ name = "Aakash G.S.", email = "gsaakash@outlook.com" }]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.11"
+keywords = ["cybersecurity", "threat-hunting", "benchmark", "evidence-acquisition"]
+
+[project.urls]
+repository = "https://github.com/ftaakash/Hades"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
