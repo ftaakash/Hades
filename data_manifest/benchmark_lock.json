@@ -1,34 +1,29 @@
 {
-  "_comment": "HADES Phase 0 — Benchmark environment lock. Update this file whenever CDB version or dataset changes.",
+  "_comment": "HADES Phase 0 \u00e2\u20ac\u201d Benchmark environment lock. Update this file whenever CDB version or dataset changes.",
   "_created": "2026-09-08T00:11:00+05:30",
   "_author": "Aakash G.S. <gsaakash@outlook.com>",
-
   "hades_version": "0.1.0",
-  "hades_git_commit": "PENDING_FIRST_COMMIT",
-
+  "hades_git_commit": "77c4c21e2ee90b848fea1d5269626a984c154bfd",
   "cdb": {
     "repository": "https://github.com/simbianai/cyber_defense_benchmark",
-    "git_commit": "PENDING_FILL_AFTER_CLONE",
+    "git_commit": "e8b86d01ccefe338d455e61505ca285943635b27",
     "install_path": "../cdb",
     "note": "Run `git -C ../cdb rev-parse HEAD` and paste here after cloning"
   },
-
   "dataset": {
     "name": "CDB public sample",
     "file": "datasets/sample.json",
     "flags_file": "datasets/sample_flags.json",
     "n_events": 155350,
     "seed": 176,
-    "sha256_sample": "PENDING_FILL",
-    "sha256_flags": "PENDING_FILL",
+    "sha256_sample": "88faad61b806c1c0c6705890ac7c610085e62c9b781395c1563c86a855e79170",
+    "sha256_flags": "66da1aca6f2347c4894382dd423cc3f489d6a21b323b4e70836bbac52a34f9b2",
     "note": "Run scripts/hash_dataset.py to populate SHA-256 fields"
   },
-
   "python": {
     "version": "3.14.3",
     "platform": "Windows (Administrator)"
   },
-
   "baseline_result": {
     "recorded": "2026-09-07",
     "file": "baseline_results.json",
@@ -36,13 +31,11 @@
     "p0_random_budget20_seeds3_pstdev_coverage": 0.005965,
     "p1_fixed_heuristic_budget20_coverage": 0.0839366993
   },
-
   "scorer": {
     "function": "benchmark.scorer.score_hunt",
     "metric": "coverage_score_per_run",
-    "note": "CDB native scorer — do not modify semantics"
+    "note": "CDB native scorer \u00e2\u20ac\u201d do not modify semantics"
   },
-
   "known_performance_issue": {
     "description": "ThreatHuntEnv.reset() inserts 155K rows one-at-a-time (~28s per reset)",
     "fix": "hades/benchmark/fast_db.py (FastLogDatabase, executemany, batch=5000)",
