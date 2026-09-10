@@ -137,8 +137,8 @@ def run_orderflip_test(
     total_flips_hades = 0
 
     print("\n" + "=" * 70)
-    print("  HADES — G1 Order-Flip Test")
-    print(f"  λ={lambda_}  μ={mu}  seeds={n_seeds}  budget={budget}")
+    print("  HADES - G1 Order-Flip Test")
+    print(f"  lam={lambda_}  mu={mu}  seeds={n_seeds}  budget={budget}")
     print("=" * 70)
 
     for scenario in scenarios:
@@ -272,15 +272,15 @@ def run_orderflip_test(
 
     print(f"  Scenario B (reliability flip): {b_flips} flips ({b_rate*100:.1f}%)")
     print(f"  Scenario D (manip risk flip):  {d_flips} HADES-vs-P4 flips")
-    print(f"\n  G1 STATUS: {'PASS ✓' if g1_pass else 'FAIL ✗'}")
+    print(f"  G1 STATUS: {'PASS' if g1_pass else 'FAIL'}")
     if g1_pass:
-        print(f"  → Reliability-aware acquisition chooses different queries in {b_rate*100:.1f}% "
+        print(f"  -> Reliability-aware acquisition chooses different queries in {b_rate*100:.1f}% "
               f"of states.")
-        print(f"  → Manipulation risk as an INDEPENDENT term also flips decisions.")
-        print(f"  → Phenomenon persists across {n_seeds} independently seeded configurations.")
+        print(f"  -> Manipulation risk as an INDEPENDENT term also flips decisions.")
+        print(f"  -> Phenomenon persists across {n_seeds} independently seeded configurations.")
         print(f"  Proceed to Phase 1B (Hypothesis Tracking Engine).")
     else:
-        print(f"  → G1 FAILED. Reformulate HADES mechanism before proceeding to CDB.")
+        print(f"  -> G1 FAILED. Reformulate HADES mechanism before proceeding to CDB.")
 
     results["__overall__"] = {
         "total_states": total_states,
