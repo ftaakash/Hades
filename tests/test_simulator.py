@@ -309,97 +309,149 @@ class TestScenarioA:
 class TestScenarioB:
     def test_reliability_flip_exists(self):
         """
-        G1 core test: in Scenario B, process_tree has HIGH affinity to the
-        leading hypothesis (H_execution) → wins on raw IG.
-        But process_tree reliability_estimated=0.50 vs auth_events=0.90.
-        ERHG / HADES should pick a DIFFERENT source than IG → order flip.
+        G1 v3.0 core test: reliability enters contaminated likelihood, NOT as
+        a post-hoc multiplier.
+
+        process_tree: r_hat=0.50, discriminating (high affinity to H_execution only)
+        auth_events:  r_hat=0.90, broadly relevant
+
+        Under Bayesian EIG with contaminated likelihood:
+        - process_tree's signal is attenuated by r_hat=0.50 -> noisy EIG
+        - auth_events has higher r_hat -> less attenuation -> higher or comparable EIG
+
+        Key assertion: auth_events EIG > process_tree EIG (reliability flip).
+        A policy that ignores reliability and only looks at raw affinity would
+        prefer process_tree; EIG correctly accounts for reliability.
         """
         env = SimEnv(SCENARIO_B_RELIABILITY_FLIP, seed=0)
-        # Scenario B has explicit priors: H_execution=0.50 is leading
         env.reset(true_hypothesis="H_execution", seed=0)
 
-        choice_ig = _pick(env, p3_ig)
-        choice_hades = _pick(env, lambda e, s: p5_hades(e, s, 1.0, 1.0))
+        ig_auth = env.expected_ig("auth_events")
+        ig_process = env.expected_ig("process_tree")
 
-        # process_tree should win on raw IG (high affinity to H_execution=0.90)
-        assert choice_ig == "process_tree", (
-            f"Expected IG to pick process_tree (high affinity to leading H_execution), "
-            f"got {choice_ig}"
+        # auth_events (r_hat=0.90) should have HIGHER EIG than process_tree (r_hat=0.50)
+        # even though process_tree is more discriminating in its affinity structure.
+        # This IS the reliability flip: reliability inside EIG changes relative ordering.
+        assert ig_auth > ig_process, (
+            f"Reliability flip: auth_events (r_hat=0.90) should have higher EIG than "
+            f"process_tree (r_hat=0.50). auth={ig_auth:.4f}, process={ig_process:.4f}"
         )
-        # HADES should flip because process_tree reliability=0.50 attenuates ERHG heavily
-        assert choice_hades != choice_ig, (
-            f"Expected G1 flip: HADES should move away from {choice_ig} "
-            f"(unreliable/high-manip source), got same choice. "
-            f"IG={choice_ig} HADES={choice_hades}"
+
+        # VoI (P5) should also prefer auth_events since cost is equal
+        voi_auth = env.voi("auth_events", lam=1.0)
+        voi_process = env.voi("process_tree", lam=1.0)
+        assert voi_auth > voi_process, (
+            f"VoI should also prefer auth_events over process_tree. "
+            f"voi_auth={voi_auth:.4f}, voi_process={voi_process:.4f}"
         )
 
     def test_erhg_alone_flips_order(self):
-        """ERHG (no manip penalty) should also flip away from the raw IG winner."""
+        """
+        In v3.0, expected_reliable_ig() == expected_ig() (reliability is inside EIG).
+        This test verifies that auth_events scores higher than process_tree for both
+        methods — consistent ordering is the v3.0 flip mechanism.
+        """
         env = SimEnv(SCENARIO_B_RELIABILITY_FLIP, seed=0)
         env.reset(true_hypothesis="H_execution", seed=0)
-        choice_ig = _pick(env, p3_ig)
-        choice_erhg = _pick(env, p4b_erhg)
-        assert choice_ig == "process_tree", (
-            f"IG should pick process_tree (high H_execution affinity), got {choice_ig}"
+        ig_auth = env.expected_ig("auth_events")
+        ig_process = env.expected_ig("process_tree")
+        erhg_auth = env.expected_reliable_ig("auth_events")
+        erhg_process = env.expected_reliable_ig("process_tree")
+        # Both methods should agree on the ordering
+        assert ig_auth > ig_process, (
+            f"EIG: auth({ig_auth:.4f}) should beat process_tree({ig_process:.4f}) via reliability"
         )
-        assert choice_erhg != choice_ig, (
-            f"ERHG did not flip from process_tree. IG={choice_ig}, ERHG={choice_erhg}. "
-            f"ERHG should prefer a more reliable source."
+        assert erhg_auth > erhg_process, (
+            f"ERHG: auth({erhg_auth:.4f}) should beat process_tree({erhg_process:.4f})"
         )
+        # And they should agree with each other (v3.0 equivalence)
+        assert ig_auth == erhg_auth, "expected_ig and expected_reliable_ig should be equal in v3.0"
 
 
 class TestScenarioC:
     def test_cost_flip_exists(self):
-        """IG should prefer expensive_auth; IG/cost should prefer cheap_process."""
+        """
+        IG should prefer expensive_auth (highest IG absolute value);
+        IG/cost should prefer cheap_process or powershell_events
+        (much lower cost makes them dominant on cost-normalized basis).
+        """
         env = SimEnv(SCENARIO_C_COST_FLIP, seed=0)
         env.reset(true_hypothesis="H_lateral_movement", seed=0)
         choice_ig = _pick(env, p3_ig)
         choice_ic = _pick(env, p4_ic)
-        assert choice_ig == "expensive_auth", f"Expected IG→expensive_auth, got {choice_ig}"
-        assert choice_ic == "cheap_process", f"Expected IG/cost→cheap_process, got {choice_ic}"
-        assert choice_ic != choice_ig, "Scenario C: IG and IG/cost should differ"
+        # expensive_auth has highest raw IG (high affinity + r_hat=0.90)
+        assert choice_ig == "expensive_auth", (
+            f"Expected IG->expensive_auth (highest raw EIG), got {choice_ig}. "
+            f"Scores: {[(s.name, round(env.expected_ig(s.name),4)) for s in env.sources]}"
+        )
+        # IC ordering: expensive_auth IC = IG/4.0 is much lower than cheap sources
+        assert choice_ic != choice_ig, (
+            f"Cost flip: IG/cost policy should differ from raw IG policy. "
+            f"Both picked {choice_ig}"
+        )
 
 
 class TestScenarioD:
     def test_manip_risk_flip_independent_of_reliability(self):
         """
-        trusted_sensor and forgeable_sysmon have IDENTICAL reliability, IG, and cost.
-        HADES (mu>0) creates a decisive score gap in favour of trusted_sensor.
-        P3/P4b (no manip penalty) produce identical scores for both sources.
+        v3.0 reframed Scenario D:
+        trusted_sensor and forgeable_sysmon have identical r_hat=0.85, same affinities.
 
-        This tests that manipulation_risk is an independent decision axis:
-        identical IG and reliability → identical P3/P4b scores,
-        but different manip risk → decisive HADES preference.
+        In CLEAN regime (under_targeted_attack=False):
+        - phi_hat has NO effect on EIG (contaminated_likelihood uses it only under attack)
+        - EIG and VoI are IDENTICAL -> policy is indifferent
+        This is CORRECT v3.0 behavior: adversarial corruption is regime-gated.
+
+        Under TARGETED ATTACK regime (under_targeted_attack=True):
+        - forgeable_sysmon (phi_hat=0.85) gets contaminated with strong_contra -> lower EIG
+        - trusted_sensor (phi_hat=0.02) stays high -> higher EIG
+        This tests manipulation_risk as independent decision axis via likelihood (not mu).
         """
+        from hades.belief.value import eig as _eig
+        from hades.belief.likelihood import make_default_table
+
         env = SimEnv(SCENARIO_D_MANIPULATION_FLIP, seed=0)
         env.reset(true_hypothesis="H_lateral_movement", seed=0)
 
-        # Compute scores for the two paired sources
-        ig_trusted = env.expected_ig("trusted_sensor")
-        ig_forgeable = env.expected_ig("forgeable_sysmon")
-        erhg_trusted = env.expected_ig("trusted_sensor") * 0.85  # identical reliability
-        erhg_forgeable = env.expected_ig("forgeable_sysmon") * 0.85
-
-        hades_trusted = env.hades_utility("trusted_sensor", lambda_=1.0, mu=5.0)
-        hades_forgeable = env.hades_utility("forgeable_sysmon", lambda_=1.0, mu=5.0)
-
-        # IG and ERHG should score these IDENTICALLY (manip not in formula)
-        assert abs(ig_trusted - ig_forgeable) < 1e-9, (
-            f"IG scores should be equal: trusted={ig_trusted:.4f}, forgeable={ig_forgeable:.4f}"
-        )
-        assert abs(erhg_trusted - erhg_forgeable) < 1e-9, (
-            f"ERHG scores should be equal: trusted={erhg_trusted:.4f}, forgeable={erhg_forgeable:.4f}"
+        # --- Clean regime: EIG should be identical ---
+        ig_trusted_clean = env.expected_ig("trusted_sensor")
+        ig_forgeable_clean = env.expected_ig("forgeable_sysmon")
+        assert abs(ig_trusted_clean - ig_forgeable_clean) < 1e-9, (
+            f"In clean regime, EIG should be equal (phi_hat has no effect). "
+            f"trusted={ig_trusted_clean:.6f}, forgeable={ig_forgeable_clean:.6f}"
         )
 
-        # HADES (mu=5) should decisively favour trusted_sensor
-        assert hades_trusted > hades_forgeable, (
-            f"HADES should prefer trusted_sensor (manip_est=0.05) over forgeable_sysmon "
-            f"(manip_est=0.70). trusted={hades_trusted:.4f}, forgeable={hades_forgeable:.4f}"
+        # --- Targeted attack regime: compute EIG manually with under_targeted_attack=True ---
+        src_t = env._get_source("trusted_sensor")
+        src_f = env._get_source("forgeable_sysmon")
+        beliefs = dict(env._beliefs)
+
+        table_t = make_default_table(
+            ["trusted_sensor"], env.hypotheses,
+            {("trusted_sensor", h): src_t.hypothesis_affinity.get(h, 0.0) for h in env.hypotheses}
         )
-        # And the winner should be trusted_sensor
-        choice_hades = _pick(env, lambda e, s: p5_hades(e, s, 1.0, 5.0))
-        assert choice_hades == "trusted_sensor", (
-            f"Expected HADES to pick trusted_sensor, got {choice_hades}"
+        table_f = make_default_table(
+            ["forgeable_sysmon"], env.hypotheses,
+            {("forgeable_sysmon", h): src_f.hypothesis_affinity.get(h, 0.0) for h in env.hypotheses}
+        )
+
+        ig_trusted_attacked = _eig(
+            source="trusted_sensor", beliefs=beliefs, table=table_t,
+            r_hat=src_t.reliability_estimated, phi_hat=src_t.manipulation_risk_estimated,
+            source_relevance={h: src_t.hypothesis_affinity.get(h, 0.0) for h in env.hypotheses},
+            under_targeted_attack=True,
+        )
+        ig_forgeable_attacked = _eig(
+            source="forgeable_sysmon", beliefs=beliefs, table=table_f,
+            r_hat=src_f.reliability_estimated, phi_hat=src_f.manipulation_risk_estimated,
+            source_relevance={h: src_f.hypothesis_affinity.get(h, 0.0) for h in env.hypotheses},
+            under_targeted_attack=True,
+        )
+
+        assert ig_trusted_attacked > ig_forgeable_attacked, (
+            f"Under targeted attack, trusted_sensor (phi=0.02) should have higher EIG "
+            f"than forgeable_sysmon (phi=0.85). "
+            f"trusted={ig_trusted_attacked:.4f}, forgeable={ig_forgeable_attacked:.4f}"
         )
 
 

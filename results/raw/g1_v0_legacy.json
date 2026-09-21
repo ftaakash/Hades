@@ -1,0 +1,58 @@
+{
+  "A_no_reliability_diff": {
+    "n_states": 90,
+    "n_seeds": 5,
+    "flip_erhg_vs_ig": 1,
+    "flip_hades_vs_ig": 1,
+    "flip_hades_vs_p4": 0,
+    "rate_erhg_vs_ig": 0.011111111111111112,
+    "rate_hades_vs_ig": 0.011111111111111112
+  },
+  "B_reliability_flip": {
+    "n_states": 90,
+    "n_seeds": 5,
+    "flip_erhg_vs_ig": 90,
+    "flip_hades_vs_ig": 90,
+    "flip_hades_vs_p4": 90,
+    "rate_erhg_vs_ig": 1.0,
+    "rate_hades_vs_ig": 1.0
+  },
+  "C_cost_flip": {
+    "n_states": 90,
+    "n_seeds": 5,
+    "flip_erhg_vs_ig": 76,
+    "flip_hades_vs_ig": 76,
+    "flip_hades_vs_p4": 0,
+    "rate_erhg_vs_ig": 0.8444444444444444,
+    "rate_hades_vs_ig": 0.8444444444444444
+  },
+  "D_manipulation_flip": {
+    "n_states": 90,
+    "n_seeds": 5,
+    "flip_erhg_vs_ig": 13,
+    "flip_hades_vs_ig": 13,
+    "flip_hades_vs_p4": 13,
+    "rate_erhg_vs_ig": 0.14444444444444443,
+    "rate_hades_vs_ig": 0.14444444444444443
+  },
+  "E_no_distinction": {
+    "n_states": 90,
+    "n_seeds": 5,
+    "flip_erhg_vs_ig": 0,
+    "flip_hades_vs_ig": 0,
+    "flip_hades_vs_p4": 0,
+    "rate_erhg_vs_ig": 0.0,
+    "rate_hades_vs_ig": 0.0
+  },
+  "__overall__": {
+    "total_states": 450,
+    "total_flips_erhg": 180,
+    "total_flips_hades": 180,
+    "overall_rate_erhg": 0.4,
+    "overall_rate_hades": 0.4,
+    "g1_pass": true,
+    "lambda": 1.0,
+    "mu": 1.0,
+    "n_seeds": 5
+  }
+}

@@ -100,6 +100,34 @@ class ObservationModel:
 
         return obs_class
 
+    def likelihood(self, obs_class: str, *, is_relevant: bool) -> float:
+        """
+        Return P(obs_class | is_relevant) from the nominal (pre-corruption) model.
+
+        This is the accessor required by hades/belief/* for computing EIG
+        and contaminated likelihood tables without sampling.
+
+        Parameters
+        ----------
+        obs_class : str
+            One of the keys in OBS_CLASSES.
+        is_relevant : bool
+            True if the source is relevant to the hypothesis being evaluated.
+        """
+        probs = self.positive_probs if is_relevant else self.negative_probs
+        return probs.get(obs_class, 0.0)
+
+    def as_matrix(self) -> Dict[str, Dict[str, float]]:
+        """
+        Return the full likelihood matrix as a nested dict:
+            result["positive"][obs_class] = P(obs_class | relevant)
+            result["negative"][obs_class] = P(obs_class | not relevant)
+        """
+        return {
+            "positive": dict(self.positive_probs),
+            "negative": dict(self.negative_probs),
+        }
+
 
 # ---------------------------------------------------------------------------
 # Default observation model used across all simulator scenarios

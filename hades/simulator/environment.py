@@ -3,6 +3,13 @@ hades/simulator/environment.py
 -------------------------------
 SimEnv: the minimal synthetic investigation environment.
 
+v3.0 NOTE: expected_ig / expected_reliable_ig / hades_utility / _update_beliefs
+have been replaced with wrappers calling hades/belief/*. The old heuristic
+implementations are preserved below as legacy_*() methods labelled
+# LEGACY diagnostic only — do not cite in paper claims.
+
+See docs/REFRAME.md for the architectural rationale.
+
 Design goals
 ~~~~~~~~~~~~
 * Deterministic (given seed) — every simulator run is reproducible.
@@ -319,71 +326,133 @@ class SimEnv:
 
     def expected_ig(self, source_name: str) -> float:
         """
-        Estimate raw Expected Information Gain for querying this source.
-        IG(s) ≈ H(beliefs_now) − E[H(beliefs_after | s)]
+        Expected Information Gain: proper Bayesian EIG (v3.0).
 
-        p_informative is derived from the source's *nominal discriminating power*:
-        the mean affinity across hypotheses that currently have non-trivial
-        probability mass.  This is INDEPENDENT of reliability — reliability
-        is applied separately in expected_reliable_ig().
+        EIG(q) = H(beliefs_now) - E_{e ~ p(e|q)}[H(beliefs_after(e))]
 
-        Separating IG from reliability is the key design decision that allows
-        IG-only policies (P3) and reliability-aware policies (P4b, P5) to
-        produce DIFFERENT query rankings (the G1 order-flip phenomenon).
+        Uses contaminated likelihood from hades/belief/value.py with
+        r_hat and phi_hat from the source's estimated fields.
+        INDEPENDENT of reliability (reliability enters likelihood, not here).
+
+        Replaces the heuristic affinity-boost approximation.
+        Citation: Naghshvar & Javidi (2013).
         """
+        from hades.belief.value import eig as _eig
+        from hades.belief.likelihood import make_default_table
         src = self._get_source(source_name)
-        h_before = self.entropy()
-
-        # p_informative = how likely is this source to return a signal that
-        # discriminates between hypotheses — based on affinity structure only,
-        # NOT on reliability.  Reliability is a separate multiplicative factor.
-        # We use the affinity-weighted average over hypotheses with belief > 0.
-        leading_hyp = max(self._beliefs, key=self._beliefs.get)
-        p_informative = src.hypothesis_affinity.get(leading_hyp, 0.0)
-        # Clamp to reasonable range so we always get a non-trivial IG estimate
-        p_informative = max(0.05, min(0.99, p_informative))
-
-        # Informative branch: posterior concentrates on the highest-affinity hyp
-        hyp_max_aff = max(self.hypotheses, key=lambda h: src.hypothesis_affinity.get(h, 0.0))
-        beliefs_informative = dict(self._beliefs)
-        beliefs_informative[hyp_max_aff] = min(
-            1.0, beliefs_informative[hyp_max_aff] * 4.0
+        relevance = {h: src.hypothesis_affinity.get(h, 0.0) for h in self.hypotheses}
+        table = make_default_table(
+            sources=[source_name],
+            hypotheses=self.hypotheses,
+            relevance={(source_name, h): src.hypothesis_affinity.get(h, 0.0)
+                       for h in self.hypotheses},
         )
-        beliefs_informative = _normalize(beliefs_informative)
-        h_informative = _entropy(beliefs_informative)
-
-        # Neutral branch: beliefs unchanged → entropy stays same
-        h_neutral = h_before
-
-        expected_h_after = p_informative * h_informative + (1 - p_informative) * h_neutral
-        return max(0.0, h_before - expected_h_after)
+        return _eig(
+            source=source_name,
+            beliefs=dict(self._beliefs),
+            table=table,
+            r_hat=src.reliability_estimated,
+            phi_hat=src.manipulation_risk_estimated,
+            source_relevance=relevance,
+            # In the base SimEnv (clean regime R0), targeted attack is inactive.
+            # phi_hat only degrades EIG when an explicit corruption regime sets this True.
+            under_targeted_attack=False,
+        )
 
     def expected_reliable_ig(self, source_name: str) -> float:
         """
-        Expected Reliable Hypothesis Gain (ERHG):
-            ERHG(s) = IG(s) × reliability_estimated(s)
+        ERHG: EIG computed under contaminated likelihood.
 
-        reliability_estimated attenuates raw IG: an unreliable source is
-        expected to return less useful signal per query.
-        This is the key quantity that can rank sources DIFFERENTLY from
-        raw IG, producing the G1 order-flip phenomenon.
+        In v3.0, reliability enters *inside* the contaminated likelihood
+        rather than as a post-hoc multiplier. This method calls expected_ig()
+        which already incorporates r_hat via the contaminated likelihood.
+
+        Preserved for backward compat with test helpers. Equivalent to
+        expected_ig() in v3.0 (no separate multiplication).
         """
+        return self.expected_ig(source_name)
+
+    def voi(
+        self,
+        source_name: str,
+        lam: float = 1.0,
+    ) -> float:
+        """
+        Value of Information (v3.0 HADES objective):
+            V(q) = EIG(q) - lam * Cost(q)
+
+        mu is DELETED. Manipulation risk enters via contaminated likelihood.
+        lam is the only free parameter (budget-normalized).
+        """
+        from hades.belief.value import voi as _voi
+        from hades.belief.likelihood import make_default_table
         src = self._get_source(source_name)
-        return self.expected_ig(source_name) * src.reliability_estimated
+        relevance = {h: src.hypothesis_affinity.get(h, 0.0) for h in self.hypotheses}
+        table = make_default_table(
+            sources=[source_name],
+            hypotheses=self.hypotheses,
+            relevance={(source_name, h): src.hypothesis_affinity.get(h, 0.0)
+                       for h in self.hypotheses},
+        )
+        return _voi(
+            source=source_name,
+            beliefs=dict(self._beliefs),
+            table=table,
+            cost=src.cost,
+            lam=lam,
+            r_hat=src.reliability_estimated,
+            phi_hat=src.manipulation_risk_estimated,
+            source_relevance=relevance,
+        )
 
     def hades_utility(
         self,
         source_name: str,
         lambda_: float = 1.0,
+        mu: float = 0.0,
+    ) -> float:
+        """
+        HADES utility (v3.0): delegates to voi().
+
+        mu is IGNORED (kept for call-site backward compat only).
+        Manipulation risk is now inside the EIG via contaminated likelihood.
+        """
+        if mu != 0.0:
+            import warnings
+            warnings.warn(
+                "hades_utility: mu parameter is retired in v3.0. "
+                "Manipulation risk now enters via contaminated_likelihood. "
+                "mu is ignored.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        return self.voi(source_name, lam=lambda_)
+
+    # LEGACY diagnostic only — NOT a paper claim, do not cite
+    def legacy_scalarized_utility(
+        self,
+        source_name: str,
+        lambda_: float = 1.0,
         mu: float = 1.0,
     ) -> float:
-        """U(q) = ERHG(q) - lambda_*cost(q) - mu*manip_risk_est(q)."""
+        """
+        # LEGACY diagnostic only — v0 heuristic formula RETIRED in v3.0.
+        # Results from this method were recorded in g1_v0_legacy.json.
+        # Do not use in paper claims.
+        U_legacy(q) = (IG_heuristic × reliability) - lambda*cost - mu*manip_risk
+        """
         src = self._get_source(source_name)
-        return (
-            self.expected_reliable_ig(source_name)
-            - lambda_ * src.cost
-            - mu * src.manipulation_risk_estimated
-        )
+        h_before = self.entropy()
+        leading_hyp = max(self._beliefs, key=self._beliefs.get)
+        p_informative = max(0.05, min(0.99, src.hypothesis_affinity.get(leading_hyp, 0.0)))
+        hyp_max_aff = max(self.hypotheses, key=lambda h: src.hypothesis_affinity.get(h, 0.0))
+        beliefs_informative = dict(self._beliefs)
+        beliefs_informative[hyp_max_aff] = min(1.0, beliefs_informative[hyp_max_aff] * 4.0)
+        beliefs_informative = _normalize(beliefs_informative)
+        h_informative = _entropy(beliefs_informative)
+        ig_heuristic = max(0.0, h_before - (p_informative * h_informative + (1 - p_informative) * h_before))
+        erhg = ig_heuristic * src.reliability_estimated
+        return erhg - lambda_ * src.cost - mu * src.manipulation_risk_estimated
 
     # ------------------------------------------------------------------
     # Private helpers
@@ -410,29 +479,30 @@ class SimEnv:
         self, src: SimEvidenceSource, obs_class: str
     ) -> Dict[str, float]:
         """
-        Bayesian belief update using observation weight as likelihood.
-        P(H | obs) ∝ P(H) × likelihood(obs | H)
+        Bayesian belief update via hades/belief/posterior.py (v3.0).
+        P(H | e, q) propto P(H) * P(e | H, q, r_hat, phi_hat)
 
-        Likelihood is derived from the affinity and the obs_class weight:
-          - high-affinity hypothesis → get "positive" weight
-          - low-affinity hypothesis  → get "negative" weight (inverted)
+        Uses contaminated likelihood (r_hat, phi_hat from source estimates).
+        Replaces the v0 weight-inversion heuristic.
         """
-        from hades.simulator.observations import OBS_CLASSES
-        obs_weight = OBS_CLASSES[obs_class]
-
-        new_beliefs: Dict[str, float] = {}
-        for hyp, prior in self._beliefs.items():
-            affinity = src.hypothesis_affinity.get(hyp, 0.0)
-            # High-affinity hypothesis benefits from positive obs; low affinity hurts
-            if affinity >= 0.5:
-                likelihood = obs_weight
-            else:
-                # Invert — a strong support reading for another hypothesis
-                # is weak or contrary evidence for this one
-                likelihood = 1.0 / obs_weight if obs_weight != 0 else 1e-6
-            new_beliefs[hyp] = prior * likelihood
-
-        return _normalize(new_beliefs)
+        from hades.belief.posterior import update as _bayes_update
+        from hades.belief.likelihood import make_default_table
+        relevance = {h: src.hypothesis_affinity.get(h, 0.0) for h in self.hypotheses}
+        table = make_default_table(
+            sources=[src.name],
+            hypotheses=self.hypotheses,
+            relevance={(src.name, h): src.hypothesis_affinity.get(h, 0.0)
+                       for h in self.hypotheses},
+        )
+        return _bayes_update(
+            beliefs=dict(self._beliefs),
+            obs_class=obs_class,
+            source=src.name,
+            table=table,
+            r_hat=src.reliability_estimated,
+            phi_hat=src.manipulation_risk_estimated,
+            source_relevance=relevance,
+        )
 
     def _validate_beliefs(self) -> None:
         """Probability invariant: beliefs must sum to 1. Fails loudly."""

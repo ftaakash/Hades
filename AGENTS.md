@@ -1,51 +1,113 @@
-# AGENTS.md — hades-bench-v1
+# AGENTS.md — hades-bench-v1 (v3.0, reframed 2026-09-20)
 
 Budgeted evidence acquisition for cyber threat hunting (CDB benchmark).
-Researcher: Aakash G.S. Target: IEEE empirical paper. See `README.md`.
+Researcher: Aakash G.S. Target: IEEE empirical paper. See `README.md` and `docs/REFRAME.md`.
 
 ## Commands (Windows PowerShell 5.1, Python 3.14.3)
 
 - `py` is the interpreter (`python` resolves to the Store stub — do not use).
 - Tests: `py -m pytest tests/ -q`
 - Single file: `py -m pytest tests/test_simulator.py -q`
-- Order-flip gate: `py scripts/run_orderflip_test.py --seeds 5` (note: `--seeds 20` is default)
+- F1 kill-gate sweep: `py scripts/run_f1_sweep.py --seeds 20 --noise 0,0.10,0.25,0.50`
+- Legacy G1 test (heuristic-era, do not cite): `py scripts/run_orderflip_test.py --seeds 5`
 - Baseline vs real CDB: `py scripts/run_baseline_comparison.py` (needs `../cdb` + unpacked dataset, ~28s/reset)
 - Dataset hash: `py scripts/hash_dataset.py`
+- Smoke test: `py scripts/run_smoke.py`
 
 Do not use `tail`/`head` (not on Windows) — use `| Select-Object -First/Last N`.
 Do not pipe agent long-runs through `Select-Object -First N` — it kills the pipe early. Redirect to file instead.
 
 ## Layout
 
-- `hades/query_menu.py` — 7-source fixed SQL menu (isolates acquisition policy from SQL skill)
-- `hades/harness.py` — CDB `run(env, model)` contract, P0/P1 only
-- `hades/policies/` — `base.py` (interface), `random_policy.py` (P0), `fixed_heuristic.py` (P1). P2–P5 not built yet
-- `hades/simulator/` — `environment.py` (SimEnv), `observations.py`, `scenarios.py` (A–E for G1 gate)
-- `scripts/run_orderflip_test.py` — G1 order-flip measurement
-- `configs/experiments/{pilot_v1,main_v1}.yaml` — frozen experiment configs
-- `data_manifest/benchmark_lock.json` — CDB version/checksum provenance (pinned)
-- `../cdb` (sibling) — Cyber Defense Benchmark dependency, not part of this repo
+```
+hades/
+  query_menu.py          — 7-source fixed SQL menu (extend, do not break P0/P1)
+  harness.py             — CDB run(env,model) contract; P0/P1 only for now
+  policies/
+    base.py              — Policy ABC; InvestigationState (being extended)
+    random_policy.py     — P0
+    fixed_heuristic.py   — P1
+    [p2..p7 pending]
+  simulator/
+    environment.py       — SimEnv A-E; IG/utility internals being replaced
+    observations.py      — observation sampling + likelihood (being extended)
+    scenarios.py         — 5 canonical test cases
+  belief/                — [NEW in v3] contaminated likelihood, EIG, VoI
+    likelihood.py        — LikelihoodTable; nominal + contaminated likelihood
+    posterior.py         — Bayesian belief update
+    value.py             — entropy, eig, terminal_utility, voi, robust_voi
+    relevance.py         — expert relevance matrix with provenance
+  hypothesis/            — [pending] HypothesisTracker, AttackHypothesis
+  corruption/            — [pending] R1-R4 corruptors
+  reliability/           — [pending] estimators
+  benchmark/             — [pending] fast_db, candidate_extractor
+  evaluation/            — [pending] metrics, statistics, ablation
+scripts/
+  run_orderflip_test.py  — LEGACY heuristic G1 (results/raw/g1_v0_legacy.json; do not cite)
+  run_f1_sweep.py        — [pending] reframed kill-gate sweep
+  run_smoke.py           — end-to-end pipeline smoke test
+  run_baseline_comparison.py
+docs/
+  REFRAME.md             — explains v0->v3 architectural change
+  threat_model.md        — R0-R4 corruption regime definitions
+  literature_matrix.csv  — novelty audit table
+results/raw/
+  g1_v0_legacy.json      — heuristic-era G1 result; historical only, NOT a paper claim
+configs/experiments/
+  pilot_v1.yaml, main_v1.yaml — frozen before sweeps
+data_manifest/
+  benchmark_lock.json    — CDB version/checksum provenance (pinned)
+../cdb                   — Cyber Defense Benchmark sibling dependency
+```
 
-## Conventions
+## Conventions (v3.0)
 
-- Reliability vs manipulation risk are INDEPENDENT fields (`reliability_true/estimated`, `manipulation_risk_true/estimated`). Never derive one from the other.
-- Policies read ONLY `*_estimated` fields. `*_true` is evaluator-only. `tests/test_simulator.py::TestLeakage` enforces this.
-- Probability invariant: beliefs sum to 1.0, validated loudly every step (`SimEnv._validate_beliefs`).
+- **Objective**: `V(q) = E_{e~p(e|H,q,r_hat,phi_hat)}[U_terminal(H'(e))] - lam*Cost(q)`.
+  Old `U = ERHG - lam*cost - mu*ManipRisk` is **RETIRED**. See `docs/REFRAME.md`.
+- **mu is deleted**. Manipulation risk enters through contaminated likelihood, not additive penalty.
+- **lam** is the only free parameter (budget-normalized). Default `lam=1.0`.
+- Contaminated likelihood: `p(e|H,q) = r_hat*p_nominal(e|H,q) + (1-r_hat)*p_noise`.
+- Policies read ONLY `*_estimated` fields. `*_true` is evaluator-only. `TestLeakage` enforces this.
+- Probability invariant: beliefs sum to 1.0, validated loudly every step.
 - Deterministic tie-break: alphabetical max `(score, name)`.
-- Utility: `U(q) = ERHG(q) - λ·Cost(q) - μ·ManipRisk_est(q)`, STOP when `max U < τ` (λ=μ=1.0, τ=0.05 defaults).
-- Never fabricate results, never change scorer semantics (`benchmark.scorer.score_hunt`), never rewrite a failed gate as pass.
+- Never fabricate results. Never change `benchmark.scorer.score_hunt` semantics. Never rewrite a failed gate as pass.
+- Correlation of `reliability` and `manipulation_risk` is empirically measured, never assumed dependent.
+
+## Policy Ladder (all cited in code headers)
+
+| Policy | Rule | Citation |
+|--------|------|----------|
+| P0 | Random | floor |
+| P1 | Fixed heuristic priority | floor+ |
+| P2 | argmax relevance[leading_hyp][s] | static adaptive |
+| P3 | argmax EIG | Naghshvar & Javidi 2013; ECC-AHT 2026 |
+| P4 | argmax EIG/cost | cost-aware |
+| P4b | argmax EIG(r_hat-likelihood)/cost | Settles et al. 2008 — NOT novel |
+| P7 | Expected error reduction / Thompson | anti-strawman (Settles 2008 §4) |
+| P5 | argmax V(q) / robust_voi | HADES under test |
+| P6 | LLM frozen reference | optional, deferred |
 
 ## Gates
 
-G0 baseline reproducible: PASS. G1 order-flip exists: OPEN (see below). G2–G6 pending.
+G0 baseline reproducible: PASS. G1 (heuristic-era, legacy): PASS [see g1_v0_legacy.json, not a paper claim].
+F1/F5 kill gate (reframed sweep on simulator): PENDING.
+G2-G6: pending full CDB sweep.
 
-## Known failures (do not paper over)
+## Kill / Pivot Protocol
 
-- `tests/test_simulator.py`: 5 failures — Scenario B IG ordering, Scenario C IG/cost ordering, Scenario D tie-break, targeted-override leak (`observations.py:99`). Fix the `expected_ig` heuristic + observation model, not the assertions.
-- `scripts/run_orderflip_test.py:141` — `UnicodeEncodeError` on `λ/μ` under Windows cp1252. Use ASCII in prints.
-- `pyproject.toml` uses `setuptools.backends.legacy:build` — `pip install -e .` fails on modern setuptools. Prefer plain `py -m pytest` / `PYTHONPATH=.`.
-- `ThreatHuntEnv.reset()` inserts 155K rows one-at-a-time (~28s). Batching (`fast_db.py`) is planned, not built.
+- F1 ~ 0: kill method claim. Artifact/measurement paper or H4 negative-results pivot.
+- F1 pass + collapse at 10-25% noise: estimator paper reframe.
+- F2/F6/F10 fail: narrow claims to non-adaptive or CDB-specific.
+- G6 fails: don't submit as novel-method paper.
+
+## Known Issues
+
+- `ThreatHuntEnv.reset()` inserts 155K rows one-at-a-time (~28s). `fast_db.py` is planned.
+- `hades/simulator/environment.py` IG methods are still v0 heuristics; v3 belief wrappers pending.
+- `run_orderflip_test.py` inline policy logic needs refactor to import policy classes (Phase 2).
 
 ## Provenance
 
-Every paper claim must trace: claim → figure/table → analysis script → processed data → raw run → config → seed → git commit → benchmark version. `main_v1.yaml` is frozen before sweeps; post-run changes need a new experiment ID.
+Every paper claim must trace: claim -> figure/table -> analysis script -> processed data ->
+raw run -> config -> seed -> git commit -> benchmark version. `main_v1.yaml` is frozen before
+sweeps; post-run changes need a new experiment ID.

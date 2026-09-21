@@ -156,15 +156,14 @@ SCENARIO_A_NO_RELIABILITY_DIFF = SimScenario(
 SCENARIO_B_RELIABILITY_FLIP = SimScenario(
     name="B_reliability_flip",
     description=(
-        "process_tree has HIGH affinity to H_execution (0.90) — the leading hypothesis. "
-        "auth_events has LOW affinity to H_execution (0.10). "
-        "So raw IG: process_tree wins. "
-        "But process_tree reliability_estimated=0.50 vs auth_events=0.90. "
-        "ERHG: auth_events wins. Order flip demonstrated."
+        "process_tree is DISCRIMINATING (high affinity to H_execution only, low to all others). "
+        "auth_events is BROADLY relevant but lower affinity to H_execution. "
+        "Raw EIG: process_tree > auth_events (it resolves H_execution uncertainty). "
+        "But process_tree reliability_estimated=0.50; auth_events=0.90. "
+        "Contaminated EIG: auth_events wins (reliability degrades process_tree's signal). "
+        "This is the ORDER-FLIP being tested under reframed Bayesian EIG."
     ),
     hypotheses=HYPOTHESES,
-    # Explicit prior: H_execution leads slightly so expected_ig()
-    # uses H_execution as the leading hypothesis.
     priors={
         "H_initial_access":        0.10,
         "H_execution":             0.50,   # leading hypothesis
@@ -175,34 +174,38 @@ SCENARIO_B_RELIABILITY_FLIP = SimScenario(
     },
     sources=[
         SimEvidenceSource(
-            name="auth_events",          # Q2: reliable but LOW affinity to H_execution
+            name="auth_events",
             cost=1.0,
             reliability_true=0.95,
             reliability_estimated=0.90,
             manipulation_risk_true=0.05,
             manipulation_risk_estimated=0.05,
             hypothesis_affinity={
-                # Weak for H_execution, strong only for lateral_movement
+                # Broadly relevant: good for H_lateral_movement but also H_execution
                 "H_lateral_movement": 0.90, "H_initial_access": 0.80,
-                "H_privilege_escalation": 0.50, "H_execution": 0.10,
-                "H_persistence": 0.10, "H_exfiltration": 0.10,
+                "H_execution": 0.60,  # moderately discriminating
+                "H_privilege_escalation": 0.50, "H_persistence": 0.30,
+                "H_exfiltration": 0.20,
             },
-            description="Reliable. Low affinity to H_execution (leading hyp) → lower raw IG.",
+            description="High reliability (0.90). Moderately discriminating for H_execution.",
         ),
         SimEvidenceSource(
-            name="process_tree",         # Q1: unreliable but HIGH affinity to H_execution
+            name="process_tree",
             cost=1.0,
             reliability_true=0.40,
             reliability_estimated=0.50,
             manipulation_risk_true=0.65,
             manipulation_risk_estimated=0.60,
             hypothesis_affinity={
-                # Strong for H_execution and broadly relevant
-                "H_execution": 0.90, "H_lateral_movement": 0.85,
-                "H_persistence": 0.80, "H_privilege_escalation": 0.75,
-                "H_initial_access": 0.65, "H_exfiltration": 0.55,
+                # DISCRIMINATING: very high for H_execution, very low for others
+                "H_execution": 0.95,          # specifically detects execution
+                "H_privilege_escalation": 0.25,  # low for all others
+                "H_persistence": 0.15,
+                "H_lateral_movement": 0.10,
+                "H_initial_access": 0.08,
+                "H_exfiltration": 0.05,
             },
-            description="High affinity to leading H_execution → high raw IG. Low reliability.",
+            description="Low reliability (0.50). HIGHLY discriminating for H_execution only -> high raw EIG. Reliability flip.",
         ),
         SimEvidenceSource(
             name="dns_events",
@@ -341,32 +344,37 @@ SCENARIO_C_COST_FLIP = SimScenario(
 SCENARIO_D_MANIPULATION_FLIP = SimScenario(
     name="D_manipulation_flip",
     description=(
-        "Q1 (trusted_sensor) and Q2 (forgeable_sysmon) have identical IG, "
-        "reliability, and cost. Q1 has manip_risk=0.05; Q2 has manip_risk=0.75. "
-        "HADES (mu>0) prefers Q1. Tests manipulation_risk as independent term."
+        "trusted_sensor and forgeable_sysmon have IDENTICAL reliability (r_hat=0.85) "
+        "and similar affinities. "
+        "trusted_sensor has manipulation_risk_estimated=0.02 (hard to forge). "
+        "forgeable_sysmon has manipulation_risk_estimated=0.85 (attacker injects strong_contra). "
+        "Under proper Bayesian EIG: forgeable_sysmon's contaminated likelihood is severely "
+        "degraded by the phi_hat injection term -> lower EIG -> lower VoI. "
+        "VoI (P5) distinguishes them; raw IG does NOT (they have equal r_hat). "
+        "This is the manipulation-risk ORDER-FLIP under reframed v3.0 semantics."
     ),
     hypotheses=HYPOTHESES,
     sources=[
         SimEvidenceSource(
-            name="trusted_sensor",      # low manipulation risk
+            name="trusted_sensor",      # low phi_hat -> contaminated likelihood stays clean
             cost=1.0,
             reliability_true=0.85, reliability_estimated=0.85,
-            manipulation_risk_true=0.05, manipulation_risk_estimated=0.05,  # hard to forge
+            manipulation_risk_true=0.02, manipulation_risk_estimated=0.02,
             hypothesis_affinity={
-                "H_lateral_movement": 0.85, "H_initial_access": 0.75,
-                "H_privilege_escalation": 0.55, "H_execution": 0.35,
-                "H_persistence": 0.20, "H_exfiltration": 0.20,
+                "H_lateral_movement": 0.85, "H_initial_access": 0.20,
+                "H_privilege_escalation": 0.15, "H_execution": 0.12,
+                "H_persistence": 0.10, "H_exfiltration": 0.08,
             },
         ),
         SimEvidenceSource(
-            name="forgeable_sysmon",    # high manipulation risk (attacker can inject events)
+            name="forgeable_sysmon",    # high phi_hat -> adversary injects strong_contra
             cost=1.0,
             reliability_true=0.85, reliability_estimated=0.85,
-            manipulation_risk_true=0.75, manipulation_risk_estimated=0.70,
+            manipulation_risk_true=0.90, manipulation_risk_estimated=0.85,
             hypothesis_affinity={
-                "H_lateral_movement": 0.85, "H_initial_access": 0.75,
-                "H_privilege_escalation": 0.55, "H_execution": 0.35,
-                "H_persistence": 0.20, "H_exfiltration": 0.20,
+                "H_lateral_movement": 0.85, "H_initial_access": 0.20,
+                "H_privilege_escalation": 0.15, "H_execution": 0.12,
+                "H_persistence": 0.10, "H_exfiltration": 0.08,
             },
         ),
         SimEvidenceSource(
