@@ -25,13 +25,13 @@ from __future__ import annotations
 import random
 from typing import Optional
 
-from hades.corruption.base import Corruptor, ObsContext, OBS_CLASSES
+from hades.corruption.base import Corruptor, ObsContext, OBS_CLASSES, SUPPORTING, CONTRA
 
 # Decoy replacement: replace true observation with a misleading class.
-# Strategy: at mild injection, weaken signal (weak_signal or neutral).
-# At severe injection, flip to noise (maximally misleading).
-_DECOY_MILD = "weak_signal"
-_DECOY_SEVERE = "noise"
+# Mild injection → weak_contra (slightly misleading)
+# Severe injection → strong_contra (maximally misleading)
+_DECOY_MILD = "weak_contra"
+_DECOY_SEVERE = "strong_contra"
 _SEVERE_THRESHOLD = 0.35
 
 
@@ -60,14 +60,17 @@ class MisleadingCorruptor(Corruptor):
         if rng.random() >= self.p_inject:
             return obs_class
 
-        # Choose decoy class: severe injection → noise, mild → weak_signal
-        # Only inject decoy if the original was informative (signal/weak_signal)
-        # Injecting 'noise' over 'noise' would be invisible, so we skip.
-        if obs_class in ("signal", "weak_signal"):
+        # Choose decoy class based on injection severity:
+        # Supporting obs get replaced with contra (attacker points away from truth)
+        # Neutral obs get mild contra push
+        # Contra obs are left alone (counter-evidence stays)
+        if obs_class in SUPPORTING:
             decoy = _DECOY_SEVERE if self.p_inject >= _SEVERE_THRESHOLD else _DECOY_MILD
+        elif obs_class == "neutral":
+            decoy = _DECOY_MILD
         else:
-            # neutral/noise: mild push to noise (maximally misleading in this regime)
-            decoy = "noise"
+            # Already counter-evidence — no further misleading needed
+            return obs_class
 
         assert decoy in OBS_CLASSES
         return decoy

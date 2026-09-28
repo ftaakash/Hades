@@ -17,11 +17,21 @@ from __future__ import annotations
 import random
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Dict, FrozenSet, List, Optional, Tuple
 
 
-# Canonical observation classes (must match hades.belief.likelihood.OBS_CLASSES)
-OBS_CLASSES = ("signal", "weak_signal", "neutral", "noise")
+# Canonical observation classes — imported from the simulator vocabulary.
+# Using the simulator's 5-class system as ground truth.
+# strong_support / weak_support → informative (increases leading belief)
+# neutral                       → uninformative
+# weak_contra / strong_contra   → counter-evidence (decreases leading belief)
+from hades.simulator.observations import OBS_CLASSES as _OBS_DICT
+OBS_CLASSES: Tuple[str, ...] = tuple(_OBS_DICT.keys())
+
+# Semantic categories for corruptor decision logic
+SUPPORTING = ("strong_support", "weak_support")
+CONTRA      = ("weak_contra",   "strong_contra")
+UNINFORMATIVE = "neutral"
 
 
 @dataclass

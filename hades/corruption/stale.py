@@ -30,10 +30,11 @@ from hades.corruption.base import Corruptor, ObsContext, OBS_CLASSES
 
 
 _DEGRADATION_PATH = {
-    "signal":      ["weak_signal", "neutral"],
-    "weak_signal": ["neutral"],
-    "neutral":     [],
-    "noise":       [],
+    "strong_support": ["weak_support", "neutral"],
+    "weak_support":   ["neutral"],
+    "neutral":        [],
+    "weak_contra":    [],
+    "strong_contra":  ["weak_contra"],
 }
 
 

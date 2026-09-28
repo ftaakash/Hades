@@ -106,8 +106,8 @@ class TestCorruptorInvariants:
     @pytest.mark.parametrize("corruptor", ALL_CORRUPTORS)
     def test_deterministic_given_seed(self, corruptor):
         ctx = _ctx()
-        r1 = corruptor.corrupt("signal", ctx, _rng(99))
-        r2 = corruptor.corrupt("signal", ctx, _rng(99))
+        r1 = corruptor.corrupt("strong_support", ctx, _rng(99))
+        r2 = corruptor.corrupt("strong_support", ctx, _rng(99))
         assert r1 == r2, f"{corruptor} is not deterministic given same seed"
 
     @pytest.mark.parametrize("corruptor", ALL_CORRUPTORS)
@@ -116,7 +116,7 @@ class TestCorruptorInvariants:
         original_truth = ctx.true_hypothesis
         original_r = ctx.reliability_true
         original_phi = ctx.manipulation_risk_true
-        corruptor.corrupt("signal", ctx, _rng())
+        corruptor.corrupt("strong_support", ctx, _rng())
         assert ctx.true_hypothesis == original_truth, "corruptor mutated true_hypothesis"
         assert ctx.reliability_true == original_r, "corruptor mutated reliability_true"
         assert ctx.manipulation_risk_true == original_phi, "corruptor mutated manipulation_risk_true"
@@ -142,7 +142,7 @@ class TestMissingCorruptor:
         c = MissingCorruptor(p_drop=0.5)
         rng = _rng(7)
         neutral_count = sum(
-            c.corrupt("signal", _ctx(), rng) == "neutral"
+            c.corrupt("strong_support", _ctx(), rng) == "neutral"
             for _ in range(1000)
         )
         assert 400 < neutral_count < 600, (
@@ -160,34 +160,42 @@ class TestStaleCorruptor:
         for obs in ALL_OBS:
             assert c.corrupt(obs, _ctx(), _rng()) == obs
 
-    def test_staleness_one_degrades_signal(self):
-        """At staleness=1.0, 'signal' should always degrade."""
+    def test_staleness_one_degrades_strong_support(self):
+        """At staleness=1.0, 'strong_support' degrades fully to 'neutral'."""
         c = StaleCorruptor(staleness=1.0)
-        rng = _rng(0)
-        result = c.corrupt("signal", _ctx(), rng)
-        # At staleness=1.0: signal → weak_signal with p=1, then weak_signal → neutral with p=1
+        result = c.corrupt("strong_support", _ctx(), _rng())
         assert result == "neutral", f"Expected 'neutral', got '{result}'"
 
-    def test_staleness_one_weak_signal_to_neutral(self):
+    def test_staleness_one_weak_support_to_neutral(self):
         c = StaleCorruptor(staleness=1.0)
-        result = c.corrupt("weak_signal", _ctx(), _rng())
+        result = c.corrupt("weak_support", _ctx(), _rng())
         assert result == "neutral"
 
-    def test_neutral_and_noise_unchanged_at_staleness_one(self):
+    def test_neutral_unchanged_at_staleness_one(self):
         c = StaleCorruptor(staleness=1.0)
-        for obs in ("neutral", "noise"):
-            assert c.corrupt(obs, _ctx(), _rng()) == obs
+        assert c.corrupt("neutral", _ctx(), _rng()) == "neutral"
+
+    def test_contra_unchanged_at_moderate_staleness(self):
+        """weak_contra stays weak_contra (no degradation path)."""
+        c = StaleCorruptor(staleness=1.0)
+        assert c.corrupt("weak_contra", _ctx(), _rng()) == "weak_contra"
+
+    def test_strong_contra_softens_at_staleness_one(self):
+        """strong_contra → weak_contra at staleness=1.0 (stale negative evidence softens)."""
+        c = StaleCorruptor(staleness=1.0)
+        result = c.corrupt("strong_contra", _ctx(), _rng())
+        assert result == "weak_contra"
 
     def test_partial_staleness_retains_some_signal(self):
-        """At staleness=0.10, most 'signal' obs should remain 'signal'."""
+        """At staleness=0.10, most 'strong_support' obs should remain 'strong_support'."""
         c = StaleCorruptor(staleness=0.10)
         rng = _rng(42)
-        signal_retained = sum(
-            c.corrupt("signal", _ctx(), rng) == "signal"
+        retained = sum(
+            c.corrupt("strong_support", _ctx(), rng) == "strong_support"
             for _ in range(200)
         )
-        assert signal_retained > 140, (
-            f"Expected most signals retained at staleness=0.10, got {signal_retained}/200"
+        assert retained > 140, (
+            f"Expected most signals retained at staleness=0.10, got {retained}/200"
         )
 
 
@@ -201,13 +209,13 @@ class TestMisleadingCorruptor:
         for obs in ALL_OBS:
             assert c.corrupt(obs, _ctx(), _rng()) == obs
 
-    def test_p_inject_one_replaces_informative(self):
-        """At p_inject=1.0, informative obs (signal, weak_signal) always replaced."""
+    def test_p_inject_one_replaces_supporting(self):
+        """At p_inject=1.0, supporting obs (strong/weak_support) always become contra."""
         c = MisleadingCorruptor(p_inject=1.0)
-        for obs in ("signal", "weak_signal"):
+        for obs in ("strong_support", "weak_support"):
             result = c.corrupt(obs, _ctx(), _rng())
-            assert result != obs or result in ("noise", "weak_signal"), (
-                f"p_inject=1.0 should replace informative obs, got same: {result}"
+            assert result in ("weak_contra", "strong_contra"), (
+                f"p_inject=1.0 should replace supporting obs with contra, got: {result}"
             )
 
     def test_returns_valid_class_always(self):
@@ -218,13 +226,29 @@ class TestMisleadingCorruptor:
                 result = c.corrupt(obs, _ctx(), rng)
                 assert result in OBS_CLASSES
 
-    def test_severe_injection_uses_noise(self):
-        """p_inject >= 0.35 (threshold) → decoy is 'noise' not 'weak_signal'."""
-        c = MisleadingCorruptor(p_inject=0.5)
-        # With p_inject=1.0 forced, severe threshold met
-        c2 = MisleadingCorruptor(p_inject=1.0)
-        result = c2.corrupt("signal", _ctx(), _rng())
-        assert result == "noise", f"Severe injection should produce 'noise', got '{result}'"
+    def test_severe_injection_uses_strong_contra(self):
+        """p_inject >= 0.35 (threshold) → decoy is 'strong_contra'."""
+        c = MisleadingCorruptor(p_inject=1.0)
+        result = c.corrupt("strong_support", _ctx(), _rng())
+        assert result == "strong_contra", f"Severe injection should produce 'strong_contra', got '{result}'"
+
+    def test_mild_injection_uses_weak_contra(self):
+        """p_inject < 0.35 → decoy is 'weak_contra' (mild misleading)."""
+        c = MisleadingCorruptor(p_inject=0.20)  # below threshold
+        results = [c.corrupt("strong_support", _ctx(), _rng(i)) for i in range(50)]
+        injected = [r for r in results if r != "strong_support"]
+        assert all(r == "weak_contra" for r in injected), (
+            f"Mild injection should use 'weak_contra', got: {set(injected)}"
+        )
+
+    def test_contra_obs_not_further_corrupted(self):
+        """Existing counter-evidence is not further corrupted by R3."""
+        c = MisleadingCorruptor(p_inject=1.0)
+        for obs in ("weak_contra", "strong_contra"):
+            result = c.corrupt(obs, _ctx(), _rng())
+            assert result == obs, (
+                f"Contra obs should not be re-corrupted, got '{result}' from '{obs}'"
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -233,16 +257,16 @@ class TestMisleadingCorruptor:
 
 class TestTargetedCorruptor:
     def test_high_affinity_source_suppressed(self):
-        """Source with affinity[leading_hyp] >= 0.6 + p_attack=1.0 → always noise."""
+        """Source with affinity[leading_hyp] >= 0.6 + p_attack=1.0 → always strong_contra."""
         c = TargetedCorruptor(p_attack=1.0)
         ctx = _ctx(
             affinity={"H1": 0.80, "H2": 0.10, "H3": 0.10},
             beliefs={"H1": 0.70, "H2": 0.20, "H3": 0.10},
         )
-        for obs in ("signal", "weak_signal", "neutral"):
+        for obs in ("strong_support", "weak_support", "neutral"):
             result = c.corrupt(obs, ctx, _rng())
-            assert result == "noise", (
-                f"High-affinity source should be suppressed to 'noise', got '{result}'"
+            assert result == "strong_contra", (
+                f"High-affinity source should be suppressed to 'strong_contra', got '{result}'"
             )
 
     def test_low_affinity_source_not_targeted(self):
@@ -253,8 +277,8 @@ class TestTargetedCorruptor:
             beliefs={"H1": 0.70, "H2": 0.20, "H3": 0.10},
         )
         # H1 is leading with belief 0.70, but affinity to H1 is only 0.40 < 0.60
-        result = c.corrupt("signal", ctx, _rng())
-        assert result == "signal", (
+        result = c.corrupt("strong_support", ctx, _rng())
+        assert result == "strong_support", (
             f"Low-affinity source should not be suppressed, got '{result}'"
         )
 
@@ -275,8 +299,8 @@ class TestTargetedCorruptor:
         """No beliefs → no targeting (attacker cannot identify best source)."""
         c = TargetedCorruptor(p_attack=1.0)
         ctx = _ctx(beliefs={}, affinity={})
-        result = c.corrupt("signal", ctx, _rng())
-        assert result == "signal"
+        result = c.corrupt("strong_support", ctx, _rng())
+        assert result == "strong_support"
 
 
 # ---------------------------------------------------------------------------

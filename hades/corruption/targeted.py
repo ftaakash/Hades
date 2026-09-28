@@ -14,10 +14,11 @@ At each step, the attacker identifies the source with the highest affinity
 to the CURRENT LEADING HYPOTHESIS in the policy's belief distribution.
 If that source is being queried RIGHT NOW, the attacker degrades its output:
 
-  'signal'      → 'noise'  (complete suppression)
-  'weak_signal' → 'noise'  (complete suppression)
-  'neutral'     → 'noise'  (reinforced misdirection)
-  'noise'       → 'noise'  (unchanged, already maximally uninformative)
+  'strong_support' → 'strong_contra'  (complete reversal — attacker misleads)
+  'weak_support'   → 'strong_contra'  (complete reversal)
+  'neutral'        → 'strong_contra'  (active misdirection injected)
+  'weak_contra'    → 'strong_contra'  (amplified — push harder wrong way)
+  'strong_contra'  → 'strong_contra'  (unchanged, already maximally misleading)
 
 Activation condition: the source being queried must be the PREDICTED BEST
 source, AND the attacker's capability p_attack must succeed (Bernoulli draw).
@@ -91,8 +92,10 @@ class TargetedCorruptor(Corruptor):
 
         # Only attack if this is the high-value source AND capacity permits
         if self._is_targeted_source(ctx) and rng.random() < self.p_attack:
-            # Full suppression: replace with noise regardless of true obs
-            return "noise"
+            # Full suppression: replace with strong_contra (maximally misleading)
+            # This models attacker who forges evidence pointing firmly away from
+            # the true hypothesis while appearing as valid counter-evidence.
+            return "strong_contra"
 
         return obs_class
 
