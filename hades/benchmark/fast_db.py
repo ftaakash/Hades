@@ -47,6 +47,11 @@ def _fast_insert(self: Any, logs: List[Dict[str, Any]]) -> None:
     if not logs:
         return
 
+    # CDB LogDatabase uses .conn (public); guard for both conventions
+    connection = getattr(self, "conn", None) or getattr(self, "_conn", None)
+    if connection is None:
+        raise AttributeError("LogDatabase has neither .conn nor ._conn")
+
     # Derive column names from first row (same as original)
     first = logs[0]
     cols = list(first.keys())
@@ -54,13 +59,13 @@ def _fast_insert(self: Any, logs: List[Dict[str, Any]]) -> None:
     col_names = ", ".join(f'"{c}"' for c in cols)
     sql = f"INSERT OR IGNORE INTO logs ({col_names}) VALUES ({placeholders})"
 
-    cursor = self._conn.cursor()
+    cursor = connection.cursor()
     # Batch to avoid SQLite variable limits and keep memory low
     for start in range(0, len(logs), BATCH_SIZE):
         batch = logs[start : start + BATCH_SIZE]
         rows = [[row.get(c) for c in cols] for row in batch]
         cursor.executemany(sql, rows)
-    self._conn.commit()
+    connection.commit()
 
 
 def patch_db(cdb_path: Optional[Path] = None) -> bool:
