@@ -85,9 +85,22 @@ T8_MAX_SINGLE_FRAC = 0.50  # no single episode may account for >50% of total fla
 # ── CDB snapshot provenance ───────────────────────────────────────────────────
 
 def _cdb_git_hash(cdb_path: Path) -> str:
+    """Record the CDB repo commit (not HADES). Uses git -C <cdb_path>."""
     try:
         result = subprocess.run(
             ["git", "-C", str(cdb_path), "rev-parse", "HEAD"],
+            capture_output=True, text=True, timeout=5,
+        )
+        return result.stdout.strip() or "unknown"
+    except Exception:
+        return "unknown"
+
+
+def _hades_git_hash(hades_path: Path) -> str:
+    """Record the HADES repo commit (separate from CDB)."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(hades_path), "rev-parse", "HEAD"],
             capture_output=True, text=True, timeout=5,
         )
         return result.stdout.strip() or "unknown"
@@ -222,17 +235,31 @@ def _evaluate_gates(results: List[Dict], scored: List[Dict]) -> Dict[str, Any]:
     gates["T7_baseline_coverage"] = len(p3_nonzero) >= T7_MIN_EPISODES
     gates["_T7_detail"] = f"{len(p3_nonzero)}/{len(p3_scored)} P3 episodes with coverage>0 (need >={T7_MIN_EPISODES})"
 
-    # T8: no single P3 episode dominates (anti-lucky-episode)
+    # T8: no single P3 episode dominates (anti-lucky-episode).
+    # Diagnostic gate: if total_flags <= 2, T8 is N/A (sparse transfer
+    # behaviour; a single correct timestamp would fail this gate falsely).
+    # We report the raw quantities regardless so they can be inspected blind.
     p3_flags = [s.get("n_flags_detected", 0) or 0 for s in p3_scored]
     total_p3_flags = sum(p3_flags)
     max_single = max(p3_flags) if p3_flags else 0
-    if total_p3_flags == 0:
-        gates["T8_no_lucky_episode"] = False  # no coverage at all
+    fraction = (max_single / total_p3_flags) if total_p3_flags > 0 else None
+    n_p3_zero = sum(1 for f in p3_flags if f == 0)
+
+    if total_p3_flags <= 2:
+        # Too sparse to apply the >50% rule meaningfully. Mark N/A (diagnostic).
+        gates["T8_no_lucky_episode"] = None
+    elif fraction is not None:
+        gates["T8_no_lucky_episode"] = fraction <= T8_MAX_SINGLE_FRAC
     else:
-        gates["T8_no_lucky_episode"] = (max_single / total_p3_flags) <= T8_MAX_SINGLE_FRAC
+        gates["T8_no_lucky_episode"] = False
+
     gates["_T8_detail"] = (
-        f"max single episode={max_single}, total={total_p3_flags}, "
-        f"fraction={max_single/total_p3_flags:.2f}" if total_p3_flags else "total=0"
+        f"total_detected_flags={total_p3_flags}  "
+        f"max_episode_detected={max_single}  "
+        f"max_episode_fraction={fraction:.3f}  "
+        f"n_zero_coverage_episodes={n_p3_zero}"
+        if fraction is not None else
+        f"total_detected_flags={total_p3_flags}  too_sparse_for_T8"
     )
 
     return gates
@@ -335,9 +362,10 @@ def main() -> None:
         print("  git clone https://github.com/simbianai/cyber_defense_benchmark ../cdb")
         sys.exit(1)
 
-    # Snapshot provenance (frozen before run)
-    cdb_commit = _cdb_git_hash(_CDB)
-    data_hash  = _sha256_file(args.data)
+    # Snapshot provenance (frozen before run, recorded in every artifact)
+    cdb_commit   = _cdb_git_hash(_CDB)     # CDB repo HEAD, not HADES
+    hades_commit = _hades_git_hash(_ROOT)  # HADES repo HEAD
+    data_hash    = _sha256_file(args.data)
     meta = {
         "phase": "5A_transfer_gate",
         "config_frozen": True,
@@ -346,8 +374,9 @@ def main() -> None:
         "budget": args.budget,
         "estimator": args.estimator,
         "uniform_affinity": args.uniform_affinity,
-        "cdb_commit": cdb_commit,
-        "data_hash": data_hash,
+        "hades_commit": hades_commit,   # HADES implementation freeze
+        "cdb_commit": cdb_commit,       # CDB benchmark snapshot
+        "data_hash": data_hash,         # sample.json sha256 (strongest provenance)
         "t7_min_episodes": T7_MIN_EPISODES,
         "t8_max_single_frac": T8_MAX_SINGLE_FRAC,
     }
@@ -359,6 +388,7 @@ def main() -> None:
     print(f"  estimator:        {args.estimator}")
     print(f"  affinity prior:   {'uniform (ablation)' if args.uniform_affinity else 'MITRE-grounded'}")
     print(f"  fast_db:          {'patched' if _patched else 'unpatched'}")
+    print(f"  HADES commit:     {hades_commit}")
     print(f"  CDB commit:       {cdb_commit}")
     print(f"  data sha256:      {data_hash[:16]}...")
     print()
