@@ -48,6 +48,17 @@ from typing import Optional, Tuple
 
 OBS_MAPPER_VERSION = "v1.0"
 
+# CONSTRUCT BOUNDARY — read before using this module:
+# Row yield is an observation-INFORMATIVENESS proxy (how much data appeared
+# in the SQL result), NOT a measure of source reliability.
+# Reliability (r_hat) must come from hades.reliability.estimator only.
+# Do NOT use yield statistics to infer that a source is reliable or
+# unreliable for security-evidentiary purposes.
+OBS_MAPPER_CAVEAT = (
+    "Row yield proxies observation informativeness only. "
+    "It is not a reliability measure. r_hat must come from the estimator."
+)
+
 # Regex to count rows in a CDB observation text.
 # CDB formats results as "Results (N rows):" or "Results (M of N rows):"
 _ROWS_SHOWN_RE  = re.compile(r"Results\s*\((\d+)\s*(?:of\s*\d+)?\s*rows?\)", re.I)

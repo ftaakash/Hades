@@ -221,7 +221,7 @@ class TestHarnessRegistry:
 
 class TestCDBHypotheses:
     def test_all_sources_have_affinity_entries(self):
-        from hades.harness import _SOURCE_AFFINITY, CDB_HYPOTHESES
+        from hades.harness import _SOURCE_AFFINITY, HADES_PROXY_HYPOTHESES
         menu_names = [
             "auth_events", "process_events", "network_events",
             "dns_events", "persistence_events",
@@ -229,9 +229,20 @@ class TestCDBHypotheses:
         ]
         for src in menu_names:
             assert src in _SOURCE_AFFINITY, f"Missing affinity for {src}"
-            for hyp in CDB_HYPOTHESES:
+            for hyp in HADES_PROXY_HYPOTHESES:
                 assert hyp in _SOURCE_AFFINITY[src], (
                     f"Missing hypothesis {hyp} in affinity of {src}"
                 )
                 val = _SOURCE_AFFINITY[src][hyp]
                 assert 0.0 <= val <= 1.0, f"{src}[{hyp}]={val} out of [0,1]"
+
+    def test_proxy_hypotheses_are_7(self):
+        from hades.harness import HADES_PROXY_HYPOTHESES, HADES_PROXY_EXCLUDED
+        assert len(HADES_PROXY_HYPOTHESES) == 7
+        assert "TA0007" in HADES_PROXY_EXCLUDED
+
+    def test_old_name_not_exported(self):
+        import hades.harness as h
+        assert not hasattr(h, "CDB_HYPOTHESES"), (
+            "CDB_HYPOTHESES should not be exported; use HADES_PROXY_HYPOTHESES"
+        )
