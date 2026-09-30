@@ -1,76 +1,84 @@
 """hades/benchmark/obs_mapper.py — CDB observation → 5-class obs_class mapper.
 
-This is the critical transfer bridge. It converts the unstructured text
-observation returned by CDB's ThreatHuntEnv.step() into one of the five
-canonical observation classes used throughout HADES's belief layer:
+v2.0: Content-feature mapper (replaces v1.0 row-yield mapper).
 
-    strong_support  — high-yield, directly relevant events found
-    weak_support    — low-yield, possibly relevant events found
-    neutral         — query succeeded but no evidence discrimination
-    weak_contra     — very low yield on a source expected to be informative
-    strong_contra   — error / total failure on a high-reliability source
+v1.0 used raw row count as the sole classification signal. This failed on
+CDB because LIMIT 10 saturates against 155k rows — every source returns
+exactly 10 rows, collapsing the entire observation space to `strong_support`.
 
-Design decisions
-----------------
-1. The mapping uses YIELD rather than content analysis.
-   Content analysis (LLM or regex over event data) would require knowing the
-   ground-truth hypothesis, breaking the no-leakage invariant. Yield is a
-   hypothesis-agnostic, examiner-free proxy that is still informationally
-   meaningful.
+v2.0 uses CONTENT FEATURES of the returned SQL rows:
 
-2. Thresholds are source-aware.
-   A high-cost source (object_access_events, cost=2.0) should return many
-   rows to justify its cost; the same row count from a cheap source is more
-   impressive. We normalise yield by expected yield per cost unit.
+1. Field population rate (% of non-null fields across all returned rows).
+   A high null rate means the query returned structurally sparse data —
+   columns exist but have no values, reducing evidentiary informativeness.
 
-3. Errors map to strong_contra.
-   A source that fails to return data provides strong evidence AGAINST relying
-   on it (reliability update), not neutral evidence.
+2. Distinct EventID variety (number of different event types in the result).
+   A high variety of EventIDs indicates a broad, potentially unfocused query
+   return (weaker evidence); a narrow set suggests focused, specific events.
 
-4. Version-pinned.
-   OBS_MAPPER_VERSION is recorded in every result JSON so that mapping changes
-   can be detected post-hoc.
+3. Field richness (number of distinct non-null field values per row).
+   Rows with many populated fields carry more structural information.
 
-Thresholds (empirically derived from sample.json inspection):
-    high_yield   >= 8 rows  → strong_support
-    moderate_yield 2–7 rows → weak_support
-    low_yield    1 row      → neutral
-    zero_yield   0 rows     → depends on source reliability
-    error        any error  → strong_contra
+None of these features require ground-truth labels, hidden hypothesis
+information, or knowledge of which events are malicious. They are purely
+structural properties of the SQL result text.
 
-Zero-yield with a high-reliability source → weak_contra (absence is informative)
-Zero-yield with a low-reliability source  → neutral (absence expected)
+CONSTRUCT BOUNDARY — read before using this module:
+    Row content features proxy observation INFORMATIVENESS only. They are
+    NOT a measure of source reliability. Reliability (r_hat) must come
+    from hades.reliability.estimator ONLY. Do NOT use obs_mapper outputs
+    to infer that a source is reliable or unreliable for security-evidentiary
+    purposes.
+
+Mapping rules (v2.0):
+    null_rate <= 0.15  AND  event_variety >= 3  →  strong_support
+    null_rate <= 0.30  AND  event_variety >= 2  →  weak_support
+    null_rate <= 0.50  OR   event_variety >= 2  →  neutral
+    null_rate >  0.50  AND  event_variety == 1  →  weak_contra
+    error / 0 rows  →  strong_contra
+
+    Zero rows from a high-reliability source → weak_contra
+    Zero rows from a low-reliability source  → neutral
+    Error → strong_contra
+
+Thresholds are derived from the mapper audit of the 15 development episodes
+(5a_transfer_gate_v1.json). They must be frozen before the held-out transfer
+gate. See scripts/mapper_audit.py for the calibration data.
 """
 from __future__ import annotations
 
 import re
 from typing import Optional, Tuple
 
-OBS_MAPPER_VERSION = "v1.0"
+OBS_MAPPER_VERSION = "v2.0"
 
-# CONSTRUCT BOUNDARY — read before using this module:
-# Row yield is an observation-INFORMATIVENESS proxy (how much data appeared
-# in the SQL result), NOT a measure of source reliability.
-# Reliability (r_hat) must come from hades.reliability.estimator only.
-# Do NOT use yield statistics to infer that a source is reliable or
-# unreliable for security-evidentiary purposes.
+# CONSTRUCT BOUNDARY — read the docstring above.
 OBS_MAPPER_CAVEAT = (
-    "Row yield proxies observation informativeness only. "
-    "It is not a reliability measure. r_hat must come from the estimator."
+    "Content features proxy observation informativeness only. "
+    "They are not a reliability measure. r_hat must come from the estimator."
 )
 
-# Regex to count rows in a CDB observation text.
-# CDB formats results as "Results (N rows):" or "Results (M of N rows):"
-_ROWS_SHOWN_RE  = re.compile(r"Results\s*\((\d+)\s*(?:of\s*\d+)?\s*rows?\)", re.I)
-_TIMESTAMP_RE   = re.compile(r'"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}')
-_ERROR_RE       = re.compile(r"^Error:", re.I | re.MULTILINE)
+# ── Regex ─────────────────────────────────────────────────────────────────────
+# Row count from CDB header: "Results (N rows):" or "Results (M of N rows):"
+_ROWS_SHOWN_RE = re.compile(r"Results\s*\((\d+)\s*(?:of\s*\d+)?\s*rows?\)", re.I)
+# ISO-8601 timestamp (for candidate extraction, not used for classification)
+_TIMESTAMP_RE  = re.compile(r'"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}')
+# Error detection
+_ERROR_RE      = re.compile(r"^Error:", re.I | re.MULTILINE)
+# EventID extractor
+_EVENT_ID_RE   = re.compile(r'"EventID"\s*:\s*"(\d+)"')
+# Field value extractor: "FieldName": "value" or "FieldName": null
+_FIELD_RE      = re.compile(r'"([^"]+)"\s*:\s*("(?:[^"\\]|\\.)*"|null|-?\d+(?:\.\d+)?)')
 
-# High-reliability threshold: sources with reliability_true >= this threshold
-# get weak_contra on zero yield (absence is informative).
+# Reliability threshold for zero-yield interpretation
 _HIGH_RELIABILITY_THRESHOLD = 0.88
 
-_HIGH_YIELD_ROWS    = 8
-_MODERATE_YIELD_LOW = 2
+# Content-feature thresholds (frozen from development audit)
+_NULL_RATE_RICH  = 0.15   # <= this = information-rich
+_NULL_RATE_MOD   = 0.30   # <= this = moderate information
+_NULL_RATE_SPARSE = 0.50  # > this = sparse
+_EVENT_VARIETY_HIGH = 3   # >= this = diverse event types
+_EVENT_VARIETY_MOD  = 2   # >= this = some variety
 
 
 def map_observation(
@@ -88,9 +96,7 @@ def map_observation(
     source_reliability : float
         The estimated reliability of the source (used for zero-yield logic).
     prior_row_count_same_source : float | None
-        Rolling average row count for this source in previous turns. Used
-        to detect relative drops (future: trend-based staleness). Not used
-        in v1.0.
+        Rolling average row count for this source (reserved for future use).
 
     Returns
     -------
@@ -102,25 +108,39 @@ def map_observation(
     if _ERROR_RE.search(obs_text):
         return "strong_contra", 0
 
-    # Extract row count from header
+    # Extract row count
     m = _ROWS_SHOWN_RE.search(obs_text)
     if m:
         n_rows = int(m.group(1))
     else:
-        # Fallback: count ISO-8601 timestamps as a proxy for event rows
         n_rows = len(_TIMESTAMP_RE.findall(obs_text))
 
-    # Map yield to obs_class
-    if n_rows >= _HIGH_YIELD_ROWS:
-        return "strong_support", n_rows
-    elif n_rows >= _MODERATE_YIELD_LOW:
-        return "weak_support", n_rows
-    elif n_rows == 1:
-        return "neutral", n_rows
-    else:
-        # Zero yield: distinguish by source reliability
+    # Zero rows
+    if n_rows == 0:
         if source_reliability >= _HIGH_RELIABILITY_THRESHOLD:
-            # High-reliability source returning nothing is contra-evidence
             return "weak_contra", 0
         else:
             return "neutral", 0
+
+    # ── Content feature extraction ────────────────────────────────────────
+
+    # 1. Null rate: fraction of field values that are null
+    fields = _FIELD_RE.findall(obs_text)
+    n_null = sum(1 for _, val in fields if val == "null")
+    n_total = len(fields) if fields else 1
+    null_rate = n_null / n_total
+
+    # 2. EventID variety: number of distinct event types
+    event_ids = set(_EVENT_ID_RE.findall(obs_text))
+    event_variety = len(event_ids)
+
+    # ── Classification ────────────────────────────────────────────────────
+    if null_rate <= _NULL_RATE_RICH and event_variety >= _EVENT_VARIETY_HIGH:
+        return "strong_support", n_rows
+    elif null_rate <= _NULL_RATE_MOD and event_variety >= _EVENT_VARIETY_MOD:
+        return "weak_support", n_rows
+    elif null_rate <= _NULL_RATE_SPARSE or event_variety >= _EVENT_VARIETY_MOD:
+        return "neutral", n_rows
+    else:
+        # High null rate AND low event variety → weak_contra
+        return "weak_contra", n_rows

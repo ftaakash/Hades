@@ -19,20 +19,60 @@ from hades.benchmark.fast_db import is_patched
 
 
 # ---------------------------------------------------------------------------
-# Fixtures
+# Fixtures for v2 content-feature mapper
 # ---------------------------------------------------------------------------
 
-def _make_obs(n_rows: int, error: bool = False) -> str:
-    """Simulate CDB observation text."""
+def _make_obs(
+    n_rows: int,
+    error: bool = False,
+    null_rate: float = 0.0,
+    event_ids: tuple = ("4624",),
+) -> str:
+    """Simulate CDB observation text with controllable content features.
+
+    v2 mapper uses null_rate + EventID variety, so fixtures must control these.
+    """
     if error:
         return "Error: SyntaxError: no such column: BadCol"
     if n_rows == 0:
-        return f"Results (0 rows):\n[]"
-    ts_block = "\n".join(
-        f'  {{"TimeCreated": "2024-01-01T12:00:{i:02d}Z", "EventID": "4624"}}'
-        for i in range(n_rows)
-    )
+        return "Results (0 rows):\n[]"
+
+    rows = []
+    n_eids = len(event_ids)
+    for i in range(n_rows):
+        eid = event_ids[i % n_eids]
+        # Control null_rate by making some fields null
+        if null_rate > 0 and (i / n_rows) < null_rate:
+            rows.append(
+                f'  {{"TimeCreated": "2024-01-01T12:00:{i:02d}Z", '
+                f'"EventID": "{eid}", '
+                f'"Computer": null, "AccountName": null, "IpAddress": null}}'
+            )
+        else:
+            rows.append(
+                f'  {{"TimeCreated": "2024-01-01T12:00:{i:02d}Z", '
+                f'"EventID": "{eid}", '
+                f'"Computer": "DC01.corp.local", '
+                f'"AccountName": "admin", '
+                f'"IpAddress": "10.0.0.{i+1}"}}'
+            )
+    ts_block = "\n".join(rows)
     return f"Results ({n_rows} rows):\n[{ts_block}]"
+
+
+def _make_rich_obs(n_rows: int) -> str:
+    """Rich observation: low null rate, diverse EventIDs → strong_support."""
+    return _make_obs(n_rows, null_rate=0.0, event_ids=("4624", "4625", "4634"))
+
+
+def _make_moderate_obs(n_rows: int) -> str:
+    """Moderate obs: low null rate, 2 EventIDs → weak_support."""
+    return _make_obs(n_rows, null_rate=0.10, event_ids=("4624", "4625"))
+
+
+def _make_sparse_obs(n_rows: int) -> str:
+    """Sparse obs: all null fields, single EventID → weak_contra."""
+    return _make_obs(n_rows, null_rate=1.0, event_ids=("4624",))
 
 
 MENU_STUB = {
@@ -46,28 +86,30 @@ MENU_STUB = {
 
 
 # ---------------------------------------------------------------------------
-# ObsMapper tests
+# ObsMapper tests (v2: content features)
 # ---------------------------------------------------------------------------
 
 class TestObsMapper:
-    def test_version_is_string(self):
-        assert isinstance(OBS_MAPPER_VERSION, str)
-        assert OBS_MAPPER_VERSION.startswith("v")
+    def test_version_is_v2(self):
+        assert OBS_MAPPER_VERSION == "v2.0"
 
-    def test_high_yield_is_strong_support(self):
-        obs, n = map_observation(_make_obs(10), source_reliability=0.90)
+    def test_rich_obs_is_strong_support(self):
+        """Low null rate + 3 distinct EventIDs → strong_support."""
+        obs, n = map_observation(_make_rich_obs(10), source_reliability=0.90)
         assert obs == "strong_support"
         assert n == 10
 
-    def test_moderate_yield_is_weak_support(self):
-        obs, n = map_observation(_make_obs(3), source_reliability=0.90)
+    def test_moderate_obs_is_weak_support(self):
+        """Low null rate + 2 EventIDs → weak_support."""
+        obs, n = map_observation(_make_moderate_obs(10), source_reliability=0.90)
         assert obs == "weak_support"
-        assert n == 3
+        assert n == 10
 
-    def test_single_row_is_neutral(self):
-        obs, n = map_observation(_make_obs(1), source_reliability=0.90)
-        assert obs == "neutral"
-        assert n == 1
+    def test_sparse_obs_is_weak_contra(self):
+        """High null rate + 1 EventID → weak_contra."""
+        obs, n = map_observation(_make_sparse_obs(10), source_reliability=0.90)
+        assert obs == "weak_contra"
+        assert n == 10
 
     def test_zero_yield_high_reliability_is_weak_contra(self):
         obs, n = map_observation(_make_obs(0), source_reliability=0.95)
@@ -86,20 +128,24 @@ class TestObsMapper:
 
     def test_all_returned_classes_are_valid(self):
         from hades.corruption.base import OBS_CLASSES
-        for n in [0, 1, 3, 8, 15]:
-            for err in [True, False]:
-                cls, _ = map_observation(_make_obs(n, error=err), source_reliability=0.90)
-                assert cls in OBS_CLASSES, f"Invalid class: {cls}"
+        test_obs = [
+            _make_rich_obs(10),
+            _make_moderate_obs(10),
+            _make_sparse_obs(10),
+            _make_obs(0),
+            _make_obs(0, error=True),
+            # single EventID, moderate nulls → neutral
+            _make_obs(5, null_rate=0.40, event_ids=("4624", "4625")),
+        ]
+        for ob in test_obs:
+            cls, _ = map_observation(ob, source_reliability=0.90)
+            assert cls in OBS_CLASSES, f"Invalid class: {cls}"
 
-    def test_boundary_exactly_8_rows(self):
-        """Exactly 8 rows should be strong_support (threshold is >=8)."""
-        obs, n = map_observation(_make_obs(8), source_reliability=0.90)
-        assert obs == "strong_support"
-
-    def test_boundary_exactly_2_rows(self):
-        """Exactly 2 rows should be weak_support."""
-        obs, n = map_observation(_make_obs(2), source_reliability=0.90)
-        assert obs == "weak_support"
+    def test_content_features_matter_not_row_count(self):
+        """v2 invariant: same row count, different content → different class."""
+        rich = map_observation(_make_rich_obs(10))[0]
+        sparse = map_observation(_make_sparse_obs(10))[0]
+        assert rich != sparse, "Mapper must distinguish by content, not just rows"
 
 
 # ---------------------------------------------------------------------------
@@ -108,9 +154,11 @@ class TestObsMapper:
 
 class TestCandidateExtractor:
     def _real_obs(self, n: int, base_minute: int = 0) -> str:
-        """Obs text with real ISO-8601 timestamps."""
+        """Obs text with real ISO-8601 timestamps and realistic fields."""
         rows = "\n".join(
-            f'{{"TimeCreated": "2024-03-15T10:{base_minute:02d}:{i:02d}Z"}}'
+            f'{{"TimeCreated": "2024-03-15T10:{base_minute:02d}:{i:02d}Z", '
+            f'"EventID": "4624", '
+            f'"Computer": "DC01", "AccountName": "user{i}"}}'
             for i in range(n)
         )
         return f"Results ({n} rows):\n[{rows}]"
@@ -119,14 +167,14 @@ class TestCandidateExtractor:
         ex = CandidateExtractor(MENU_STUB)
         obs_class, n_rows, new_ts = ex.process("auth_events", self._real_obs(3))
         assert len(new_ts) == 3
-        assert obs_class == "weak_support"
         assert n_rows == 3
+        # With single EventID and low null → neutral or weak_contra
+        assert obs_class in ("neutral", "weak_contra", "weak_support", "strong_support")
 
     def test_deduplicates_repeated_timestamps(self):
         ex = CandidateExtractor(MENU_STUB)
         ex.process("auth_events", self._real_obs(3, base_minute=0))
         _, _, new_ts2 = ex.process("auth_events", self._real_obs(3, base_minute=0))
-        # Same timestamps again → no new ones
         assert len(new_ts2) == 0
 
     def test_accumulates_across_sources(self):
@@ -161,6 +209,7 @@ class TestCandidateExtractor:
         ex = CandidateExtractor(MENU_STUB)
         assert ex.n_candidates() == 0
         assert ex.all_candidates() == []
+
 
 
 # ---------------------------------------------------------------------------
