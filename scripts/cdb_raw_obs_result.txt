@@ -1,0 +1,45 @@
+=== RAW OBS (auth_events, limit=5) ===
+Query: SELECT "TimeCreated", "EventID", "Computer", "AccountName", "IpAddress" FROM logs WHERE "EventID" IN ('4624', '4625', '4634', '4648', '4672', '4768', '4769') ORDER BY "TimeCreated" LIMIT 5
+Results (5 rows):
+[
+  {
+    "TimeCreated": "2026-01-14T00:22:31.149736Z",
+    "EventID": "4624",
+    "\"Computer\"": "Computer",
+    "AccountName": null,
+    "IpAddress": null
+  },
+  {
+    "TimeCreated": "2026-01-14T00:22:31.149736Z",
+    "EventID": "4672",
+    "\"Computer\"": "Computer",
+    "AccountName": null,
+    "IpAddress": null
+  },
+  {
+    "TimeCreated": "2026-01-14T00:39:11.727316Z",
+    "EventID": "4624",
+    "\"Computer\"": "Computer",
+    "AccountName": null,
+    "IpAddress": null
+  },
+  {
+    "TimeCreated": "2026-01-14T00:39:11.727316Z",
+    "EventID": "4672",
+    "\"Computer\"": "Computer",
+    "AccountName": null,
+    "IpAddress": null
+  },
+  {
+    "TimeCreated": "2026-01-14T00:45:02.913143Z",
+    "EventID": "4634",
+    "\"Computer\"": "Computer",
+    "AccountName": null,
+    "IpAddress": null
+  }
+]
+
+=== _COMPUTER_RE matches: ['Computer', 'Computer', 'Computer', 'Computer', 'Computer'] ===
+  pat='"Computer"\\s*:\\s*"([^"]+)"': []
+  pat='Computer["\\s:]+([A-Za-z0-9\\-_\\.]+)': []
+  pat='"([A-Za-z0-9\\-_\\.]+\\.(?:local|corp|domain|int))"': []

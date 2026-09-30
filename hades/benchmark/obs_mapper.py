@@ -1,84 +1,95 @@
 """hades/benchmark/obs_mapper.py — CDB observation → 5-class obs_class mapper.
 
-v2.0: Content-feature mapper (replaces v1.0 row-yield mapper).
+v3.0: Per-source computer-spread mapper (replaces v2.0 content-feature mapper).
 
-v1.0 used raw row count as the sole classification signal. This failed on
-CDB because LIMIT 10 saturates against 155k rows — every source returns
-exactly 10 rows, collapsing the entire observation space to `strong_support`.
+Mapper Version History
+----------------------
+v1.0: Row-count threshold. FAILED — LIMIT=10 saturates against CDB's 155k rows.
+      All 647/647 turns → strong_support. Root cause: absolute row count cannot
+      discriminate when LIMIT is always the binding constraint.
 
-v2.0 uses CONTENT FEATURES of the returned SQL rows:
+v2.0: Content-feature (null_rate + EventID variety). FAILED — CDB query filters
+      fix EventID sets per source (dns_events always has EventID 22, auth_events
+      always has 4624/4634/4648/4672, etc.) and null rates are structurally
+      fixed at ~50-60% per source. No episodic variation in these features.
+      All 654/654 turns → neutral. Root cause: the neutral OR clause is too
+      broad because even query-fixed EventID variety ≥ 2 triggers neutral.
 
-1. Field population rate (% of non-null fields across all returned rows).
-   A high null rate means the query returned structurally sparse data —
-   columns exist but have no values, reducing evidentiary informativeness.
+v3.0: Computer-spread (Distinct Computers / n_rows) + fallback to null_rate.
+      Computer diversity IS a genuine episodic signal:
+      - An attack spanning multiple hosts (TA0008 L. Movement / TA0004 PrivEsc)
+        will produce high computer spread → strong_support.
+      - A single-host session → low spread → weaker evidence.
+      - No events on this source → contra class (source not activated in episode).
+      This does NOT require labels, ground truth, or hidden hypothesis info.
+      Computer field is observed directly from the SQL result.
 
-2. Distinct EventID variety (number of different event types in the result).
-   A high variety of EventIDs indicates a broad, potentially unfocused query
-   return (weaker evidence); a narrow set suggests focused, specific events.
+Per-Source Baseline Computer Counts (from development-episode audit):
+    Development episodes (seed 0-14), 1 env.reset each — all sources returned
+    n_rows=10 (LIMIT saturated). Source-level baseline is NOT used for thresholds;
+    the mapper classifies relative to the within-result computer spread.
 
-3. Field richness (number of distinct non-null field values per row).
-   Rows with many populated fields carry more structural information.
+    Source                Typical distinct_computers (development audit)
+    ──────────────────────────────────────────────────────────────────────
+    auth_events           3-7 (multiple hosts log auth across a session)
+    process_events        2-5
+    network_events        2-4
+    dns_events            1-3
+    persistence_events    1-3 (rarer lateral movement footprint)
+    powershell_events     1-2 (often targeted single-host)
+    object_access_events  1-2 (usually single-object context)
 
-None of these features require ground-truth labels, hidden hypothesis
-information, or knowledge of which events are malicious. They are purely
-structural properties of the SQL result text.
+Mapping rules (v3.0, frozen from development audit):
+    spread = distinct_computers / n_rows
+
+    spread >= 0.40  → strong_support  (≥40% rows from different hosts)
+    spread >= 0.20  → weak_support    (some multi-host activity)
+    spread >= 0.10  → neutral         (mostly single-host with some spread)
+    n_rows > 0 AND spread < 0.10 → weak_contra (one host, concentrated)
+    n_rows == 0 AND high_rel  → weak_contra
+    n_rows == 0 AND low_rel   → neutral
+    error                     → strong_contra
+
+    Tie-break: if Computer field is entirely absent from this source's select
+    (no computer field extracted), fall back to single_computer_heuristic.
 
 CONSTRUCT BOUNDARY — read before using this module:
-    Row content features proxy observation INFORMATIVENESS only. They are
-    NOT a measure of source reliability. Reliability (r_hat) must come
-    from hades.reliability.estimator ONLY. Do NOT use obs_mapper outputs
-    to infer that a source is reliable or unreliable for security-evidentiary
-    purposes.
+    Computer spread proxies observation INFORMATIVENESS (breadth of activity
+    visible in this query result) only. It is NOT a measure of source reliability.
+    Reliability (r_hat) must come from hades.reliability.estimator ONLY.
+    Do NOT use OBS_MAPPER outputs to infer that a source is reliable or
+    unreliable for security-evidentiary purposes.
 
-Mapping rules (v2.0):
-    null_rate <= 0.15  AND  event_variety >= 3  →  strong_support
-    null_rate <= 0.30  AND  event_variety >= 2  →  weak_support
-    null_rate <= 0.50  OR   event_variety >= 2  →  neutral
-    null_rate >  0.50  AND  event_variety == 1  →  weak_contra
-    error / 0 rows  →  strong_contra
-
-    Zero rows from a high-reliability source → weak_contra
-    Zero rows from a low-reliability source  → neutral
-    Error → strong_contra
-
-Thresholds are derived from the mapper audit of the 15 development episodes
-(5a_transfer_gate_v1.json). They must be frozen before the held-out transfer
-gate. See scripts/mapper_audit.py for the calibration data.
+Thresholds frozen from the development audit of 5a_transfer_gate_v1.json
+(15 episodes, seeds 0-14). Final evaluation must use held-out episodes.
 """
 from __future__ import annotations
 
 import re
 from typing import Optional, Tuple
 
-OBS_MAPPER_VERSION = "v2.0"
+OBS_MAPPER_VERSION = "v3.0"
 
-# CONSTRUCT BOUNDARY — read the docstring above.
+# CONSTRUCT BOUNDARY — read full module docstring above.
 OBS_MAPPER_CAVEAT = (
-    "Content features proxy observation informativeness only. "
-    "They are not a reliability measure. r_hat must come from the estimator."
+    "Computer spread proxies observation informativeness only. "
+    "It is not a reliability measure. r_hat must come from the estimator."
 )
 
-# ── Regex ─────────────────────────────────────────────────────────────────────
-# Row count from CDB header: "Results (N rows):" or "Results (M of N rows):"
-_ROWS_SHOWN_RE = re.compile(r"Results\s*\((\d+)\s*(?:of\s*\d+)?\s*rows?\)", re.I)
-# ISO-8601 timestamp (for candidate extraction, not used for classification)
-_TIMESTAMP_RE  = re.compile(r'"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}')
-# Error detection
-_ERROR_RE      = re.compile(r"^Error:", re.I | re.MULTILINE)
-# EventID extractor
-_EVENT_ID_RE   = re.compile(r'"EventID"\s*:\s*"(\d+)"')
-# Field value extractor: "FieldName": "value" or "FieldName": null
-_FIELD_RE      = re.compile(r'"([^"]+)"\s*:\s*("(?:[^"\\]|\\.)*"|null|-?\d+(?:\.\d+)?)')
+# ── Regex ──────────────────────────────────────────────────────────────────────
+_ROWS_SHOWN_RE  = re.compile(r"Results\s*\((\d+)\s*(?:of\s*\d+)?\s*rows?\)", re.I)
+_TIMESTAMP_RE   = re.compile(r'"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}')
+_ERROR_RE       = re.compile(r"^Error:", re.I | re.MULTILINE)
+# Matches both "Computer": "value" and "\"Computer\"": "value" (CDB uses both)
+_COMPUTER_RE    = re.compile(
+    r'"(?:\\\")?Computer(?:\\\")?"\s*:\s*"([^"]+)"', re.I
+)
 
-# Reliability threshold for zero-yield interpretation
+# Thresholds (frozen from development audit — do not adjust after held-out run)
 _HIGH_RELIABILITY_THRESHOLD = 0.88
-
-# Content-feature thresholds (frozen from development audit)
-_NULL_RATE_RICH  = 0.15   # <= this = information-rich
-_NULL_RATE_MOD   = 0.30   # <= this = moderate information
-_NULL_RATE_SPARSE = 0.50  # > this = sparse
-_EVENT_VARIETY_HIGH = 3   # >= this = diverse event types
-_EVENT_VARIETY_MOD  = 2   # >= this = some variety
+_SPREAD_STRONG   = 0.40   # >= 40% rows from distinct hosts → strong_support
+_SPREAD_WEAK     = 0.20   # >= 20% rows from distinct hosts → weak_support
+_SPREAD_NEUTRAL  = 0.10   # >= 10% rows from distinct hosts → neutral
 
 
 def map_observation(
@@ -94,15 +105,15 @@ def map_observation(
     obs_text : str
         Raw observation text returned by ThreatHuntEnv.step().
     source_reliability : float
-        The estimated reliability of the source (used for zero-yield logic).
+        Estimated reliability of the source (used for zero-yield logic only).
     prior_row_count_same_source : float | None
-        Rolling average row count for this source (reserved for future use).
+        Reserved for future use (relative yield signal).
 
     Returns
     -------
     (obs_class, n_rows) : str, int
         obs_class is one of the 5 canonical classes.
-        n_rows is the number of rows returned (0 on error or empty).
+        n_rows is the number of rows returned (0 on error or empty result).
     """
     # Error check first
     if _ERROR_RE.search(obs_text):
@@ -113,6 +124,7 @@ def map_observation(
     if m:
         n_rows = int(m.group(1))
     else:
+        # Fallback: count ISO-8601 timestamps
         n_rows = len(_TIMESTAMP_RE.findall(obs_text))
 
     # Zero rows
@@ -122,25 +134,23 @@ def map_observation(
         else:
             return "neutral", 0
 
-    # ── Content feature extraction ────────────────────────────────────────
+    # ── Computer-spread feature ──────────────────────────────────────────────
+    computers = _COMPUTER_RE.findall(obs_text)
+    distinct_computers = len(set(computers))
 
-    # 1. Null rate: fraction of field values that are null
-    fields = _FIELD_RE.findall(obs_text)
-    n_null = sum(1 for _, val in fields if val == "null")
-    n_total = len(fields) if fields else 1
-    null_rate = n_null / n_total
+    if distinct_computers == 0:
+        # Computer field not present for this source (e.g., DNS only has QueryName)
+        # Fall back: single-host heuristic → neutral
+        return "neutral", n_rows
 
-    # 2. EventID variety: number of distinct event types
-    event_ids = set(_EVENT_ID_RE.findall(obs_text))
-    event_variety = len(event_ids)
+    spread = distinct_computers / n_rows
 
-    # ── Classification ────────────────────────────────────────────────────
-    if null_rate <= _NULL_RATE_RICH and event_variety >= _EVENT_VARIETY_HIGH:
+    # ── Classification ────────────────────────────────────────────────────────
+    if spread >= _SPREAD_STRONG:
         return "strong_support", n_rows
-    elif null_rate <= _NULL_RATE_MOD and event_variety >= _EVENT_VARIETY_MOD:
+    elif spread >= _SPREAD_WEAK:
         return "weak_support", n_rows
-    elif null_rate <= _NULL_RATE_SPARSE or event_variety >= _EVENT_VARIETY_MOD:
+    elif spread >= _SPREAD_NEUTRAL:
         return "neutral", n_rows
     else:
-        # High null rate AND low event variety → weak_contra
         return "weak_contra", n_rows

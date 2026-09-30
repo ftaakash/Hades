@@ -1,0 +1,57 @@
+SOURCE                     ROWS  NULL  TOT  NULL%  EIDS  VARIETY  CLASS_v2
+--------------------------------------------------------------------------------
+auth_events                  10    20   40    50%  4624,4634,4648,4672         4  neutral
+    Query: SELECT "TimeCreated", "EventID", "Computer", "AccountName", "IpAddress" FROM logs WHERE "EventID" IN ('4624', '46
+    Results (10 rows):
+    [
+      {
+        "TimeCreated": "2026-01-14T00:22:31.149736Z",
+        "EventID": "4624",
+
+process_events               10    30   50    60%  1,4688,4689,5               4  neutral
+    Query: SELECT "TimeCreated", "EventID", "Computer", "Image", "CommandLine", "ParentImage" FROM logs WHERE "EventID" IN (
+    Results (10 rows):
+    [
+      {
+        "TimeCreated": "2026-01-14T00:07:10.083856Z",
+        "EventID": "4688",
+
+network_events               10    30   50    60%  5156,5158                   2  neutral
+    Query: SELECT "TimeCreated", "EventID", "Computer", "DestinationIp", "DestinationPort", "Image" FROM logs WHERE "EventID
+    Results (10 rows):
+    [
+      {
+        "TimeCreated": "2026-01-14T00:06:47.456856Z",
+        "EventID": "5156",
+
+dns_events                   10    20   40    50%  22                          1  neutral
+    Query: SELECT "TimeCreated", "EventID", "Computer", "QueryName", "QueryResults" FROM logs WHERE "EventID" IN ('22') ORDE
+    Results (10 rows):
+    [
+      {
+        "TimeCreated": "2026-01-14T00:22:27.569736Z",
+        "EventID": "22",
+
+persistence_events           10    30   50    60%  11,12,13                    3  neutral
+    Query: SELECT "TimeCreated", "EventID", "Computer", "TargetObject", "TargetFilename", "Details" FROM logs WHERE "EventID
+    Results (10 rows):
+    [
+      {
+        "TimeCreated": "2026-01-14T00:06:44.391856Z",
+        "EventID": "13",
+
+powershell_events            10    20   40    50%  4103,800                    2  neutral
+    Query: SELECT "TimeCreated", "EventID", "Computer", "ScriptBlockText", "Payload" FROM logs WHERE "EventID" IN ('4103', '
+    Results (10 rows):
+    [
+      {
+        "TimeCreated": "2026-01-14T00:44:54.775143Z",
+        "EventID": "800",
+
+object_access_events         10    30   50    60%  4656,4658,4663              3  neutral
+    Query: SELECT "TimeCreated", "EventID", "Computer", "ObjectName", "ProcessName", "AccessMask" FROM logs WHERE "EventID" 
+    Results (10 rows):
+    [
+      {
+        "TimeCreated": "2026-01-14T00:22:26.553736Z",
+        "EventID": "4656",

@@ -19,60 +19,61 @@ from hades.benchmark.fast_db import is_patched
 
 
 # ---------------------------------------------------------------------------
-# Fixtures for v2 content-feature mapper
+# Fixtures for v3 computer-spread mapper
 # ---------------------------------------------------------------------------
 
 def _make_obs(
     n_rows: int,
     error: bool = False,
-    null_rate: float = 0.0,
-    event_ids: tuple = ("4624",),
+    n_computers: int = 1,
 ) -> str:
-    """Simulate CDB observation text with controllable content features.
+    """Simulate CDB observation text with controllable computer diversity.
 
-    v2 mapper uses null_rate + EventID variety, so fixtures must control these.
+    v3 mapper uses distinct_computers/n_rows (computer spread) as primary signal.
+    n_computers: how many distinct Computer values appear in the n_rows rows.
     """
     if error:
         return "Error: SyntaxError: no such column: BadCol"
     if n_rows == 0:
         return "Results (0 rows):\n[]"
-
     rows = []
-    n_eids = len(event_ids)
+    computer_pool = [f"HOST{i:02d}.corp.local" for i in range(n_computers)]
     for i in range(n_rows):
-        eid = event_ids[i % n_eids]
-        # Control null_rate by making some fields null
-        if null_rate > 0 and (i / n_rows) < null_rate:
-            rows.append(
-                f'  {{"TimeCreated": "2024-01-01T12:00:{i:02d}Z", '
-                f'"EventID": "{eid}", '
-                f'"Computer": null, "AccountName": null, "IpAddress": null}}'
-            )
-        else:
-            rows.append(
-                f'  {{"TimeCreated": "2024-01-01T12:00:{i:02d}Z", '
-                f'"EventID": "{eid}", '
-                f'"Computer": "DC01.corp.local", '
-                f'"AccountName": "admin", '
-                f'"IpAddress": "10.0.0.{i+1}"}}'
-            )
+        computer = computer_pool[i % n_computers]
+        rows.append(
+            f'  {{"TimeCreated": "2024-01-01T12:00:{i:02d}Z", '
+            f'"EventID": "4624", "Computer": "{computer}", '
+            f'"AccountName": "admin{i}"}}'
+        )
     ts_block = "\n".join(rows)
     return f"Results ({n_rows} rows):\n[{ts_block}]"
 
 
-def _make_rich_obs(n_rows: int) -> str:
-    """Rich observation: low null rate, diverse EventIDs → strong_support."""
-    return _make_obs(n_rows, null_rate=0.0, event_ids=("4624", "4625", "4634"))
+def _make_high_spread_obs(n_rows: int = 10) -> str:
+    """High spread: each row from a different host → strong_support."""
+    return _make_obs(n_rows, n_computers=n_rows)  # all distinct → spread=1.0
 
 
-def _make_moderate_obs(n_rows: int) -> str:
-    """Moderate obs: low null rate, 2 EventIDs → weak_support."""
-    return _make_obs(n_rows, null_rate=0.10, event_ids=("4624", "4625"))
+def _make_moderate_spread_obs(n_rows: int = 10) -> str:
+    """Moderate spread: ~30% distinct computers → weak_support (spread=0.3)."""
+    return _make_obs(n_rows, n_computers=3)  # 3/10 = 0.30
 
 
-def _make_sparse_obs(n_rows: int) -> str:
-    """Sparse obs: all null fields, single EventID → weak_contra."""
-    return _make_obs(n_rows, null_rate=1.0, event_ids=("4624",))
+def _make_no_spread_obs(n_rows: int = 20) -> str:
+    """No spread: all rows from same host → weak_contra (spread < 0.10).
+    Uses n_rows=20 so spread=1/20=0.05, strictly below the 0.10 neutral threshold.
+    """
+    return _make_obs(n_rows, n_computers=1)  # 1/20 = 0.05 < 0.10
+
+
+def _make_no_computer_obs(n_rows: int = 10) -> str:
+    """No Computer field (e.g. DNS source) → neutral fallback."""
+    rows = [
+        f'  {{"TimeCreated": "2024-01-01T12:00:{i:02d}Z", "EventID": "22", '
+        f'"QueryName": "evil{i}.com"}}'
+        for i in range(n_rows)
+    ]
+    return f"Results ({n_rows} rows):\n[" + "\n".join(rows) + "]"
 
 
 MENU_STUB = {
@@ -86,29 +87,36 @@ MENU_STUB = {
 
 
 # ---------------------------------------------------------------------------
-# ObsMapper tests (v2: content features)
+# ObsMapper tests (v3: computer-spread)
 # ---------------------------------------------------------------------------
 
 class TestObsMapper:
-    def test_version_is_v2(self):
-        assert OBS_MAPPER_VERSION == "v2.0"
+    def test_version_is_v3(self):
+        assert OBS_MAPPER_VERSION == "v3.0"
 
-    def test_rich_obs_is_strong_support(self):
-        """Low null rate + 3 distinct EventIDs → strong_support."""
-        obs, n = map_observation(_make_rich_obs(10), source_reliability=0.90)
+    def test_high_spread_is_strong_support(self):
+        """All distinct computers (spread=1.0) → strong_support."""
+        obs, n = map_observation(_make_high_spread_obs(10), source_reliability=0.90)
         assert obs == "strong_support"
         assert n == 10
 
-    def test_moderate_obs_is_weak_support(self):
-        """Low null rate + 2 EventIDs → weak_support."""
-        obs, n = map_observation(_make_moderate_obs(10), source_reliability=0.90)
+    def test_moderate_spread_is_weak_support(self):
+        """3/10 distinct computers (spread=0.30) → weak_support."""
+        obs, n = map_observation(_make_moderate_spread_obs(10), source_reliability=0.90)
         assert obs == "weak_support"
         assert n == 10
 
-    def test_sparse_obs_is_weak_contra(self):
-        """High null rate + 1 EventID → weak_contra."""
-        obs, n = map_observation(_make_sparse_obs(10), source_reliability=0.90)
+    def test_no_spread_is_weak_contra(self):
+        """1/20 distinct computers (spread=0.05) → weak_contra."""
+        obs, n = map_observation(_make_no_spread_obs(), source_reliability=0.90)
         assert obs == "weak_contra"
+        assert n == 20
+
+
+    def test_no_computer_field_is_neutral(self):
+        """Source without Computer field (e.g. DNS) → neutral fallback."""
+        obs, n = map_observation(_make_no_computer_obs(10), source_reliability=0.90)
+        assert obs == "neutral"
         assert n == 10
 
     def test_zero_yield_high_reliability_is_weak_contra(self):
@@ -128,24 +136,23 @@ class TestObsMapper:
 
     def test_all_returned_classes_are_valid(self):
         from hades.corruption.base import OBS_CLASSES
-        test_obs = [
-            _make_rich_obs(10),
-            _make_moderate_obs(10),
-            _make_sparse_obs(10),
+        test_cases = [
+            _make_high_spread_obs(10),
+            _make_moderate_spread_obs(10),
+            _make_no_spread_obs(10),
+            _make_no_computer_obs(10),
             _make_obs(0),
             _make_obs(0, error=True),
-            # single EventID, moderate nulls → neutral
-            _make_obs(5, null_rate=0.40, event_ids=("4624", "4625")),
         ]
-        for ob in test_obs:
+        for ob in test_cases:
             cls, _ = map_observation(ob, source_reliability=0.90)
             assert cls in OBS_CLASSES, f"Invalid class: {cls}"
 
-    def test_content_features_matter_not_row_count(self):
-        """v2 invariant: same row count, different content → different class."""
-        rich = map_observation(_make_rich_obs(10))[0]
-        sparse = map_observation(_make_sparse_obs(10))[0]
-        assert rich != sparse, "Mapper must distinguish by content, not just rows"
+    def test_spread_matters_not_row_count(self):
+        """v3 invariant: same row count, different spread → different class."""
+        high = map_observation(_make_high_spread_obs(10))[0]
+        low  = map_observation(_make_no_spread_obs(10))[0]
+        assert high != low, "Mapper must distinguish by spread, not just row count"
 
 
 # ---------------------------------------------------------------------------
