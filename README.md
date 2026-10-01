@@ -6,7 +6,7 @@
 
 [![Python 3.14](https://img.shields.io/badge/python-3.14-blue?style=flat-square&logo=python)](https://www.python.org/)
 [![Tests](https://img.shields.io/badge/tests-350%20passing-brightgreen?style=flat-square)](./tests/)
-[![Phase](https://img.shields.io/badge/phase-4%20complete-success?style=flat-square)](./docs/REFRAME.md)
+[![Phase](https://img.shields.io/badge/phase-5A%20closed-informational?style=flat-square)](./STATUS_CDB_SAMPLE_KILLED.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey?style=flat-square)](./LICENSE)
 [![Target: IEEE](https://img.shields.io/badge/target-IEEE%20empirical-orange?style=flat-square)](./docs/literature_matrix.csv)
 
@@ -58,7 +58,19 @@ $$V(q) = \underbrace{\text{EIG}(q \mid \hat{r}, \hat{\phi})}_{\text{reliability-
 | **7** | Hardening, conformal stopping, sensitivity sweeps | ⛔ Gated |
 | **8** | IEEE paper + reproducibility artifact | ⛔ Gated |
 
-**Current result (Phase 3 kill gate):**
+---
+
+## Current Standing
+
+| Item | Status |
+|------|--------|
+| HADES core (Phases 0–4) | 🟢 **ACTIVE** — F1/F5 passed |
+| Public CDB sample transfer (Phase 5A) | 🔴 **KILLED** — see [`STATUS_CDB_SAMPLE_KILLED.md`](./STATUS_CDB_SAMPLE_KILLED.md) |
+| Full CDB evaluation | 🟡 **DEFERRED** — see [`docs/future/cdb_full_access_plan.md`](./docs/future/cdb_full_access_plan.md) |
+| Test suite | 🟢 350 passed, 0 failed |
+| Working tree | Clean @ `b6d9bcb` (Phase 5A freeze point) |
+
+**Phase 3 kill-gate result (F1/F5):**
 
 ```
 F1 PASS — P5 meaningfully diverges from P3 at low reliability noise (flip ≥ 0.10)
@@ -66,7 +78,39 @@ F5 PASS — divergence does not collapse monotonically as corruption grows
 Clean OK — P5 introduces no drift in zero-corruption baseline scenarios (A, E)
 ```
 
----
+### Research tracks going forward
+
+These two tracks are independent and must not be conflated:
+
+**Track 1 — Main HADES research line (active)**
+```
+Phases 0–4 complete
+   ↓
+robustness / reliability-misspecification experiments
+   ↓
+final statistical analysis (Wilcoxon, bootstrap CI, Cliff’s δ)
+   ↓
+paper-quality results
+   ↓
+IEEE submission
+```
+
+**Track 2 — Future CDB external-validity experiment (deferred)**
+```
+full CDB dataset access
+   ↓
+telemetry schema audit
+   ↓
+new mapper development + freeze
+   ↓
+fresh held-out transfer gate (T1–T8)
+   ↓
+independent provenance record
+```
+
+> The current paper does not depend on the unavailable full-CDB benchmark.
+> The future CDB transfer is a well-defined external-validity experiment that can
+> be reported separately once full-data access is obtained.
 
 ## Policy Ladder
 
