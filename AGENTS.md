@@ -57,6 +57,13 @@ configs/experiments/
   pilot_v1.yaml, main_v1.yaml — frozen before sweeps
 data_manifest/
   benchmark_lock.json    — CDB version/checksum provenance (pinned)
+STATUS_CDB_SAMPLE_KILLED.md — formal kill record for CDB sample transfer
+docs/
+  REFRAME.md             — explains v0->v3 architectural change
+  threat_model.md        — R0-R4 corruption regime definitions
+  literature_matrix.csv  — novelty audit table
+  future/
+    cdb_full_access_plan.md — future full-CDB evaluation (independent experiment)
 ../cdb                   — Cyber Defense Benchmark sibling dependency
 ```
 
@@ -91,7 +98,12 @@ data_manifest/
 
 G0 baseline reproducible: PASS. G1 (heuristic-era, legacy): PASS [see g1_v0_legacy.json, not a paper claim].
 F1/F5 kill gate (reframed sweep on simulator): PENDING.
-G2-G6: pending full CDB sweep.
+Phase 5A CDB sample transfer: KILLED (T2 failed — obs representation degenerate on sample.json).
+  Mapper v1 (row count): LIMIT saturation → 647/647 strong_support.
+  Mapper v2 (null_rate + EventID variety): query-fixed signal → 654/654 neutral.
+  Mapper v3 (computer spread): placeholder values → 654/654 neutral.
+  See STATUS_CDB_SAMPLE_KILLED.md for full record.
+G2-G6: pending full CDB sweep (deferred pending full-benchmark access).
 
 ## Kill / Pivot Protocol
 
@@ -99,10 +111,13 @@ G2-G6: pending full CDB sweep.
 - F1 pass + collapse at 10-25% noise: estimator paper reframe.
 - F2/F6/F10 fail: narrow claims to non-adaptive or CDB-specific.
 - G6 fails: don't submit as novel-method paper.
+- CDB sample obs collapse: kill sample transfer, preserve infrastructure for full-CDB.
 
 ## Known Issues
 
-- `ThreatHuntEnv.reset()` inserts 155K rows one-at-a-time (~28s). `fast_db.py` is planned.
+- CDB sample transfer KILLED: sample.json uses placeholder values (Computer="Computer", AccountName=null).
+  CDB adapter/infrastructure preserved; full-CDB evaluation is deferred.
+- `ThreatHuntEnv.reset()` inserts 155K rows one-at-a-time (~28s). `fast_db.py` patches this.
 - `hades/simulator/environment.py` IG methods are still v0 heuristics; v3 belief wrappers pending.
 - `run_orderflip_test.py` inline policy logic needs refactor to import policy classes (Phase 2).
 

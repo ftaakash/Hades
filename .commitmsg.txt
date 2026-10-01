@@ -1,0 +1,27 @@
+Retire public CDB sample transfer; preserve future full-CDB infrastructure
+
+Kill condition: T2 failed across all three mapper designs on sample.json.
+The sample does not expose sufficient observable telemetry semantics.
+
+New files:
+  STATUS_CDB_SAMPLE_KILLED.md  -- formal kill record with mapper v1/v2/v3 history
+  docs/future/cdb_full_access_plan.md -- 10-step independent future experiment
+
+Updated:
+  README.md    -- Phase 5 KILLED badge, tests=350, benchmark/ in tree, kill gate entry
+  AGENTS.md    -- gates section, kill protocol, known issues, layout tree
+
+Removed:
+  .git_commit_msg.txt (temp file accidentally tracked in 896d2f4)
+
+Preserved (unchanged):
+  hades/benchmark/ (obs_mapper, candidate_extractor, fast_db)
+  scripts/run_transfer_gate.py
+  tests/test_benchmark.py (25 CDB tests)
+  results/raw/5a_transfer_gate_v1.json
+  results/raw/5a_transfer_gate_uniform_v1.json
+  results/raw/5a1_regression_v2.json
+  results/raw/5a1_regression_v3.json
+  hades five-class observation contract (no binary collapse)
+
+350 tests pass. No gate thresholds or policy logic changed.

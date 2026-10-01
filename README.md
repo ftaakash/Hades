@@ -5,7 +5,7 @@
 ### **H**ypothesis-**A**ware **D**ecision making for **E**vidence acquisition under adversarial **S**ecurity telemetry
 
 [![Python 3.14](https://img.shields.io/badge/python-3.14-blue?style=flat-square&logo=python)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-325%20passing-brightgreen?style=flat-square)](./tests/)
+[![Tests](https://img.shields.io/badge/tests-350%20passing-brightgreen?style=flat-square)](./tests/)
 [![Phase](https://img.shields.io/badge/phase-4%20complete-success?style=flat-square)](./docs/REFRAME.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey?style=flat-square)](./LICENSE)
 [![Target: IEEE](https://img.shields.io/badge/target-IEEE%20empirical-orange?style=flat-square)](./docs/literature_matrix.csv)
@@ -52,7 +52,8 @@ $$V(q) = \underbrace{\text{EIG}(q \mid \hat{r}, \hat{\phi})}_{\text{reliability-
 | **2** | Policy ladder (P0–P7) as cited baselines | ✅ Complete |
 | **3** | F1/F5 kill-gate sweep on simulator | ✅ **GO** |
 | **4** | Corruption engine (R1–R4) + reliability estimators + integration gate | ✅ **GO** |
-| **5** | CDB transfer — `fast_db`, `candidate_extractor`, hypothesis tracker | 🔲 Next |
+| **5** | CDB transfer gate — public sample | 🔴 KILLED ([details](./STATUS_CDB_SAMPLE_KILLED.md)) |
+| **5+** | CDB transfer — full benchmark access | ⏳ Deferred ([plan](./docs/future/cdb_full_access_plan.md)) |
 | **6** | Main sweep + statistics (Wilcoxon, bootstrap CI, Cliff's δ) | ⛔ Gated |
 | **7** | Hardening, conformal stopping, sensitivity sweeps | ⛔ Gated |
 | **8** | IEEE paper + reproducibility artifact | ⛔ Gated |
@@ -123,6 +124,10 @@ hades-bench-v1/
 │   │   ├── posterior.py
 │   │   ├── value.py     # eig(), voi(), robust_voi()
 │   │   └── relevance.py
+│   ├── benchmark/       # CDB adapter (preserved for future full-CDB eval)
+│   │   ├── obs_mapper.py
+│   │   ├── candidate_extractor.py
+│   │   └── fast_db.py
 │   ├── corruption/      # R1–R4 telemetry corruptors
 │   │   ├── base.py      # Corruptor ABC + ObsContext
 │   │   ├── missing.py   # R1
@@ -142,15 +147,19 @@ hades-bench-v1/
 │   └── harness.py       # CDB run(env, model) contract
 ├── scripts/
 │   ├── run_f1_sweep.py  # Phase 3 kill-gate sweep (20 seeds × 4 noise levels × 3 λ)
+│   ├── run_transfer_gate.py  # Phase 5A transfer gate (T1–T8)
 │   ├── run_smoke.py
 │   └── run_baseline_comparison.py
-├── tests/               # 325 tests — all passing
+├── tests/               # 350 tests — all passing
 ├── configs/experiments/ # pilot_v1.yaml, main_v1.yaml (frozen before sweeps)
 ├── results/raw/         # f1_sweep_*.json (canonical, versioned)
 ├── docs/
 │   ├── REFRAME.md       # v0 → v3 architectural change
 │   ├── threat_model.md  # R0–R4 corruption regime definitions
-│   └── literature_matrix.csv
+│   ├── literature_matrix.csv
+│   └── future/
+│       └── cdb_full_access_plan.md  # Future full-CDB evaluation plan
+├── STATUS_CDB_SAMPLE_KILLED.md  # CDB sample transfer kill record
 └── data_manifest/
     └── benchmark_lock.json  # CDB version + checksum (pinned)
 ```
@@ -207,6 +216,7 @@ claim
 | F1 pass + collapse at 10–25% noise | Estimator paper reframe |
 | G6 fails | Do not submit as novel-method paper |
 | P5 ≤ P3 on CDB outcomes | K1 kill — P5 behaviorally distinct but not useful |
+| CDB sample obs-class collapse | Kill sample transfer, defer full-CDB ([details](./STATUS_CDB_SAMPLE_KILLED.md)) |
 
 ---
 
@@ -226,7 +236,7 @@ claim
 
 <div align="center">
 
-*HADES is a research prototype. No production deployment. No superiority claims without Phase 5–6 evidence.*
+*HADES is a research prototype. No production deployment. No superiority claims without Phase 5–6 evidence. The publicly available CDB sample transfer was terminated because the exposed sample representation was insufficient for HADES's required observation semantics. Full-CDB evaluation is deferred pending authorized access.*
 
 **Researcher:** Aakash G.S. · **Target:** IEEE empirical paper · **Corpus:** [ftaakash/Hades](https://github.com/ftaakash/Hades)
 
