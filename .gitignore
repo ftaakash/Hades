@@ -70,3 +70,12 @@ desktop.ini
 *.key
 secrets.yaml
 secrets.json
+
+# Internal planning / working documents (local only)
+HADES_End_to_End_Development_and_Publication_Plan.md
+HADES_Reframed_Implementation_Plan.md
+HADES_Research_Proposal_and_Development_Plan.docx
+implementation_plan.md
+.agents/
+.commitmsg.txt
+.git_commit_msg.txt
