@@ -1,0 +1,1052 @@
+{
+  "sigma_0.0": {
+    "P5_full": {
+      "aggregate": {
+        "n": 2400,
+        "mean_diff": -0.018668,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.027612,
+          -0.0094
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 0.00863754528706325,
+        "cliffs_delta": -0.010374,
+        "cliffs_interp": "negligible"
+      },
+      "per_scenario": {
+        "B_reliability_flip": {
+          "n": 1200,
+          "mean_diff": -0.02253,
+          "median_diff": 0.0,
+          "mean_ci": [
+            -0.034351,
+            -0.010367
+          ],
+          "median_ci": [
+            0.0,
+            0.0
+          ],
+          "wilcoxon_p": 7.233705723187209e-06,
+          "cliffs_delta": -0.023006,
+          "cliffs_interp": "negligible"
+        },
+        "D_manipulation_flip": {
+          "n": 1200,
+          "mean_diff": -0.014807,
+          "median_diff": 0.000709,
+          "mean_ci": [
+            -0.02843,
+            -0.000544
+          ],
+          "median_ci": [
+            0.000221,
+            0.0018
+          ],
+          "wilcoxon_p": 0.40904917960406206,
+          "cliffs_delta": 0.0683,
+          "cliffs_interp": "negligible"
+        }
+      }
+    },
+    "P5_no_cost": {
+      "aggregate": {
+        "n": 2400,
+        "mean_diff": 0.0,
+        "median_diff": 0.0,
+        "mean_ci": [
+          0.0,
+          0.0
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 1.0,
+        "cliffs_delta": 0.0,
+        "cliffs_interp": "negligible"
+      },
+      "per_scenario": {
+        "B_reliability_flip": {
+          "n": 1200,
+          "mean_diff": 0.0,
+          "median_diff": 0.0,
+          "mean_ci": [
+            0.0,
+            0.0
+          ],
+          "median_ci": [
+            0.0,
+            0.0
+          ],
+          "wilcoxon_p": 1.0,
+          "cliffs_delta": 0.0,
+          "cliffs_interp": "negligible"
+        },
+        "D_manipulation_flip": {
+          "n": 1200,
+          "mean_diff": 0.0,
+          "median_diff": 0.0,
+          "mean_ci": [
+            0.0,
+            0.0
+          ],
+          "median_ci": [
+            0.0,
+            0.0
+          ],
+          "wilcoxon_p": 1.0,
+          "cliffs_delta": 0.0,
+          "cliffs_interp": "negligible"
+        }
+      }
+    },
+    "P5_no_reliability": {
+      "aggregate": {
+        "n": 2400,
+        "mean_diff": -0.056896,
+        "median_diff": -2.3e-05,
+        "mean_ci": [
+          -0.0699,
+          -0.043726
+        ],
+        "median_ci": [
+          -0.001251,
+          0.000292
+        ],
+        "wilcoxon_p": 2.8979268892400575e-08,
+        "cliffs_delta": -0.074629,
+        "cliffs_interp": "negligible"
+      },
+      "per_scenario": {
+        "B_reliability_flip": {
+          "n": 1200,
+          "mean_diff": -0.111197,
+          "median_diff": -0.048164,
+          "mean_ci": [
+            -0.133033,
+            -0.088826
+          ],
+          "median_ci": [
+            -0.065996,
+            -0.033504
+          ],
+          "wilcoxon_p": 6.7030131511829964e-18,
+          "cliffs_delta": -0.150262,
+          "cliffs_interp": "small"
+        },
+        "D_manipulation_flip": {
+          "n": 1200,
+          "mean_diff": -0.002595,
+          "median_diff": 0.001368,
+          "mean_ci": [
+            -0.016414,
+            0.011392
+          ],
+          "median_ci": [
+            0.000501,
+            0.002139
+          ],
+          "wilcoxon_p": 0.013639238056269048,
+          "cliffs_delta": 0.071419,
+          "cliffs_interp": "negligible"
+        }
+      }
+    },
+    "P5_no_phi": {
+      "aggregate": {
+        "n": 2400,
+        "mean_diff": -0.018668,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.027612,
+          -0.0094
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 0.00863754528706325,
+        "cliffs_delta": -0.010374,
+        "cliffs_interp": "negligible"
+      },
+      "per_scenario": {
+        "B_reliability_flip": {
+          "n": 1200,
+          "mean_diff": -0.02253,
+          "median_diff": 0.0,
+          "mean_ci": [
+            -0.034175,
+            -0.01061
+          ],
+          "median_ci": [
+            0.0,
+            0.0
+          ],
+          "wilcoxon_p": 7.233705723187209e-06,
+          "cliffs_delta": -0.023006,
+          "cliffs_interp": "negligible"
+        },
+        "D_manipulation_flip": {
+          "n": 1200,
+          "mean_diff": -0.014807,
+          "median_diff": 0.000709,
+          "mean_ci": [
+            -0.029248,
+            -0.000917
+          ],
+          "median_ci": [
+            0.00025,
+            0.0018
+          ],
+          "wilcoxon_p": 0.40904917960406206,
+          "cliffs_delta": 0.0683,
+          "cliffs_interp": "negligible"
+        }
+      }
+    }
+  },
+  "sigma_0.05": {
+    "P5_full": {
+      "aggregate": {
+        "n": 2400,
+        "mean_diff": -0.011328,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.021908,
+          -0.001376
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 0.5103731222739996,
+        "cliffs_delta": -0.00023,
+        "cliffs_interp": "negligible"
+      },
+      "per_scenario": {
+        "B_reliability_flip": {
+          "n": 1200,
+          "mean_diff": -0.007334,
+          "median_diff": 0.0,
+          "mean_ci": [
+            -0.023262,
+            0.008271
+          ],
+          "median_ci": [
+            0.0,
+            0.0
+          ],
+          "wilcoxon_p": 0.37510294993728144,
+          "cliffs_delta": -0.001362,
+          "cliffs_interp": "negligible"
+        },
+        "D_manipulation_flip": {
+          "n": 1200,
+          "mean_diff": -0.015322,
+          "median_diff": 0.00075,
+          "mean_ci": [
+            -0.027899,
+            -0.002809
+          ],
+          "median_ci": [
+            0.00029,
+            0.00172
+          ],
+          "wilcoxon_p": 0.4163628018899589,
+          "cliffs_delta": 0.064981,
+          "cliffs_interp": "negligible"
+        }
+      }
+    },
+    "P5_no_cost": {
+      "aggregate": {
+        "n": 2400,
+        "mean_diff": 0.0,
+        "median_diff": 0.0,
+        "mean_ci": [
+          0.0,
+          0.0
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 1.0,
+        "cliffs_delta": 0.0,
+        "cliffs_interp": "negligible"
+      },
+      "per_scenario": {
+        "B_reliability_flip": {
+          "n": 1200,
+          "mean_diff": 0.0,
+          "median_diff": 0.0,
+          "mean_ci": [
+            0.0,
+            0.0
+          ],
+          "median_ci": [
+            0.0,
+            0.0
+          ],
+          "wilcoxon_p": 1.0,
+          "cliffs_delta": 0.0,
+          "cliffs_interp": "negligible"
+        },
+        "D_manipulation_flip": {
+          "n": 1200,
+          "mean_diff": 0.0,
+          "median_diff": 0.0,
+          "mean_ci": [
+            0.0,
+            0.0
+          ],
+          "median_ci": [
+            0.0,
+            0.0
+          ],
+          "wilcoxon_p": 1.0,
+          "cliffs_delta": 0.0,
+          "cliffs_interp": "negligible"
+        }
+      }
+    },
+    "P5_no_reliability": {
+      "aggregate": {
+        "n": 2400,
+        "mean_diff": -0.039352,
+        "median_diff": 0.000144,
+        "mean_ci": [
+          -0.052874,
+          -0.026036
+        ],
+        "median_ci": [
+          -0.000474,
+          0.000585
+        ],
+        "wilcoxon_p": 0.0001598954345591494,
+        "cliffs_delta": -0.044338,
+        "cliffs_interp": "negligible"
+      },
+      "per_scenario": {
+        "B_reliability_flip": {
+          "n": 1200,
+          "mean_diff": -0.071313,
+          "median_diff": -0.033106,
+          "mean_ci": [
+            -0.094129,
+            -0.048509
+          ],
+          "median_ci": [
+            -0.051221,
+            -0.013658
+          ],
+          "wilcoxon_p": 2.9388838368523135e-08,
+          "cliffs_delta": -0.097,
+          "cliffs_interp": "negligible"
+        },
+        "D_manipulation_flip": {
+          "n": 1200,
+          "mean_diff": -0.007391,
+          "median_diff": 0.000924,
+          "mean_ci": [
+            -0.021012,
+            0.00615
+          ],
+          "median_ci": [
+            0.000326,
+            0.001797
+          ],
+          "wilcoxon_p": 0.10546170479053499,
+          "cliffs_delta": 0.06346,
+          "cliffs_interp": "negligible"
+        }
+      }
+    },
+    "P5_no_phi": {
+      "aggregate": {
+        "n": 2400,
+        "mean_diff": -0.011328,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.021908,
+          -0.001376
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 0.5103731222739996,
+        "cliffs_delta": -0.00023,
+        "cliffs_interp": "negligible"
+      },
+      "per_scenario": {
+        "B_reliability_flip": {
+          "n": 1200,
+          "mean_diff": -0.007334,
+          "median_diff": 0.0,
+          "mean_ci": [
+            -0.022899,
+            0.008054
+          ],
+          "median_ci": [
+            0.0,
+            0.0
+          ],
+          "wilcoxon_p": 0.37510294993728144,
+          "cliffs_delta": -0.001362,
+          "cliffs_interp": "negligible"
+        },
+        "D_manipulation_flip": {
+          "n": 1200,
+          "mean_diff": -0.015322,
+          "median_diff": 0.00075,
+          "mean_ci": [
+            -0.028416,
+            -0.002366
+          ],
+          "median_ci": [
+            0.00029,
+            0.00172
+          ],
+          "wilcoxon_p": 0.4163628018899589,
+          "cliffs_delta": 0.064981,
+          "cliffs_interp": "negligible"
+        }
+      }
+    }
+  },
+  "sigma_0.1": {
+    "P5_full": {
+      "aggregate": {
+        "n": 2400,
+        "mean_diff": 0.005048,
+        "median_diff": 0.000629,
+        "mean_ci": [
+          -0.005851,
+          0.01633
+        ],
+        "median_ci": [
+          0.000144,
+          0.001409
+        ],
+        "wilcoxon_p": 0.0038862378352627768,
+        "cliffs_delta": 0.03226,
+        "cliffs_interp": "negligible"
+      },
+      "per_scenario": {
+        "B_reliability_flip": {
+          "n": 1200,
+          "mean_diff": 0.010258,
+          "median_diff": 0.0,
+          "mean_ci": [
+            -0.006973,
+            0.027504
+          ],
+          "median_ci": [
+            0.0,
+            0.0
+          ],
+          "wilcoxon_p": 0.33048743882316944,
+          "cliffs_delta": 0.028163,
+          "cliffs_interp": "negligible"
+        },
+        "D_manipulation_flip": {
+          "n": 1200,
+          "mean_diff": -0.000162,
+          "median_diff": 0.001496,
+          "mean_ci": [
+            -0.013001,
+            0.012673
+          ],
+          "median_ci": [
+            0.00075,
+            0.002361
+          ],
+          "wilcoxon_p": 0.00031552025444008127,
+          "cliffs_delta": 0.097962,
+          "cliffs_interp": "negligible"
+        }
+      }
+    },
+    "P5_no_cost": {
+      "aggregate": {
+        "n": 2400,
+        "mean_diff": 0.0,
+        "median_diff": 0.0,
+        "mean_ci": [
+          0.0,
+          0.0
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 1.0,
+        "cliffs_delta": 0.0,
+        "cliffs_interp": "negligible"
+      },
+      "per_scenario": {
+        "B_reliability_flip": {
+          "n": 1200,
+          "mean_diff": 0.0,
+          "median_diff": 0.0,
+          "mean_ci": [
+            0.0,
+            0.0
+          ],
+          "median_ci": [
+            0.0,
+            0.0
+          ],
+          "wilcoxon_p": 1.0,
+          "cliffs_delta": 0.0,
+          "cliffs_interp": "negligible"
+        },
+        "D_manipulation_flip": {
+          "n": 1200,
+          "mean_diff": 0.0,
+          "median_diff": 0.0,
+          "mean_ci": [
+            0.0,
+            0.0
+          ],
+          "median_ci": [
+            0.0,
+            0.0
+          ],
+          "wilcoxon_p": 1.0,
+          "cliffs_delta": 0.0,
+          "cliffs_interp": "negligible"
+        }
+      }
+    },
+    "P5_no_reliability": {
+      "aggregate": {
+        "n": 2400,
+        "mean_diff": -0.032121,
+        "median_diff": 0.000144,
+        "mean_ci": [
+          -0.045415,
+          -0.018939
+        ],
+        "median_ci": [
+          -0.000473,
+          0.000675
+        ],
+        "wilcoxon_p": 0.0022667436750078186,
+        "cliffs_delta": -0.03294,
+        "cliffs_interp": "negligible"
+      },
+      "per_scenario": {
+        "B_reliability_flip": {
+          "n": 1200,
+          "mean_diff": -0.065044,
+          "median_diff": -0.030588,
+          "mean_ci": [
+            -0.087679,
+            -0.042955
+          ],
+          "median_ci": [
+            -0.051408,
+            -0.015072
+          ],
+          "wilcoxon_p": 1.0466616544797216e-07,
+          "cliffs_delta": -0.091088,
+          "cliffs_interp": "negligible"
+        },
+        "D_manipulation_flip": {
+          "n": 1200,
+          "mean_diff": 0.000802,
+          "median_diff": 0.00132,
+          "mean_ci": [
+            -0.012062,
+            0.013665
+          ],
+          "median_ci": [
+            0.000521,
+            0.002331
+          ],
+          "wilcoxon_p": 0.003296565158855321,
+          "cliffs_delta": 0.076783,
+          "cliffs_interp": "negligible"
+        }
+      }
+    },
+    "P5_no_phi": {
+      "aggregate": {
+        "n": 2400,
+        "mean_diff": 0.005048,
+        "median_diff": 0.000629,
+        "mean_ci": [
+          -0.005851,
+          0.01633
+        ],
+        "median_ci": [
+          0.000144,
+          0.001409
+        ],
+        "wilcoxon_p": 0.0038862378352627768,
+        "cliffs_delta": 0.03226,
+        "cliffs_interp": "negligible"
+      },
+      "per_scenario": {
+        "B_reliability_flip": {
+          "n": 1200,
+          "mean_diff": 0.010258,
+          "median_diff": 0.0,
+          "mean_ci": [
+            -0.006401,
+            0.026562
+          ],
+          "median_ci": [
+            0.0,
+            0.0
+          ],
+          "wilcoxon_p": 0.33048743882316944,
+          "cliffs_delta": 0.028163,
+          "cliffs_interp": "negligible"
+        },
+        "D_manipulation_flip": {
+          "n": 1200,
+          "mean_diff": -0.000162,
+          "median_diff": 0.001496,
+          "mean_ci": [
+            -0.013466,
+            0.013231
+          ],
+          "median_ci": [
+            0.00075,
+            0.002361
+          ],
+          "wilcoxon_p": 0.00031552025444008127,
+          "cliffs_delta": 0.097962,
+          "cliffs_interp": "negligible"
+        }
+      }
+    }
+  },
+  "sigma_0.2": {
+    "P5_full": {
+      "aggregate": {
+        "n": 2400,
+        "mean_diff": 0.005812,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.005169,
+          0.016511
+        ],
+        "median_ci": [
+          0.0,
+          0.000404
+        ],
+        "wilcoxon_p": 0.2525219624823408,
+        "cliffs_delta": 0.036321,
+        "cliffs_interp": "negligible"
+      },
+      "per_scenario": {
+        "B_reliability_flip": {
+          "n": 1200,
+          "mean_diff": 0.017851,
+          "median_diff": 0.0,
+          "mean_ci": [
+            0.000256,
+            0.035577
+          ],
+          "median_ci": [
+            0.0,
+            0.0
+          ],
+          "wilcoxon_p": 0.13369408936903066,
+          "cliffs_delta": 0.0329,
+          "cliffs_interp": "negligible"
+        },
+        "D_manipulation_flip": {
+          "n": 1200,
+          "mean_diff": -0.006227,
+          "median_diff": 0.000412,
+          "mean_ci": [
+            -0.018781,
+            0.006642
+          ],
+          "median_ci": [
+            0.0,
+            0.000878
+          ],
+          "wilcoxon_p": 0.438907455539551,
+          "cliffs_delta": 0.077683,
+          "cliffs_interp": "negligible"
+        }
+      }
+    },
+    "P5_no_cost": {
+      "aggregate": {
+        "n": 2400,
+        "mean_diff": 0.0,
+        "median_diff": 0.0,
+        "mean_ci": [
+          0.0,
+          0.0
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 1.0,
+        "cliffs_delta": 0.0,
+        "cliffs_interp": "negligible"
+      },
+      "per_scenario": {
+        "B_reliability_flip": {
+          "n": 1200,
+          "mean_diff": 0.0,
+          "median_diff": 0.0,
+          "mean_ci": [
+            0.0,
+            0.0
+          ],
+          "median_ci": [
+            0.0,
+            0.0
+          ],
+          "wilcoxon_p": 1.0,
+          "cliffs_delta": 0.0,
+          "cliffs_interp": "negligible"
+        },
+        "D_manipulation_flip": {
+          "n": 1200,
+          "mean_diff": 0.0,
+          "median_diff": 0.0,
+          "mean_ci": [
+            0.0,
+            0.0
+          ],
+          "median_ci": [
+            0.0,
+            0.0
+          ],
+          "wilcoxon_p": 1.0,
+          "cliffs_delta": 0.0,
+          "cliffs_interp": "negligible"
+        }
+      }
+    },
+    "P5_no_reliability": {
+      "aggregate": {
+        "n": 2400,
+        "mean_diff": -0.026814,
+        "median_diff": 0.000227,
+        "mean_ci": [
+          -0.03988,
+          -0.013833
+        ],
+        "median_ci": [
+          -0.000149,
+          0.000789
+        ],
+        "wilcoxon_p": 0.011058405666636871,
+        "cliffs_delta": -0.022763,
+        "cliffs_interp": "negligible"
+      },
+      "per_scenario": {
+        "B_reliability_flip": {
+          "n": 1200,
+          "mean_diff": -0.04715,
+          "median_diff": -0.017468,
+          "mean_ci": [
+            -0.069795,
+            -0.024732
+          ],
+          "median_ci": [
+            -0.03747,
+            -0.004543
+          ],
+          "wilcoxon_p": 0.0005355020273452858,
+          "cliffs_delta": -0.060463,
+          "cliffs_interp": "negligible"
+        },
+        "D_manipulation_flip": {
+          "n": 1200,
+          "mean_diff": -0.006478,
+          "median_diff": 0.000784,
+          "mean_ci": [
+            -0.020424,
+            0.006594
+          ],
+          "median_ci": [
+            0.000333,
+            0.001181
+          ],
+          "wilcoxon_p": 0.3005009667356354,
+          "cliffs_delta": 0.061206,
+          "cliffs_interp": "negligible"
+        }
+      }
+    },
+    "P5_no_phi": {
+      "aggregate": {
+        "n": 2400,
+        "mean_diff": 0.005812,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.005169,
+          0.016511
+        ],
+        "median_ci": [
+          0.0,
+          0.000404
+        ],
+        "wilcoxon_p": 0.2525219624823408,
+        "cliffs_delta": 0.036321,
+        "cliffs_interp": "negligible"
+      },
+      "per_scenario": {
+        "B_reliability_flip": {
+          "n": 1200,
+          "mean_diff": 0.017851,
+          "median_diff": 0.0,
+          "mean_ci": [
+            0.00098,
+            0.035402
+          ],
+          "median_ci": [
+            0.0,
+            0.0
+          ],
+          "wilcoxon_p": 0.13369408936903066,
+          "cliffs_delta": 0.0329,
+          "cliffs_interp": "negligible"
+        },
+        "D_manipulation_flip": {
+          "n": 1200,
+          "mean_diff": -0.006227,
+          "median_diff": 0.000412,
+          "mean_ci": [
+            -0.018455,
+            0.006212
+          ],
+          "median_ci": [
+            0.0,
+            0.000878
+          ],
+          "wilcoxon_p": 0.438907455539551,
+          "cliffs_delta": 0.077683,
+          "cliffs_interp": "negligible"
+        }
+      }
+    }
+  },
+  "sigma_0.3": {
+    "P5_full": {
+      "aggregate": {
+        "n": 2400,
+        "mean_diff": 0.004656,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.005197,
+          0.014329
+        ],
+        "median_ci": [
+          0.0,
+          0.000516
+        ],
+        "wilcoxon_p": 0.20544560499796638,
+        "cliffs_delta": 0.028701,
+        "cliffs_interp": "negligible"
+      },
+      "per_scenario": {
+        "B_reliability_flip": {
+          "n": 1200,
+          "mean_diff": 0.021964,
+          "median_diff": 0.0,
+          "mean_ci": [
+            0.006234,
+            0.037773
+          ],
+          "median_ci": [
+            0.0,
+            0.001416
+          ],
+          "wilcoxon_p": 0.013898045862446883,
+          "cliffs_delta": 0.038973,
+          "cliffs_interp": "negligible"
+        },
+        "D_manipulation_flip": {
+          "n": 1200,
+          "mean_diff": -0.012652,
+          "median_diff": 0.000234,
+          "mean_ci": [
+            -0.023684,
+            -0.00145
+          ],
+          "median_ci": [
+            -4.7e-05,
+            0.00075
+          ],
+          "wilcoxon_p": 0.8105992221163092,
+          "cliffs_delta": 0.054981,
+          "cliffs_interp": "negligible"
+        }
+      }
+    },
+    "P5_no_cost": {
+      "aggregate": {
+        "n": 2400,
+        "mean_diff": 0.0,
+        "median_diff": 0.0,
+        "mean_ci": [
+          0.0,
+          0.0
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 1.0,
+        "cliffs_delta": 0.0,
+        "cliffs_interp": "negligible"
+      },
+      "per_scenario": {
+        "B_reliability_flip": {
+          "n": 1200,
+          "mean_diff": 0.0,
+          "median_diff": 0.0,
+          "mean_ci": [
+            0.0,
+            0.0
+          ],
+          "median_ci": [
+            0.0,
+            0.0
+          ],
+          "wilcoxon_p": 1.0,
+          "cliffs_delta": 0.0,
+          "cliffs_interp": "negligible"
+        },
+        "D_manipulation_flip": {
+          "n": 1200,
+          "mean_diff": 0.0,
+          "median_diff": 0.0,
+          "mean_ci": [
+            0.0,
+            0.0
+          ],
+          "median_ci": [
+            0.0,
+            0.0
+          ],
+          "wilcoxon_p": 1.0,
+          "cliffs_delta": 0.0,
+          "cliffs_interp": "negligible"
+        }
+      }
+    },
+    "P5_no_reliability": {
+      "aggregate": {
+        "n": 2400,
+        "mean_diff": -0.021527,
+        "median_diff": 0.000516,
+        "mean_ci": [
+          -0.03433,
+          -0.008708
+        ],
+        "median_ci": [
+          2.5e-05,
+          0.001061
+        ],
+        "wilcoxon_p": 0.06533015593319023,
+        "cliffs_delta": -0.023255,
+        "cliffs_interp": "negligible"
+      },
+      "per_scenario": {
+        "B_reliability_flip": {
+          "n": 1200,
+          "mean_diff": -0.03532,
+          "median_diff": -0.017218,
+          "mean_ci": [
+            -0.057988,
+            -0.0128
+          ],
+          "median_ci": [
+            -0.03747,
+            -0.001541
+          ],
+          "wilcoxon_p": 0.003087359411656277,
+          "cliffs_delta": -0.049063,
+          "cliffs_interp": "negligible"
+        },
+        "D_manipulation_flip": {
+          "n": 1200,
+          "mean_diff": -0.007734,
+          "median_diff": 0.001048,
+          "mean_ci": [
+            -0.020348,
+            0.005173
+          ],
+          "median_ci": [
+            0.000672,
+            0.001859
+          ],
+          "wilcoxon_p": 0.0834905944549202,
+          "cliffs_delta": 0.048869,
+          "cliffs_interp": "negligible"
+        }
+      }
+    },
+    "P5_no_phi": {
+      "aggregate": {
+        "n": 2400,
+        "mean_diff": 0.004656,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.005197,
+          0.014329
+        ],
+        "median_ci": [
+          0.0,
+          0.000516
+        ],
+        "wilcoxon_p": 0.20544560499796638,
+        "cliffs_delta": 0.028701,
+        "cliffs_interp": "negligible"
+      },
+      "per_scenario": {
+        "B_reliability_flip": {
+          "n": 1200,
+          "mean_diff": 0.021964,
+          "median_diff": 0.0,
+          "mean_ci": [
+            0.005809,
+            0.037644
+          ],
+          "median_ci": [
+            0.0,
+            0.001416
+          ],
+          "wilcoxon_p": 0.013898045862446883,
+          "cliffs_delta": 0.038973,
+          "cliffs_interp": "negligible"
+        },
+        "D_manipulation_flip": {
+          "n": 1200,
+          "mean_diff": -0.012652,
+          "median_diff": 0.000234,
+          "mean_ci": [
+            -0.023756,
+            -0.001479
+          ],
+          "median_ci": [
+            -4.7e-05,
+            0.00075
+          ],
+          "wilcoxon_p": 0.8105992221163092,
+          "cliffs_delta": 0.054981,
+          "cliffs_interp": "negligible"
+        }
+      }
+    }
+  }
+}
