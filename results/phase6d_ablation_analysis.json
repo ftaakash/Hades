@@ -1,0 +1,274 @@
+{
+  "P5_full": {
+    "aggregate": {
+      "n": 22500,
+      "mean_diff": 0.022,
+      "median_diff": 0.0,
+      "mean_ci": [
+        0.018331,
+        0.025676
+      ],
+      "median_ci": [
+        0.0,
+        0.0
+      ],
+      "wilcoxon_p": 7.601906010872415e-37,
+      "cliffs_delta": 0.06332,
+      "cliffs_interp": "negligible"
+    },
+    "per_scenario": {
+      "B_reliability_flip": {
+        "n": 7500,
+        "mean_diff": -0.004605,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.009131,
+          -3.8e-05
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 0.004819995218258238,
+        "cliffs_delta": -0.000459,
+        "cliffs_interp": "negligible"
+      },
+      "C_cost_flip": {
+        "n": 7500,
+        "mean_diff": 0.073213,
+        "median_diff": 0.045311,
+        "mean_ci": [
+          0.06484,
+          0.081776
+        ],
+        "median_ci": [
+          0.036958,
+          0.051412
+        ],
+        "wilcoxon_p": 2.5988812060133025e-57,
+        "cliffs_delta": 0.14665,
+        "cliffs_interp": "negligible"
+      },
+      "D_manipulation_flip": {
+        "n": 7500,
+        "mean_diff": -0.002607,
+        "median_diff": 0.001147,
+        "mean_ci": [
+          -0.008218,
+          0.003061
+        ],
+        "median_ci": [
+          0.000655,
+          0.00137
+        ],
+        "wilcoxon_p": 2.0033957488865022e-09,
+        "cliffs_delta": 0.102834,
+        "cliffs_interp": "negligible"
+      }
+    }
+  },
+  "P5_no_cost": {
+    "aggregate": {
+      "n": 22500,
+      "mean_diff": 0.0,
+      "median_diff": 0.0,
+      "mean_ci": [
+        0.0,
+        0.0
+      ],
+      "median_ci": [
+        0.0,
+        0.0
+      ],
+      "wilcoxon_p": 1.0,
+      "cliffs_delta": 0.0,
+      "cliffs_interp": "negligible"
+    },
+    "per_scenario": {
+      "B_reliability_flip": {
+        "n": 7500,
+        "mean_diff": 0.0,
+        "median_diff": 0.0,
+        "mean_ci": [
+          0.0,
+          0.0
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 1.0,
+        "cliffs_delta": 0.0,
+        "cliffs_interp": "negligible"
+      },
+      "C_cost_flip": {
+        "n": 7500,
+        "mean_diff": 0.0,
+        "median_diff": 0.0,
+        "mean_ci": [
+          0.0,
+          0.0
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 1.0,
+        "cliffs_delta": 0.0,
+        "cliffs_interp": "negligible"
+      },
+      "D_manipulation_flip": {
+        "n": 7500,
+        "mean_diff": 0.0,
+        "median_diff": 0.0,
+        "mean_ci": [
+          0.0,
+          0.0
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 1.0,
+        "cliffs_delta": 0.0,
+        "cliffs_interp": "negligible"
+      }
+    }
+  },
+  "P5_no_reliability": {
+    "aggregate": {
+      "n": 22500,
+      "mean_diff": -0.005023,
+      "median_diff": 0.001488,
+      "mean_ci": [
+        -0.009514,
+        -0.000537
+      ],
+      "median_ci": [
+        0.001248,
+        0.002034
+      ],
+      "wilcoxon_p": 0.044443895401884405,
+      "cliffs_delta": 0.016352,
+      "cliffs_interp": "negligible"
+    },
+    "per_scenario": {
+      "B_reliability_flip": {
+        "n": 7500,
+        "mean_diff": -0.082525,
+        "median_diff": -0.025892,
+        "mean_ci": [
+          -0.091066,
+          -0.073977
+        ],
+        "median_ci": [
+          -0.034612,
+          -0.016267
+        ],
+        "wilcoxon_p": 8.322354802886621e-59,
+        "cliffs_delta": -0.113469,
+        "cliffs_interp": "negligible"
+      },
+      "C_cost_flip": {
+        "n": 7500,
+        "mean_diff": 0.064363,
+        "median_diff": 0.042405,
+        "mean_ci": [
+          0.055581,
+          0.072994
+        ],
+        "median_ci": [
+          0.037075,
+          0.056083
+        ],
+        "wilcoxon_p": 3.2215923892377223e-47,
+        "cliffs_delta": 0.131589,
+        "cliffs_interp": "negligible"
+      },
+      "D_manipulation_flip": {
+        "n": 7500,
+        "mean_diff": 0.003092,
+        "median_diff": 0.001379,
+        "mean_ci": [
+          -0.002518,
+          0.00867
+        ],
+        "median_ci": [
+          0.001277,
+          0.001869
+        ],
+        "wilcoxon_p": 1.3117349834111952e-16,
+        "cliffs_delta": 0.086361,
+        "cliffs_interp": "negligible"
+      }
+    }
+  },
+  "P5_no_phi": {
+    "aggregate": {
+      "n": 22500,
+      "mean_diff": 0.022,
+      "median_diff": 0.0,
+      "mean_ci": [
+        0.018331,
+        0.025676
+      ],
+      "median_ci": [
+        0.0,
+        0.0
+      ],
+      "wilcoxon_p": 7.601906010872415e-37,
+      "cliffs_delta": 0.06332,
+      "cliffs_interp": "negligible"
+    },
+    "per_scenario": {
+      "B_reliability_flip": {
+        "n": 7500,
+        "mean_diff": -0.004605,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.008977,
+          -5.2e-05
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 0.004819995218258238,
+        "cliffs_delta": -0.000459,
+        "cliffs_interp": "negligible"
+      },
+      "C_cost_flip": {
+        "n": 7500,
+        "mean_diff": 0.073213,
+        "median_diff": 0.045311,
+        "mean_ci": [
+          0.064651,
+          0.081637
+        ],
+        "median_ci": [
+          0.036958,
+          0.051412
+        ],
+        "wilcoxon_p": 2.5988812060133025e-57,
+        "cliffs_delta": 0.14665,
+        "cliffs_interp": "negligible"
+      },
+      "D_manipulation_flip": {
+        "n": 7500,
+        "mean_diff": -0.002607,
+        "median_diff": 0.001147,
+        "mean_ci": [
+          -0.00827,
+          0.002948
+        ],
+        "median_ci": [
+          0.000655,
+          0.00137
+        ],
+        "wilcoxon_p": 2.0033957488865022e-09,
+        "cliffs_delta": 0.102834,
+        "cliffs_interp": "negligible"
+      }
+    }
+  }
+}

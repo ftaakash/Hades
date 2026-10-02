@@ -134,7 +134,7 @@ def secondary_analysis(pairs: List[Dict]) -> Dict:
 def print_verdict(verdict: Dict) -> None:
     """Print human-readable verdict to stdout."""
     print("\n" + "=" * 70)
-    print("HADES PHASE 6 — VERDICT")
+    print("HADES PHASE 6 — VERDICT (v2 — gate consistency fix)")
     print("=" * 70)
 
     conf = verdict.get("confirmatory", {})
@@ -145,19 +145,45 @@ def print_verdict(verdict: Dict) -> None:
     if "bootstrap_ci" in conf:
         ci = conf["bootstrap_ci"]
         print(f"    Median diff: {ci['median_diff']:.4f}")
+        print(f"    Mean diff  : {ci['mean_diff']:.4f}")
         print(f"    95% CI     : [{ci['ci_low']:.4f}, {ci['ci_high']:.4f}]")
     if "cliffs_delta" in conf:
         cd = conf["cliffs_delta"]
         print(f"    Cliff's δ  : {cd['delta']:.4f} ({cd['interpretation']})")
 
+    # Print per-scenario diagnostics
+    diag = verdict.get("diagnostics", {})
+    if diag.get("per_scenario"):
+        print(f"\n  PER-SCENARIO (mean / median / mean_CI / δ):")
+        for sc, stats in sorted(diag["per_scenario"].items()):
+            print(f"    {sc}: mean={stats['mean_diff']:+.4f}, "
+                  f"median={stats['median_diff']:+.4f}, "
+                  f"mean_CI={stats['mean_ci']}, "
+                  f"δ={stats['cliffs_delta']:.4f} ({stats['cliffs_interp']})")
+
+    if diag.get("per_estimator"):
+        print(f"\n  PER-ESTIMATOR (mean / median / p / δ):")
+        for est, stats in sorted(diag["per_estimator"].items()):
+            print(f"    {est}: mean={stats['mean_diff']:+.4f}, "
+                  f"median={stats['median_diff']:+.4f}, "
+                  f"p={stats['wilcoxon_p']:.2e}, "
+                  f"δ={stats['cliffs_delta']:.4f} ({stats['cliffs_interp']})")
+
     print(f"\n  KILL GATES:")
     for gate in verdict.get("gates", []):
         icon = {"PASS": "🟢", "CONDITIONAL": "🟡", "KILL": "🔴"}.get(gate["status"], "❓")
-        print(f"    {icon} {gate['gate_id']}: {gate['status']} — {gate['detail'][:80]}")
+        print(f"    {icon} {gate['gate_id']}: {gate['status']}")
+        # Wrap long detail text
+        detail = gate["detail"]
+        while detail:
+            print(f"       {detail[:75]}")
+            detail = detail[75:]
 
     overall = verdict.get("overall_verdict", "UNKNOWN")
     icon = "🟢" if overall == "GO" else "🔴" if overall == "KILL" else "🟡"
     print(f"\n  {icon} OVERALL: {overall}")
+    if verdict.get("overall_detail"):
+        print(f"     {verdict['overall_detail']}")
     print("=" * 70 + "\n")
 
 
@@ -171,16 +197,33 @@ def build_verdict(
     if not pairs:
         return {"error": "No P5-P3 pairs found", "overall_verdict": "ERROR"}
 
+    # Document confirmatory composition
+    contaminated = [p for p in pairs if p["corruption_regime"] != "R0_clean"]
+    clean = [p for p in pairs if p["corruption_regime"] == "R0_clean"]
+    confirmatory_composition = {
+        "total_pairs": len(pairs),
+        "confirmatory_pairs": len(contaminated),
+        "clean_pairs": len(clean),
+        "contaminated_regimes": sorted(set(p["corruption_regime"] for p in contaminated)),
+        "scenarios": sorted(set(p["scenario"] for p in contaminated)),
+        "estimators": sorted(set(p["estimator_regime"] for p in contaminated)),
+        "lambda_values": sorted(set(p["lam"] for p in contaminated)),
+        "note": "Confirmatory = all contaminated pairs (R1-R4a). R0 excluded per protocol.",
+    }
+
     conf = confirmatory_analysis(pairs)
     secondary = secondary_analysis(pairs)
-    gates = evaluate_gates(pairs)
+    gates, diagnostics = evaluate_gates(pairs)
 
     # Overall verdict
     gate_statuses = [g.status for g in gates]
     if "KILL" in gate_statuses:
-        overall = "CONDITIONAL"  # at least one gate killed
+        overall = "CONDITIONAL"
         kills = [g.gate_id for g in gates if g.status == "KILL"]
+        conditional = [g.gate_id for g in gates if g.status == "CONDITIONAL"]
         overall_detail = f"Gates killed: {', '.join(kills)}"
+        if conditional:
+            overall_detail += f"; Conditional: {', '.join(conditional)}"
     elif all(s == "PASS" for s in gate_statuses):
         overall = "GO"
         overall_detail = "All gates passed"
@@ -192,10 +235,13 @@ def build_verdict(
     verdict = {
         "experiment_id": "phase6_main_v2",
         "mode": "pilot" if pilot else "main",
+        "gate_version": "v2_consistency_fix",
         "overall_verdict": overall,
         "overall_detail": overall_detail,
+        "confirmatory_composition": confirmatory_composition,
         "confirmatory": conf,
         "secondary": secondary,
+        "diagnostics": diagnostics,
         "gates": [g.to_dict() for g in gates],
         "n_total_episodes": len(episodes),
         "n_pairs": len(pairs),
@@ -205,7 +251,7 @@ def build_verdict(
 
 
 def main():
-    p = argparse.ArgumentParser(description="HADES Phase 6 Analysis")
+    p = argparse.ArgumentParser(description="HADES Phase 6 Analysis (v2)")
     p.add_argument("input", help="Path to raw sweep JSON")
     p.add_argument("--pilot", action="store_true",
                    help="Mark as pilot (not inferential)")

@@ -284,50 +284,95 @@ class GateVerdict:
         return asdict(self)
 
 
+def _full_stats(tpm_a: List[float], tpm_b: List[float],
+                boot_resamples: int = 5000, boot_seed: int = 42) -> Dict:
+    """Compute mean, median, both CIs, Wilcoxon p, Cliff's δ for a paired slice."""
+    diffs = [a - b for a, b in zip(tpm_a, tpm_b)]
+    n = len(diffs)
+    mean_d = sum(diffs) / n if n else 0.0
+    sd = sorted(diffs)
+    median_d = sd[n // 2] if n % 2 else (sd[n // 2 - 1] + sd[n // 2]) / 2.0 if n else 0.0
+
+    wilcox = paired_wilcoxon(tpm_a, tpm_b)
+    boot = paired_bootstrap_ci(tpm_a, tpm_b, n_resamples=boot_resamples, seed=boot_seed)
+    cliff = cliffs_delta(tpm_a, tpm_b)
+
+    # Bootstrap CI for the mean (separate from median CI)
+    rng = random.Random(boot_seed + 1)
+    boot_means = []
+    for _ in range(boot_resamples):
+        sample = [diffs[rng.randint(0, n - 1)] for _ in range(n)]
+        boot_means.append(sum(sample) / n)
+    boot_means.sort()
+    lo = int(0.025 * boot_resamples)
+    hi = int(0.975 * boot_resamples) - 1
+    mean_ci_lo = boot_means[max(0, lo)]
+    mean_ci_hi = boot_means[min(hi, len(boot_means) - 1)]
+
+    return {
+        "n": n,
+        "mean_diff": round(mean_d, 6),
+        "median_diff": round(median_d, 6),
+        "mean_ci": [round(mean_ci_lo, 6), round(mean_ci_hi, 6)],
+        "median_ci": [round(boot.ci_low, 6), round(boot.ci_high, 6)],
+        "wilcoxon_p": wilcox.p_value,
+        "cliffs_delta": round(cliff.delta, 6),
+        "cliffs_interp": cliff.interpretation,
+    }
+
+
 def evaluate_gates(
     pairs: List[Dict],
     clean_tolerance: float = 0.05,
     breadth_threshold: int = 3,
-) -> List[GateVerdict]:
+) -> Tuple[List[GateVerdict], Dict]:
     """Evaluate G6-1 through G6-5 on paired episode data.
 
-    Parameters
-    ----------
-    pairs : list of paired dicts from metrics.pair_episodes()
-    clean_tolerance : max acceptable TPM regression under R0
-    breadth_threshold : min scenarios with positive effect for G6-3
+    Returns (verdicts, diagnostics) where diagnostics contains full
+    per-scenario and per-estimator statistics for transparency.
 
-    Returns
-    -------
-    List of GateVerdict objects
+    Gate metric policy (v2 — fixed after Phase 6 review):
+    - G6-1: statistical significance AND practical magnitude (Cliff's δ)
+    - G6-3: mean difference per scenario (explicitly labeled)
+    - G6-4: mean difference + Wilcoxon p + Cliff's δ per estimator
+    - G6-5: bootstrap CI for median per scenario
     """
     verdicts = []
+    diagnostics = {"per_scenario": {}, "per_estimator": {}}
 
     # Separate contaminated (R1-R4) from clean (R0)
     contaminated = [p for p in pairs if p["corruption_regime"] != "R0_clean"]
     clean = [p for p in pairs if p["corruption_regime"] == "R0_clean"]
 
-    # G6-1: Primary utility
+    # ── G6-1: Primary utility ────────────────────────────────────────────
+    # Checks BOTH statistical significance AND practical magnitude.
+    # A tiny but significant effect at huge N is flagged as CONDITIONAL.
     if contaminated:
         tpm_a = [p["tpm_a"] for p in contaminated]
         tpm_b = [p["tpm_b"] for p in contaminated]
-        wilcox = paired_wilcoxon(tpm_a, tpm_b)
-        boot = paired_bootstrap_ci(tpm_a, tpm_b)
+        stats = _full_stats(tpm_a, tpm_b, boot_resamples=10000, boot_seed=42)
 
-        if wilcox.p_value > 0.05 and boot.ci_high <= 0:
-            verdicts.append(GateVerdict("G6-1", "KILL",
-                f"p={wilcox.p_value:.4f}, CI=[{boot.ci_low:.4f}, {boot.ci_high:.4f}]"))
-        elif wilcox.p_value > 0.05:
+        sig = stats["wilcoxon_p"] <= 0.05
+        practical = abs(stats["cliffs_delta"]) >= 0.147  # "small" threshold
+
+        detail = (f"p={stats['wilcoxon_p']:.2e}, mean_diff={stats['mean_diff']:.4f}, "
+                  f"median_diff={stats['median_diff']:.4f}, "
+                  f"mean_CI={stats['mean_ci']}, median_CI={stats['median_ci']}, "
+                  f"δ={stats['cliffs_delta']:.4f} ({stats['cliffs_interp']})")
+
+        if not sig:
+            verdicts.append(GateVerdict("G6-1", "KILL", detail))
+        elif sig and not practical:
             verdicts.append(GateVerdict("G6-1", "CONDITIONAL",
-                f"p={wilcox.p_value:.4f} (n.s.), CI=[{boot.ci_low:.4f}, {boot.ci_high:.4f}]"))
+                f"Significant but negligible effect size. {detail}"))
         else:
-            verdicts.append(GateVerdict("G6-1", "PASS",
-                f"p={wilcox.p_value:.4f}, CI=[{boot.ci_low:.4f}, {boot.ci_high:.4f}], "
-                f"median_diff={boot.median_diff:.4f}"))
+            verdicts.append(GateVerdict("G6-1", "PASS", detail))
+
+        diagnostics["confirmatory"] = stats
     else:
         verdicts.append(GateVerdict("G6-1", "KILL", "No contaminated data"))
 
-    # G6-2: Clean non-regression
+    # ── G6-2: Clean non-regression ───────────────────────────────────────
     if clean:
         clean_diffs = [p["tpm_diff"] for p in clean]
         mean_diff = sum(clean_diffs) / len(clean_diffs)
@@ -340,93 +385,118 @@ def evaluate_gates(
     else:
         verdicts.append(GateVerdict("G6-2", "PASS", "No clean data to regress on"))
 
-    # G6-3: Robustness breadth
+    # ── G6-3: Robustness breadth ─────────────────────────────────────────
+    # Uses MEAN difference per scenario (explicitly labeled).
+    # Also reports median for transparency.
     if contaminated:
         scenarios = sorted(set(p["scenario"] for p in contaminated))
         positive_scenarios = 0
         scenario_details = []
         for sc in scenarios:
-            sc_diffs = [p["tpm_diff"] for p in contaminated if p["scenario"] == sc]
-            mean_d = sum(sc_diffs) / len(sc_diffs) if sc_diffs else 0
-            if mean_d > 0:
+            sc_a = [p["tpm_a"] for p in contaminated if p["scenario"] == sc]
+            sc_b = [p["tpm_b"] for p in contaminated if p["scenario"] == sc]
+            sc_stats = _full_stats(sc_a, sc_b, boot_resamples=5000,
+                                   boot_seed=hash(sc) & 0x7FFFFFFF)
+            diagnostics["per_scenario"][sc] = sc_stats
+
+            if sc_stats["mean_diff"] > 0:
                 positive_scenarios += 1
-            scenario_details.append(f"{sc}={mean_d:+.4f}")
+            scenario_details.append(
+                f"{sc}: mean={sc_stats['mean_diff']:+.4f}, "
+                f"median={sc_stats['median_diff']:+.4f}, "
+                f"δ={sc_stats['cliffs_delta']:.4f}")
 
         if positive_scenarios < breadth_threshold:
             verdicts.append(GateVerdict("G6-3", "KILL",
-                f"Positive in {positive_scenarios}/{len(scenarios)} scenarios "
-                f"(need >={breadth_threshold}). {', '.join(scenario_details)}"))
+                f"Positive mean in {positive_scenarios}/{len(scenarios)} scenarios "
+                f"(need >={breadth_threshold}). {'; '.join(scenario_details)}"))
         else:
             verdicts.append(GateVerdict("G6-3", "PASS",
-                f"Positive in {positive_scenarios}/{len(scenarios)} scenarios. "
-                f"{', '.join(scenario_details)}"))
+                f"Positive mean in {positive_scenarios}/{len(scenarios)} scenarios. "
+                f"{'; '.join(scenario_details)}"))
     else:
         verdicts.append(GateVerdict("G6-3", "KILL", "No contaminated data"))
 
-    # G6-4: Estimator dependence
+    # ── G6-4: Estimator dependence ───────────────────────────────────────
+    # Reports FULL stats per estimator: mean, median, Wilcoxon p, Cliff's δ.
+    # Survival criterion: positive mean difference with p < 0.10.
     if contaminated:
         estimators = sorted(set(p["estimator_regime"] for p in contaminated))
         non_clean_ests = [e for e in estimators if e != "clean"]
         surviving_ests = 0
         est_details = []
         for est in non_clean_ests:
-            est_diffs = [p["tpm_diff"] for p in contaminated
-                        if p["estimator_regime"] == est]
-            if est_diffs:
-                boot = paired_bootstrap_ci(
-                    [p["tpm_a"] for p in contaminated if p["estimator_regime"] == est],
-                    [p["tpm_b"] for p in contaminated if p["estimator_regime"] == est],
-                    n_resamples=5000, seed=123,
-                )
-                if boot.median_diff > 0:
-                    surviving_ests += 1
-                est_details.append(f"{est}={boot.median_diff:+.4f}")
+            est_a = [p["tpm_a"] for p in contaminated if p["estimator_regime"] == est]
+            est_b = [p["tpm_b"] for p in contaminated if p["estimator_regime"] == est]
+            est_stats = _full_stats(est_a, est_b, boot_resamples=5000,
+                                    boot_seed=hash(est) & 0x7FFFFFFF)
+            diagnostics["per_estimator"][est] = est_stats
+
+            # Survival: positive mean AND at least marginally significant
+            if est_stats["mean_diff"] > 0 and est_stats["wilcoxon_p"] < 0.10:
+                surviving_ests += 1
+            est_details.append(
+                f"{est}: mean={est_stats['mean_diff']:+.4f}, "
+                f"median={est_stats['median_diff']:+.4f}, "
+                f"p={est_stats['wilcoxon_p']:.2e}, "
+                f"δ={est_stats['cliffs_delta']:.4f}")
 
         if surviving_ests == 0 and len(non_clean_ests) > 0:
             verdicts.append(GateVerdict("G6-4", "KILL",
-                f"Benefit gone under all non-clean estimators. {', '.join(est_details)}"))
+                f"Benefit gone under all non-clean estimators. "
+                f"{'; '.join(est_details)}"))
         elif surviving_ests >= 2:
             verdicts.append(GateVerdict("G6-4", "PASS",
                 f"Survives {surviving_ests}/{len(non_clean_ests)} non-clean estimators. "
-                f"{', '.join(est_details)}"))
+                f"{'; '.join(est_details)}"))
         else:
             verdicts.append(GateVerdict("G6-4", "CONDITIONAL",
                 f"Survives {surviving_ests}/{len(non_clean_ests)} non-clean estimators. "
-                f"{', '.join(est_details)}"))
+                f"{'; '.join(est_details)}"))
     else:
         verdicts.append(GateVerdict("G6-4", "KILL", "No contaminated data"))
 
-    # G6-5: Seed stability
+    # ── G6-5: Seed stability ────────────────────────────────────────────
+    # Uses bootstrap CI for median per scenario (consistent with median reporting).
     if contaminated:
         scenarios = sorted(set(p["scenario"] for p in contaminated))
         ci_excludes_zero = 0
         stability_details = []
         for sc in scenarios:
-            sc_pairs = [p for p in contaminated if p["scenario"] == sc]
-            if len(sc_pairs) >= 10:
-                boot = paired_bootstrap_ci(
-                    [p["tpm_a"] for p in sc_pairs],
-                    [p["tpm_b"] for p in sc_pairs],
-                    n_resamples=5000, seed=456,
-                )
-                if boot.ci_low > 0 or boot.ci_high < 0:
+            sc_stats = diagnostics["per_scenario"].get(sc)
+            if sc_stats and sc_stats["n"] >= 10:
+                ci = sc_stats["median_ci"]
+                if ci[0] > 0 or ci[1] < 0:
                     ci_excludes_zero += 1
                 stability_details.append(
-                    f"{sc}: CI=[{boot.ci_low:.4f},{boot.ci_high:.4f}]")
+                    f"{sc}: median_CI=[{ci[0]:.4f},{ci[1]:.4f}]")
             else:
-                stability_details.append(f"{sc}: too few pairs ({len(sc_pairs)})")
+                # Recompute if not already in diagnostics
+                sc_pairs = [p for p in contaminated if p["scenario"] == sc]
+                if len(sc_pairs) >= 10:
+                    boot = paired_bootstrap_ci(
+                        [p["tpm_a"] for p in sc_pairs],
+                        [p["tpm_b"] for p in sc_pairs],
+                        n_resamples=5000, seed=456,
+                    )
+                    if boot.ci_low > 0 or boot.ci_high < 0:
+                        ci_excludes_zero += 1
+                    stability_details.append(
+                        f"{sc}: median_CI=[{boot.ci_low:.4f},{boot.ci_high:.4f}]")
+                else:
+                    stability_details.append(f"{sc}: too few pairs")
 
         n_scenarios = len(scenarios)
         includes_zero_count = n_scenarios - ci_excludes_zero
         if includes_zero_count >= 4:
             verdicts.append(GateVerdict("G6-5", "KILL",
-                f"CI includes zero in {includes_zero_count}/{n_scenarios} scenarios. "
+                f"Median CI includes zero in {includes_zero_count}/{n_scenarios} scenarios. "
                 f"{'; '.join(stability_details)}"))
         else:
             verdicts.append(GateVerdict("G6-5", "PASS",
-                f"CI excludes zero in {ci_excludes_zero}/{n_scenarios} scenarios. "
+                f"Median CI excludes zero in {ci_excludes_zero}/{n_scenarios} scenarios. "
                 f"{'; '.join(stability_details)}"))
     else:
         verdicts.append(GateVerdict("G6-5", "KILL", "No contaminated data"))
 
-    return verdicts
+    return verdicts, diagnostics
