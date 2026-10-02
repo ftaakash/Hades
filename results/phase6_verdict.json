@@ -1,0 +1,205 @@
+{
+  "experiment_id": "phase6_main_v2",
+  "mode": "main",
+  "overall_verdict": "CONDITIONAL",
+  "overall_detail": "Gates killed: G6-3, G6-4",
+  "confirmatory": {
+    "n_pairs": 37500,
+    "wilcoxon": {
+      "statistic": 126902625.0,
+      "p_value": 2.08024493530857e-55,
+      "n_pairs": 37500
+    },
+    "bootstrap_ci": {
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "median_diff": 0.0,
+      "mean_diff": 0.017695592631223046,
+      "n_resamples": 10000
+    },
+    "cliffs_delta": {
+      "delta": 0.05014773333333333,
+      "interpretation": "negligible",
+      "n_a": 37500,
+      "n_b": 37500
+    },
+    "median_P5_tpm": 0.3248101223738976,
+    "median_P3_tpm": 0.28484634198390424
+  },
+  "secondary": {
+    "scenario_A_no_reliability_diff": {
+      "n": 7500,
+      "wilcoxon_p": 6.98731610517822e-18,
+      "median_diff": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "cliffs_delta": 0.04866378666666667,
+      "interp": "negligible",
+      "holm_adj_p": 2.794926442071288e-17,
+      "significant_corrected": true
+    },
+    "scenario_B_reliability_flip": {
+      "n": 7500,
+      "wilcoxon_p": 0.004819995218258238,
+      "median_diff": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "cliffs_delta": -0.0004590933333333333,
+      "interp": "negligible",
+      "holm_adj_p": 0.009639990436516477,
+      "significant_corrected": true
+    },
+    "scenario_C_cost_flip": {
+      "n": 7500,
+      "wilcoxon_p": 2.5988812060133025e-57,
+      "median_diff": 0.04531118629574471,
+      "ci": [
+        0.0369577992507612,
+        0.051411848096199475
+      ],
+      "cliffs_delta": 0.14665024,
+      "interp": "negligible",
+      "holm_adj_p": 1.2994406030066513e-56,
+      "significant_corrected": true
+    },
+    "scenario_D_manipulation_flip": {
+      "n": 7500,
+      "wilcoxon_p": 2.0033957488865022e-09,
+      "median_diff": 0.0011466319881894838,
+      "ci": [
+        0.0006547110500898512,
+        0.001369696748735938
+      ],
+      "cliffs_delta": 0.10283434666666667,
+      "interp": "negligible",
+      "holm_adj_p": 6.010187246659507e-09,
+      "significant_corrected": true
+    },
+    "scenario_E_no_distinction": {
+      "n": 7500,
+      "wilcoxon_p": 1.0,
+      "median_diff": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "cliffs_delta": 0.0,
+      "interp": "negligible",
+      "holm_adj_p": 1.0,
+      "significant_corrected": false
+    },
+    "regime_R1_missing": {
+      "n": 7500,
+      "median_diff": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ]
+    },
+    "regime_R2_stale": {
+      "n": 7500,
+      "median_diff": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ]
+    },
+    "regime_R3_misleading": {
+      "n": 7500,
+      "median_diff": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ]
+    },
+    "regime_R4a_adversarial_est": {
+      "n": 7500,
+      "median_diff": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ]
+    },
+    "regime_R4a_targeted": {
+      "n": 7500,
+      "median_diff": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ]
+    },
+    "estimator_adversarial": {
+      "n": 7500,
+      "median_diff": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ]
+    },
+    "estimator_clean": {
+      "n": 7500,
+      "median_diff": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ]
+    },
+    "estimator_miscalibrated_over": {
+      "n": 7500,
+      "median_diff": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ]
+    },
+    "estimator_miscalibrated_under": {
+      "n": 7500,
+      "median_diff": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ]
+    },
+    "estimator_noisy": {
+      "n": 7500,
+      "median_diff": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "gates": [
+    {
+      "gate_id": "G6-1",
+      "status": "PASS",
+      "detail": "p=0.0000, CI=[0.0000, 0.0000], median_diff=0.0000"
+    },
+    {
+      "gate_id": "G6-2",
+      "status": "PASS",
+      "detail": "Clean mean TPM diff = 0.0005 (tolerance \u00b10.05)"
+    },
+    {
+      "gate_id": "G6-3",
+      "status": "KILL",
+      "detail": "Positive in 2/5 scenarios (need >=3). A_no_reliability_diff=+0.0225, B_reliability_flip=-0.0046, C_cost_flip=+0.0732, D_manipulation_flip=-0.0026, E_no_distinction=+0.0000"
+    },
+    {
+      "gate_id": "G6-4",
+      "status": "KILL",
+      "detail": "Benefit gone under all non-clean estimators. adversarial=+0.0000, miscalibrated_over=+0.0000, miscalibrated_under=+0.0000, noisy=+0.0000"
+    },
+    {
+      "gate_id": "G6-5",
+      "status": "PASS",
+      "detail": "CI excludes zero in 2/5 scenarios. A_no_reliability_diff: CI=[0.0000,0.0000]; B_reliability_flip: CI=[0.0000,0.0000]; C_cost_flip: CI=[0.0370,0.0514]; D_manipulation_flip: CI=[0.0006,0.0014]; E_no_distinction: CI=[0.0000,0.0000]"
+    }
+  ],
+  "n_total_episodes": 360000,
+  "n_pairs": 45000
+}

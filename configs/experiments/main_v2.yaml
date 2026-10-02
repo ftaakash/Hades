@@ -1,0 +1,159 @@
+# ----------------------------------------------------------
+# configs/experiments/main_v2.yaml
+# HADES Phase 6 — Main Scientific Sweep
+# STATUS: FROZEN — DO NOT MODIFY AFTER SWEEP BEGINS
+# Supersedes main_v1.yaml (CDB-era, mu-based)
+# ----------------------------------------------------------
+experiment_id: phase6_main_v2
+description: "Phase 6 confirmatory sweep: P5 vs P3 under contaminated telemetry"
+status: FROZEN
+
+# -- Primary comparison -------------------------------------------------
+primary_comparison: [P5_robust_voi, P3_information_gain]
+primary_metric: tpm  # final posterior mass on true hypothesis
+
+# -- Policies -----------------------------------------------------------
+policies:
+  baseline_floors:
+    - P0_random
+    - P1_fixed_heuristic
+    - P2_relevance
+  primary:
+    - P3_information_gain
+    - P5_robust_voi
+  secondary:
+    - P4_ig_cost
+    - P4b_ig_cost_reliability
+    - P7_expected_error_reduction
+
+# -- Scenarios ----------------------------------------------------------
+scenarios:
+  - A_no_reliability_diff
+  - B_reliability_flip
+  - C_cost_flip
+  - D_manipulation_flip
+  - E_no_distinction
+
+# -- Corruption regimes -------------------------------------------------
+corruption_regimes:
+  - regime: R0_clean
+    corruptor: MissingCorruptor
+    params: {p_drop: 0.0}
+  - regime: R1_missing
+    corruptor: MissingCorruptor
+    params: {p_drop: 0.25}
+  - regime: R2_stale
+    corruptor: StaleCorruptor
+    params: {staleness: 0.33}
+  - regime: R3_misleading
+    corruptor: MisleadingCorruptor
+    params: {p_inject: 0.25}
+  - regime: R4a_targeted
+    corruptor: TargetedCorruptor
+    params: {p_attack: 0.75}
+  - regime: R4a_adversarial_est
+    corruptor: TargetedCorruptor
+    params: {p_attack: 0.75}
+    estimator_override: adversarial  # compound condition
+
+# -- Reliability estimators ---------------------------------------------
+estimators:
+  - regime: clean
+    class: CleanEstimator
+    params: {}
+  - regime: noisy
+    class: NoisyEstimator
+    params: {sigma: 0.10}
+  - regime: miscalibrated_under
+    class: MiscalibratedEstimator
+    params: {phi_scale: 0.286, phi_bias: 0.0}  # true φ=0.7 → est φ=0.2
+  - regime: miscalibrated_over
+    class: MiscalibratedEstimator
+    params: {phi_scale: 1.286, phi_bias: 0.0}  # true φ=0.7 → est φ=0.9
+  - regime: adversarial
+    class: AdversarialEstimator
+    params: {phi_threshold: 0.50, r_inflate: 0.90, phi_deflate: 0.05, blend: 0.80}
+
+# -- Lambda grid --------------------------------------------------------
+lambda_grid: [0.5, 1.0, 2.0]
+
+# -- Budget -------------------------------------------------------------
+budget: 10.0
+
+# -- Seeds --------------------------------------------------------------
+seeds:
+  count: 100
+  base: 0  # seeds 0..99
+  pairing: true  # same seed/true_hyp across all policies per cell
+
+# -- Statistical analysis -----------------------------------------------
+statistics:
+  primary_test: paired_wilcoxon_signed_rank
+  alpha: 0.05
+  sidedness: two_sided
+  bootstrap:
+    resamples: 10000
+    confidence_level: 0.95
+    unit: episode  # resample episodes, not turns
+  effect_size: cliffs_delta
+  multiple_comparison: holm
+  analysis_hierarchy:
+    confirmatory: "aggregate P5 vs P3 across contaminated conditions (R1-R4a)"
+    secondary: "per-scenario, per-regime, per-estimator breakdowns"
+    exploratory: "any post-hoc analysis not preregistered here"
+
+# -- Clean-regime guardrail ---------------------------------------------
+clean_regime:
+  tolerance_tpm: 0.05  # max acceptable TPM degradation in R0
+  test: non_regression  # NOT a superiority test
+
+# -- Kill gates ---------------------------------------------------------
+kill_gates:
+  G6_1_primary_utility:
+    condition: "Wilcoxon p > 0.05 AND bootstrap CI includes non-positive"
+    action: "Kill broad P5 superiority claim"
+  G6_2_clean_regression:
+    condition: "Mean TPM(P5) - TPM(P3) < -0.05 under R0"
+    action: "Reject broad robust-method claim"
+  G6_3_robustness_breadth:
+    condition: "Positive effect in fewer than 3/5 scenarios"
+    action: "Do not claim general robustness"
+  G6_4_estimator_dependence:
+    condition: "Benefit disappears under all non-clean estimators"
+    action: "Do not claim reliability-aware robustness"
+  G6_5_seed_stability:
+    condition: "Effect direction unstable (CI includes zero in 4+/5 scenarios)"
+    action: "Downgrade claim, do not rely on pooled averages"
+
+# -- Metrics ------------------------------------------------------------
+metrics:
+  primary:
+    - tpm  # P(H_true | E_1:T)
+  secondary:
+    - correct_hyp_rate  # argmax posterior == true_hyp
+    - posterior_quality_gap  # P5.tpm - P3.tpm
+    - manip_reliance  # high_phi_queries / n_queries
+    - total_cost  # sum of query costs
+    - flip_rate  # behavioral diagnostic only
+
+# -- Provenance ---------------------------------------------------------
+provenance:
+  record_fields:
+    - hades_commit
+    - python_version
+    - os
+    - config_hash
+    - seed
+    - scenario
+    - corruption_regime
+    - estimator_regime
+    - lambda
+    - budget
+    - timestamp
+
+# -- Output -------------------------------------------------------------
+output:
+  raw_dir: "results/raw"
+  processed_dir: "results/processed"
+  figures_dir: "results/figures"
+  verdict_path: "results/phase6_verdict.json"
