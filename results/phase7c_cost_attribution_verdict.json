@@ -1,0 +1,434 @@
+{
+  "meta": {
+    "raw_file": "results/raw/phase7c_cost_attribution_main.json",
+    "raw_meta": {
+      "experiment_id": "phase7c_cost_attribution_main",
+      "mode": "main",
+      "protocol": "docs/phase7c_cost_attribution_protocol.md",
+      "hades_commit": "0fafa4486d2a77f9f9e5d0edc15b90fd73a09892",
+      "working_tree_dirty_code": false,
+      "timestamp_utc": "2026-10-03T19:07:22.595520+00:00",
+      "scenarios": [
+        "B_reliability_flip",
+        "C_cost_flip",
+        "D_manipulation_flip"
+      ],
+      "sigma_grid": [
+        0.1,
+        0.2,
+        0.3
+      ],
+      "regimes": [
+        {
+          "label": "R1_missing",
+          "repr": "MissingCorruptor(p_drop=0.25)"
+        },
+        {
+          "label": "R2_stale",
+          "repr": "StaleCorruptor(staleness=0.33)"
+        },
+        {
+          "label": "R3_misleading",
+          "repr": "MisleadingCorruptor(p_inject=0.25)"
+        },
+        {
+          "label": "R4a_targeted",
+          "repr": "TargetedCorruptor(p_attack=0.75)"
+        }
+      ],
+      "lambda_grid": [
+        0.5,
+        1.0,
+        2.0
+      ],
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99
+      ],
+      "budget": 10.0,
+      "arms": [
+        "P3_nom",
+        "P3_nom_cost",
+        "P3_rhat",
+        "P5_no_phi",
+        "P5_full"
+      ],
+      "policy_source_sha256_16": {
+        "P3_nom": "48a15b20f759acaf",
+        "P3_nom_cost": "4e0f06660364f85f",
+        "P3_rhat": "0e1ff8a781f92537",
+        "P5_no_phi": "0ee67e58d68a1caa",
+        "P5_full": "1c4df1627ae34ebb"
+      },
+      "pairing": "true_hyp=Random(seed^0xCAFE); env seed; corruptor seed^0xBEEF; estimator seed^0xDEAD",
+      "n_episodes": 54000,
+      "elapsed_seconds": 122.73
+    },
+    "analysis_commit": "0fafa4486d2a77f9f9e5d0edc15b90fd73a09892",
+    "protocol": "docs/phase7c_cost_attribution_protocol.md",
+    "gates_doc": "docs/phase7c_cost_attribution_gates.md"
+  },
+  "gates": {
+    "CAG-1": {
+      "status": "PASS",
+      "detail": "Unit tests TestCAG1Validity must also pass (recorded separately).",
+      "cost_decision_divergence_by_cell": {
+        "lam=1.0|B_reliability_flip|sigma=0.1": 0.5275,
+        "lam=1.0|B_reliability_flip|sigma=0.2": 0.5275,
+        "lam=1.0|B_reliability_flip|sigma=0.3": 0.5275,
+        "lam=1.0|C_cost_flip|sigma=0.1": 0.9625,
+        "lam=1.0|C_cost_flip|sigma=0.2": 0.9625,
+        "lam=1.0|C_cost_flip|sigma=0.3": 0.9625,
+        "lam=1.0|D_manipulation_flip|sigma=0.1": 1.0,
+        "lam=1.0|D_manipulation_flip|sigma=0.2": 1.0,
+        "lam=1.0|D_manipulation_flip|sigma=0.3": 1.0
+      }
+    },
+    "CAG-2": {
+      "status": "PASS",
+      "detail": "Every C cell: divergence>0, cost/query CI<0, n_queries CI>0 (per-sigma; stricter than pooled).",
+      "per_cell": {
+        "lam=1.0|C_cost_flip|sigma=0.1": {
+          "decision_divergence": 0.9625,
+          "delta_cost_per_query_mean": -0.7078,
+          "delta_cost_per_query_ci": [
+            -0.751815,
+            -0.664643
+          ],
+          "delta_n_queries_mean": 3.8825,
+          "delta_n_queries_ci": [
+            3.745,
+            4.0125
+          ],
+          "mean_diff": 0.051342,
+          "mean_ci": [
+            0.017536,
+            0.086363
+          ],
+          "cliffs_delta": 0.100169
+        },
+        "lam=1.0|C_cost_flip|sigma=0.2": {
+          "decision_divergence": 0.9625,
+          "delta_cost_per_query_mean": -0.7078,
+          "delta_cost_per_query_ci": [
+            -0.752163,
+            -0.66494
+          ],
+          "delta_n_queries_mean": 3.8825,
+          "delta_n_queries_ci": [
+            3.7475,
+            4.015
+          ],
+          "mean_diff": 0.051342,
+          "mean_ci": [
+            0.017726,
+            0.084591
+          ],
+          "cliffs_delta": 0.100169
+        },
+        "lam=1.0|C_cost_flip|sigma=0.3": {
+          "decision_divergence": 0.9625,
+          "delta_cost_per_query_mean": -0.7078,
+          "delta_cost_per_query_ci": [
+            -0.751687,
+            -0.666528
+          ],
+          "delta_n_queries_mean": 3.8825,
+          "delta_n_queries_ci": [
+            3.7475,
+            4.0125
+          ],
+          "mean_diff": 0.051342,
+          "mean_ci": [
+            0.017901,
+            0.085208
+          ],
+          "cliffs_delta": 0.100169
+        }
+      }
+    },
+    "CAG-3": {
+      "status": "POSITIVE",
+      "positive_cells": [
+        "lam=1.0|B_reliability_flip|sigma=0.1"
+      ],
+      "negative_cells": [
+        "lam=1.0|D_manipulation_flip|sigma=0.1"
+      ],
+      "family": {
+        "lam=1.0|D_manipulation_flip|sigma=0.2": {
+          "n": 400,
+          "mean_diff": -0.015349,
+          "mean_ci": [
+            -0.033376,
+            0.002265
+          ],
+          "median_diff": -0.0,
+          "wilcoxon_p": 0.0010435536127171477,
+          "holm_p": 0.0062613216763028855,
+          "cliffs_delta": 0.015362,
+          "cliffs_interp": "negligible",
+          "frac_pos": 0.35,
+          "frac_neg": 0.5,
+          "delta_cost_mean": 0.0387,
+          "decision_divergence": 0.8925
+        },
+        "lam=1.0|D_manipulation_flip|sigma=0.3": {
+          "n": 400,
+          "mean_diff": -0.012953,
+          "mean_ci": [
+            -0.032378,
+            0.00552
+          ],
+          "median_diff": -0.000231,
+          "wilcoxon_p": 0.0011753531095323774,
+          "holm_p": 0.0062613216763028855,
+          "cliffs_delta": 0.01225,
+          "cliffs_interp": "negligible",
+          "frac_pos": 0.3725,
+          "frac_neg": 0.5625,
+          "delta_cost_mean": 0.0312,
+          "decision_divergence": 0.96
+        },
+        "lam=1.0|D_manipulation_flip|sigma=0.1": {
+          "n": 400,
+          "mean_diff": -0.028128,
+          "mean_ci": [
+            -0.044963,
+            -0.010955
+          ],
+          "median_diff": 0.0,
+          "wilcoxon_p": 0.0017031864840196382,
+          "holm_p": 0.006812745936078553,
+          "cliffs_delta": 0.001806,
+          "cliffs_interp": "negligible",
+          "frac_pos": 0.3475,
+          "frac_neg": 0.4525,
+          "delta_cost_mean": 0.0488,
+          "decision_divergence": 0.855
+        },
+        "lam=1.0|B_reliability_flip|sigma=0.1": {
+          "n": 400,
+          "mean_diff": 0.067016,
+          "mean_ci": [
+            0.029229,
+            0.104356
+          ],
+          "median_diff": 0.020456,
+          "wilcoxon_p": 0.010148142920823425,
+          "holm_p": 0.030444428762470277,
+          "cliffs_delta": 0.094675,
+          "cliffs_interp": "negligible",
+          "frac_pos": 0.5525,
+          "frac_neg": 0.4475,
+          "delta_cost_mean": 0.0,
+          "decision_divergence": 1.0
+        },
+        "lam=1.0|B_reliability_flip|sigma=0.2": {
+          "n": 400,
+          "mean_diff": 0.052605,
+          "mean_ci": [
+            0.013436,
+            0.091707
+          ],
+          "median_diff": 0.013829,
+          "wilcoxon_p": 0.07631784166059583,
+          "holm_p": 0.15263568332119165,
+          "cliffs_delta": 0.071163,
+          "cliffs_interp": "negligible",
+          "frac_pos": 0.5425,
+          "frac_neg": 0.4575,
+          "delta_cost_mean": 0.0,
+          "decision_divergence": 1.0
+        },
+        "lam=1.0|B_reliability_flip|sigma=0.3": {
+          "n": 400,
+          "mean_diff": 0.043681,
+          "mean_ci": [
+            0.006394,
+            0.081581
+          ],
+          "median_diff": 0.003434,
+          "wilcoxon_p": 0.3342742776796225,
+          "holm_p": 0.3342742776796225,
+          "cliffs_delta": 0.062625,
+          "cliffs_interp": "negligible",
+          "frac_pos": 0.5025,
+          "frac_neg": 0.4975,
+          "delta_cost_mean": 0.0,
+          "decision_divergence": 1.0
+        }
+      }
+    },
+    "CAG-4": {
+      "status": "PHI_EFFECT_NONZERO_NOT_FAVOURABLE",
+      "significant_D_cells": {
+        "lam=1.0|D_manipulation_flip|sigma=0.2": "-"
+      },
+      "D_cells": {
+        "lam=1.0|D_manipulation_flip|sigma=0.3": {
+          "mean_diff": -0.011479,
+          "mean_ci": [
+            -0.027058,
+            0.003285
+          ],
+          "holm_p": 0.031197758163974996,
+          "cliffs_delta": -0.012663,
+          "decision_divergence": 0.9525,
+          "high_phi_queries_a": 1.215,
+          "high_phi_queries_b": 3.37
+        },
+        "lam=1.0|D_manipulation_flip|sigma=0.2": {
+          "mean_diff": -0.020236,
+          "mean_ci": [
+            -0.035524,
+            -0.005497
+          ],
+          "holm_p": 0.031197758163974996,
+          "cliffs_delta": -0.031688,
+          "decision_divergence": 0.9275,
+          "high_phi_queries_a": 0.5775,
+          "high_phi_queries_b": 2.7525
+        },
+        "lam=1.0|D_manipulation_flip|sigma=0.1": {
+          "mean_diff": -0.020236,
+          "mean_ci": [
+            -0.034001,
+            -0.007158
+          ],
+          "holm_p": 0.1989763622359722,
+          "cliffs_delta": -0.027325,
+          "decision_divergence": 0.8975,
+          "high_phi_queries_a": 0.07,
+          "high_phi_queries_b": 2.0125
+        }
+      }
+    },
+    "CAG-5": {
+      "status": "PASS",
+      "detail": "Unit tests TestCAG5Contamination must also pass (recorded separately).",
+      "integrity": {
+        "n_keys": 10800,
+        "incomplete_keys": 0,
+        "true_hyp_mismatch": 0,
+        "beliefs_not_normalized": 0,
+        "budget_inconsistent": 0,
+        "pairing_ok": true
+      }
+    },
+    "cases_by_cell": {
+      "lam=1.0|B_reliability_flip|sigma=0.1": "A",
+      "lam=1.0|B_reliability_flip|sigma=0.2": "A",
+      "lam=1.0|B_reliability_flip|sigma=0.3": "A",
+      "lam=1.0|C_cost_flip|sigma=0.1": "B",
+      "lam=1.0|C_cost_flip|sigma=0.2": "B",
+      "lam=1.0|C_cost_flip|sigma=0.3": "B",
+      "lam=1.0|D_manipulation_flip|sigma=0.1": "D*",
+      "lam=1.0|D_manipulation_flip|sigma=0.2": "O",
+      "lam=1.0|D_manipulation_flip|sigma=0.3": "O"
+    }
+  },
+  "figures": [
+    "results\\figures\\cost_decomposition.png",
+    "results\\figures\\incremental_hades_effect.png",
+    "results\\figures\\phi_incremental_effect.png"
+  ]
+}

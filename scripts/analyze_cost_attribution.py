@@ -173,16 +173,27 @@ def _ci_neg(ci): return ci[1] < 0
 
 
 def classify_case(cell: Dict) -> str:
+    """Spec interpretation cases. Labels only; statistics are not affected.
+
+    A  : HADES_INCREMENT CI > 0
+    E  : A and PHI CI > 0 and Holm-significant
+    D  : HADES_INCREMENT CI < 0 and COST CI > 0   (cost helps, HADES hurts)
+    D* : HADES_INCREMENT CI < 0, COST not > 0     (HADES hurts, cost neutral)
+    B  : HADES_INCREMENT CI contains 0 and COST CI > 0   (cost explains)
+    C  : INCREMENT, COST, TOTAL all CI contain 0  (no effect)
+    O  : other (e.g. INCREMENT and COST CI contain 0 but TOTAL CI excludes 0)
+    """
     c = cell["contrasts"]
     inc, cost, tot, phi = c["HADES_INCREMENT"], c["COST"], c["TOTAL"], c["PHI"]
     if _ci_pos(inc["mean_ci"]):
         return "E" if (_ci_pos(phi["mean_ci"]) and phi.get("holm_sig")) else "A"
     if _ci_neg(inc["mean_ci"]):
-        return "D" if _ci_pos(cost["mean_ci"]) else "D*"  # D*: HADES hurts, cost not helping
-    if not _ci_pos(tot["mean_ci"]) and not _ci_neg(tot["mean_ci"]) \
-            and not _ci_pos(cost["mean_ci"]) and not _ci_neg(cost["mean_ci"]):
+        return "D" if _ci_pos(cost["mean_ci"]) else "D*"
+    if _ci_pos(cost["mean_ci"]):
+        return "B"
+    if not any(f(x["mean_ci"]) for x in (cost, tot) for f in (_ci_pos, _ci_neg)):
         return "C"
-    return "B"
+    return "O"
 
 
 def gates(an: Dict) -> Dict:
