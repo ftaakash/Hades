@@ -110,7 +110,10 @@ class RobustVoIPolicy(Policy):
                     r_hat=r_hat,
                     phi_hat=phi_hat,
                     source_relevance=source_rel,
-                    under_targeted_attack=False,
+                    # Phase 7C repair: P5 models manipulation whenever its
+                    # policy-visible estimate phi_hat > 0. Derived ONLY from
+                    # *_estimated fields — no ground-truth attack flag.
+                    under_targeted_attack=(phi_hat > 0.0),
                 )
 
             scores[src_name] = score

@@ -177,16 +177,25 @@ def contaminated_likelihood(
     """
     Contaminated likelihood for HADES v3.0:
 
-        p(e | H, q, r_hat, phi_hat) =
-            r_hat         * p_nominal(e | H, q)
-          + (1 - r_hat)   * p_noise(e)
+        clean (phi-unaware, or phi_hat = 0):
+            p(e | H, q, r_hat) = r_hat * p_nominal(e | H, q) + (1 - r_hat) * p_noise(e)
 
-    Under targeted attack with phi_hat > 0:
-        p(e | H, q, r_hat, phi_hat) =
-            r_hat             * p_nominal(e | H, q)
-          + (1-r_hat)         * p_noise(e)
-          + phi_hat           * p_forged(e)
-        (renormalized)
+        phi-aware (under_targeted_attack=True and phi_hat > 0):
+            p(e | H, q, r_hat, phi_hat) =
+                (1 - phi_hat) * [ r_hat * p_nominal + (1 - r_hat) * p_noise ]
+              +      phi_hat  * p_forged(e)
+
+    Both forms are proper distributions over OBS_CLASSES (sum to 1).
+
+    Phase 7C notes
+    --------------
+    * `under_targeted_attack` selects whether the caller MODELS manipulation.
+      Baselines (P3/P4/P4b/P7) and the evaluator's belief update pass False,
+      so their behaviour is unchanged. P5 passes `phi_hat > 0` — a decision
+      derived only from the policy-visible estimate, never from ground truth.
+    * Pre-7C, the phi branch was `result + phi_hat * p_forged` (unnormalized,
+      sum = 1 + phi_hat). EIG computed from it was biased and clamped to 0 at
+      high phi_hat. Replaced by the mixture above. See docs/phase7c_phi_dataflow.md.
 
     Parameters
     ----------
@@ -201,7 +210,7 @@ def contaminated_likelihood(
     phi_hat : float
         Policy-visible manipulation risk estimate in [0,1].
     under_targeted_attack : bool
-        Whether attacker is actively targeting this source (R4 regime).
+        If True, include the forged-evidence mixture component weighted by phi_hat.
     """
     assert 0.0 <= r_hat <= 1.0, f"r_hat={r_hat} out of [0,1]"
     assert 0.0 <= phi_hat <= 1.0, f"phi_hat={phi_hat} out of [0,1]"
@@ -216,11 +225,10 @@ def contaminated_likelihood(
 
     if under_targeted_attack and phi_hat > 0.0:
         p_for = forged.get(obs_class, 0.0)
-        result = result + phi_hat * p_for
+        result = (1.0 - phi_hat) * result + phi_hat * p_for
 
-    # Renormalize to handle the additive phi_hat term
-    # (the mixing weights may sum > 1 under attack; normalizer keeps it valid)
-    return max(1e-12, result)  # raw unnormalized; caller normalizes if needed
+    return max(1e-12, result)
+
 
 
 def make_default_table(

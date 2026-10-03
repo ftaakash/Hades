@@ -161,29 +161,83 @@ class TestPhiVoILevel:
 
 
 class TestPhiPolicyLevel:
-    """Test whether P5 actually passes under_targeted_attack to the VoI computation."""
+    """Phase 7C: P5 must model phi using only policy-visible estimates."""
 
-    def test_p5_never_sets_attack_flag(self):
-        """Verify P5 (standard variant) calls voi with under_targeted_attack=False.
+    @staticmethod
+    def _spec(name, r_hat, phi_hat, cost=1.0, affinity=None):
+        from types import SimpleNamespace
+        return SimpleNamespace(
+            name=name, cost=cost,
+            reliability_estimated=r_hat,
+            manipulation_risk_estimated=phi_hat,
+            hypothesis_affinity=affinity or {"H1": 0.7, "H2": 0.3, "H3": 0.3},
+        )
 
-        This test documents the CURRENT behaviour. If P5 always passes False,
-        then phi_hat can never affect its decisions, explaining the 6D result.
-        """
+    @staticmethod
+    def _state(beliefs, remaining_budget=10.0):
+        from types import SimpleNamespace
+        return SimpleNamespace(beliefs=dict(beliefs), remaining_budget=remaining_budget,
+                               queried=set(), queried_sources=set(), history=[])
+
+    def _select(self, policy, menu):
+        # Bypass _available() variations by passing an already-filtered menu
+        policy._available = lambda state, m: m
+        return policy.select_query(self._state(DEFAULT_BELIEFS), menu)
+
+    def test_likelihood_is_normalized_under_phi(self):
+        """phi-aware likelihood must sum to 1 over obs classes (7C bugfix)."""
+        for phi in (0.0, 0.3, 0.85, 1.0):
+            for rel in (0.2, 0.7):
+                total = sum(contaminated_likelihood(
+                    o, "H1", rel, 0.8, phi, under_targeted_attack=True)
+                    for o in OBS_CLASSES)
+                assert abs(total - 1.0) < 1e-9, (phi, rel, total)
+
+    def test_eig_decreases_monotonically_with_phi(self):
+        table = _make_table()
+        rel = DEFAULT_RELEVANCE[SOURCE]
+        eigs = [eig(SOURCE, DEFAULT_BELIEFS, table, r_hat=0.8, phi_hat=p,
+                    source_relevance=rel, under_targeted_attack=True)
+                for p in (0.0, 0.25, 0.5, 0.85)]
+        assert all(a > b for a, b in zip(eigs, eigs[1:])), eigs
+        assert eigs[-1] > 0.0, "EIG should not collapse to 0 (pre-7C clamp bug)"
+
+    def test_p5_selection_changes_with_phi(self):
+        """PHI-3: two otherwise-identical sources; phi_hat alone flips P5's choice."""
+        from hades.policies.p5_robust_voi import RobustVoIPolicy
+        menu_a = {"a_src": self._spec("a_src", 0.85, 0.85),
+                  "b_src": self._spec("b_src", 0.85, 0.02)}
+        menu_b = {"a_src": self._spec("a_src", 0.85, 0.02),
+                  "b_src": self._spec("b_src", 0.85, 0.85)}
+        assert self._select(RobustVoIPolicy(lam=0.0), menu_a) == "b_src"
+        assert self._select(RobustVoIPolicy(lam=0.0), menu_b) == "a_src"
+
+    def test_p3_unaffected_by_phi(self):
+        """Baseline P3 is phi-unaware: same choice regardless of phi_hat."""
+        from hades.policies.p3_ig import IGPolicy as P3
+        menu_a = {"a_src": self._spec("a_src", 0.85, 0.85),
+                  "b_src": self._spec("b_src", 0.85, 0.02)}
+        menu_b = {"a_src": self._spec("a_src", 0.85, 0.02),
+                  "b_src": self._spec("b_src", 0.85, 0.85)}
+        # Equal EIG -> deterministic tie-break = alphabetical max (score, name)
+        assert self._select(P3(), menu_a) == self._select(P3(), menu_b) == "b_src"
+
+    def test_p5_phi_zero_matches_clean_voi(self):
+        """phi_hat=0 reproduces pre-7C P5 scores exactly."""
+        table = _make_table()
+        rel = DEFAULT_RELEVANCE[SOURCE]
+        v_clean = voi(SOURCE, DEFAULT_BELIEFS, table, cost=1.0, lam=1.0,
+                      r_hat=0.8, phi_hat=0.0, source_relevance=rel,
+                      under_targeted_attack=False)
+        v_flag = voi(SOURCE, DEFAULT_BELIEFS, table, cost=1.0, lam=1.0,
+                     r_hat=0.8, phi_hat=0.0, source_relevance=rel,
+                     under_targeted_attack=True)
+        assert v_clean == v_flag
+
+    def test_p5_reads_no_oracle_fields(self):
+        """PHI-5: P5 source must not reference *_true or env attack state."""
         from hades.policies.p5_robust_voi import RobustVoIPolicy
         import inspect
-
-        # Check the source code of select_query
-        source = inspect.getsource(RobustVoIPolicy.select_query)
-
-        # P5 standard (use_robust=False) should call voi() with under_targeted_attack=False
-        # This is the ROOT CAUSE of P5_no_phi ≡ P5_full
-        if "under_targeted_attack=False" in source:
-            # Expected: P5 never activates the phi channel
-            pass
-        elif "under_targeted_attack" not in source:
-            # voi() default is False, so this is equivalent
-            pass
-        else:
-            # P5 does set it to True somewhere — investigate
-            pytest.fail("P5 passes under_targeted_attack=True somewhere; "
-                        "this contradicts the ablation finding P5_no_phi ≡ P5_full")
+        src = inspect.getsource(RobustVoIPolicy.select_query)
+        assert "_true" not in src
+        assert "under_targeted_attack=(phi_hat > 0.0)" in src
