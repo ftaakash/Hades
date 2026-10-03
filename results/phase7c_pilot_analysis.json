@@ -1,0 +1,1020 @@
+{
+  "meta": {
+    "experiment_id": "phase7c_phi_pilot",
+    "hades_commit": "173d8642566b6608e96877cb48f0dc0149ff135a",
+    "sigma_grid": [
+      0.1,
+      0.3
+    ],
+    "scenarios": [
+      "B_reliability_flip",
+      "D_manipulation_flip"
+    ],
+    "regimes": [
+      "R1_missing",
+      "R2_stale",
+      "R3_misleading",
+      "R4a_targeted"
+    ],
+    "lambda_grid": [
+      0.5,
+      1.0,
+      2.0
+    ],
+    "n_seeds": 50,
+    "budget": 10.0,
+    "n_episodes": 7200,
+    "elapsed_seconds": 18.15
+  },
+  "raw_file": "results\\raw\\phase7c_pilot_20261003T173025Z.json",
+  "cells": {
+    "ALL|B_reliability_flip|ALL": {
+      "n_pairs": 1200,
+      "Q1_decision_divergence_rate": 0.9725,
+      "Q2_mean_high_phi_full": 0.45416666666666666,
+      "Q2_mean_high_phi_no_phi": 1.8375,
+      "Q3_full_vs_no_phi": {
+        "n": 1200,
+        "mean_diff": -0.026164,
+        "median_diff": -0.007507,
+        "mean_ci": [
+          -0.040687,
+          -0.010813
+        ],
+        "median_ci": [
+          -0.018363,
+          -0.00162
+        ],
+        "wilcoxon_p": 1.938420951401008e-07,
+        "cliffs_delta": -0.041522,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 1200,
+        "mean_diff": -0.006557,
+        "median_diff": -0.003212,
+        "mean_ci": [
+          -0.025644,
+          0.013454
+        ],
+        "median_ci": [
+          -0.016457,
+          0.000922
+        ],
+        "wilcoxon_p": 0.1320633114264152,
+        "cliffs_delta": -0.000625,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "ALL|B_reliability_flip|R1_missing": {
+      "n_pairs": 300,
+      "Q1_decision_divergence_rate": 0.97,
+      "Q2_mean_high_phi_full": 0.5633333333333334,
+      "Q2_mean_high_phi_no_phi": 2.2333333333333334,
+      "Q3_full_vs_no_phi": {
+        "n": 300,
+        "mean_diff": -0.052678,
+        "median_diff": -0.012205,
+        "mean_ci": [
+          -0.071793,
+          -0.033815
+        ],
+        "median_ci": [
+          -0.033787,
+          0.0
+        ],
+        "wilcoxon_p": 4.400261635693014e-06,
+        "cliffs_delta": -0.095622,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 300,
+        "mean_diff": -0.049256,
+        "median_diff": -0.02804,
+        "mean_ci": [
+          -0.080113,
+          -0.017178
+        ],
+        "median_ci": [
+          -0.049721,
+          0.002375
+        ],
+        "wilcoxon_p": 0.001428568097197986,
+        "cliffs_delta": -0.070833,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "ALL|B_reliability_flip|R2_stale": {
+      "n_pairs": 300,
+      "Q1_decision_divergence_rate": 0.96,
+      "Q2_mean_high_phi_full": 0.6166666666666667,
+      "Q2_mean_high_phi_no_phi": 2.1066666666666665,
+      "Q3_full_vs_no_phi": {
+        "n": 300,
+        "mean_diff": -0.01525,
+        "median_diff": -0.003171,
+        "mean_ci": [
+          -0.044317,
+          0.014482
+        ],
+        "median_ci": [
+          -0.021904,
+          0.0
+        ],
+        "wilcoxon_p": 0.10413610072563706,
+        "cliffs_delta": -0.050933,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 300,
+        "mean_diff": -0.024415,
+        "median_diff": 0.004769,
+        "mean_ci": [
+          -0.063536,
+          0.01671
+        ],
+        "median_ci": [
+          -0.031343,
+          0.031278
+        ],
+        "wilcoxon_p": 0.4246958296396457,
+        "cliffs_delta": 0.007167,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "ALL|B_reliability_flip|R3_misleading": {
+      "n_pairs": 300,
+      "Q1_decision_divergence_rate": 0.97,
+      "Q2_mean_high_phi_full": 0.4,
+      "Q2_mean_high_phi_no_phi": 1.8,
+      "Q3_full_vs_no_phi": {
+        "n": 300,
+        "mean_diff": -0.043289,
+        "median_diff": -0.011817,
+        "mean_ci": [
+          -0.073559,
+          -0.010102
+        ],
+        "median_ci": [
+          -0.021229,
+          0.0
+        ],
+        "wilcoxon_p": 0.004102864492272894,
+        "cliffs_delta": -0.050222,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 300,
+        "mean_diff": 0.012202,
+        "median_diff": 0.000508,
+        "mean_ci": [
+          -0.024751,
+          0.049417
+        ],
+        "median_ci": [
+          -0.020118,
+          0.003895
+        ],
+        "wilcoxon_p": 0.9729444678735194,
+        "cliffs_delta": 0.021267,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "ALL|B_reliability_flip|R4a_targeted": {
+      "n_pairs": 300,
+      "Q1_decision_divergence_rate": 0.99,
+      "Q2_mean_high_phi_full": 0.23666666666666666,
+      "Q2_mean_high_phi_no_phi": 1.21,
+      "Q3_full_vs_no_phi": {
+        "n": 300,
+        "mean_diff": 0.006562,
+        "median_diff": -0.007214,
+        "mean_ci": [
+          -0.029274,
+          0.042993
+        ],
+        "median_ci": [
+          -0.030401,
+          -0.00162
+        ],
+        "wilcoxon_p": 0.141026608837828,
+        "cliffs_delta": -0.020089,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 300,
+        "mean_diff": 0.035242,
+        "median_diff": -0.000836,
+        "mean_ci": [
+          -0.003955,
+          0.076206
+        ],
+        "median_ci": [
+          -0.008581,
+          0.004177
+        ],
+        "wilcoxon_p": 0.6069575214242201,
+        "cliffs_delta": 0.004333,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "ALL|D_manipulation_flip|ALL": {
+      "n_pairs": 1200,
+      "Q1_decision_divergence_rate": 0.9541666666666667,
+      "Q2_mean_high_phi_full": 0.6108333333333333,
+      "Q2_mean_high_phi_no_phi": 2.8008333333333333,
+      "Q3_full_vs_no_phi": {
+        "n": 1200,
+        "mean_diff": -0.009024,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.017533,
+          -0.00104
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 0.00055443683736382,
+        "cliffs_delta": 0.001874,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 1200,
+        "mean_diff": -0.024153,
+        "median_diff": 0.000629,
+        "mean_ci": [
+          -0.035361,
+          -0.013
+        ],
+        "median_ci": [
+          0.000246,
+          0.001192
+        ],
+        "wilcoxon_p": 0.9664159216457302,
+        "cliffs_delta": 0.052427,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "ALL|D_manipulation_flip|R1_missing": {
+      "n_pairs": 300,
+      "Q1_decision_divergence_rate": 0.95,
+      "Q2_mean_high_phi_full": 0.5933333333333334,
+      "Q2_mean_high_phi_no_phi": 2.8733333333333335,
+      "Q3_full_vs_no_phi": {
+        "n": 300,
+        "mean_diff": -0.001975,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.013428,
+          0.009785
+        ],
+        "median_ci": [
+          -1e-06,
+          0.0
+        ],
+        "wilcoxon_p": 0.0048176222910891195,
+        "cliffs_delta": 0.005856,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 300,
+        "mean_diff": -0.04064,
+        "median_diff": 0.0002,
+        "mean_ci": [
+          -0.063213,
+          -0.018228
+        ],
+        "median_ci": [
+          -0.000959,
+          0.002621
+        ],
+        "wilcoxon_p": 0.10976351807772859,
+        "cliffs_delta": 0.034233,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "ALL|D_manipulation_flip|R2_stale": {
+      "n_pairs": 300,
+      "Q1_decision_divergence_rate": 0.9433333333333334,
+      "Q2_mean_high_phi_full": 0.6333333333333333,
+      "Q2_mean_high_phi_no_phi": 2.756666666666667,
+      "Q3_full_vs_no_phi": {
+        "n": 300,
+        "mean_diff": -0.001319,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.013641,
+          0.010895
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 0.18850129314932906,
+        "cliffs_delta": 0.023567,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 300,
+        "mean_diff": -0.048379,
+        "median_diff": 0.00112,
+        "mean_ci": [
+          -0.069613,
+          -0.027331
+        ],
+        "median_ci": [
+          2.2e-05,
+          0.002458
+        ],
+        "wilcoxon_p": 0.35633478506570415,
+        "cliffs_delta": 0.0502,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "ALL|D_manipulation_flip|R3_misleading": {
+      "n_pairs": 300,
+      "Q1_decision_divergence_rate": 0.9566666666666667,
+      "Q2_mean_high_phi_full": 0.62,
+      "Q2_mean_high_phi_no_phi": 2.78,
+      "Q3_full_vs_no_phi": {
+        "n": 300,
+        "mean_diff": -0.026941,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.047729,
+          -0.007823
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 0.01257498971279265,
+        "cliffs_delta": -0.032656,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 300,
+        "mean_diff": -0.023852,
+        "median_diff": 0.000716,
+        "mean_ci": [
+          -0.045581,
+          -0.003479
+        ],
+        "median_ci": [
+          0.000264,
+          0.001192
+        ],
+        "wilcoxon_p": 0.031512566556268023,
+        "cliffs_delta": 0.022333,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "ALL|D_manipulation_flip|R4a_targeted": {
+      "n_pairs": 300,
+      "Q1_decision_divergence_rate": 0.9666666666666667,
+      "Q2_mean_high_phi_full": 0.5966666666666667,
+      "Q2_mean_high_phi_no_phi": 2.7933333333333334,
+      "Q3_full_vs_no_phi": {
+        "n": 300,
+        "mean_diff": -0.00586,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.024439,
+          0.011608
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 0.6463637631742576,
+        "cliffs_delta": -3.3e-05,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 300,
+        "mean_diff": 0.01626,
+        "median_diff": 0.000209,
+        "mean_ci": [
+          -0.008214,
+          0.041209
+        ],
+        "median_ci": [
+          -0.001057,
+          0.002529
+        ],
+        "wilcoxon_p": 0.42992714542535093,
+        "cliffs_delta": 0.106567,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "0.1|B_reliability_flip|R1_missing": {
+      "n_pairs": 150,
+      "Q1_decision_divergence_rate": 0.98,
+      "Q2_mean_high_phi_full": 0.42,
+      "Q2_mean_high_phi_no_phi": 1.6666666666666667,
+      "Q3_full_vs_no_phi": {
+        "n": 150,
+        "mean_diff": -0.04636,
+        "median_diff": -0.003717,
+        "mean_ci": [
+          -0.072886,
+          -0.019844
+        ],
+        "median_ci": [
+          -0.032994,
+          0.004769
+        ],
+        "wilcoxon_p": 0.0012167947840716023,
+        "cliffs_delta": -0.0784,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 150,
+        "mean_diff": -0.042151,
+        "median_diff": -0.025551,
+        "mean_ci": [
+          -0.08414,
+          0.001638
+        ],
+        "median_ci": [
+          -0.042174,
+          0.003135
+        ],
+        "wilcoxon_p": 0.025129275009305355,
+        "cliffs_delta": -0.0444,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "0.1|B_reliability_flip|R2_stale": {
+      "n_pairs": 150,
+      "Q1_decision_divergence_rate": 0.94,
+      "Q2_mean_high_phi_full": 0.48,
+      "Q2_mean_high_phi_no_phi": 1.54,
+      "Q3_full_vs_no_phi": {
+        "n": 150,
+        "mean_diff": -0.056871,
+        "median_diff": -0.014567,
+        "mean_ci": [
+          -0.091521,
+          -0.022734
+        ],
+        "median_ci": [
+          -0.028755,
+          0.0
+        ],
+        "wilcoxon_p": 0.000778108229182723,
+        "cliffs_delta": -0.1316,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 150,
+        "mean_diff": -0.056873,
+        "median_diff": -0.026576,
+        "mean_ci": [
+          -0.111772,
+          0.001599
+        ],
+        "median_ci": [
+          -0.079879,
+          0.01749
+        ],
+        "wilcoxon_p": 0.05600021133171839,
+        "cliffs_delta": -0.0416,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "0.1|B_reliability_flip|R3_misleading": {
+      "n_pairs": 150,
+      "Q1_decision_divergence_rate": 0.98,
+      "Q2_mean_high_phi_full": 0.12,
+      "Q2_mean_high_phi_no_phi": 1.0,
+      "Q3_full_vs_no_phi": {
+        "n": 150,
+        "mean_diff": -0.015939,
+        "median_diff": -0.013032,
+        "mean_ci": [
+          -0.049817,
+          0.01823
+        ],
+        "median_ci": [
+          -0.025139,
+          0.0
+        ],
+        "wilcoxon_p": 0.12857821891049168,
+        "cliffs_delta": -0.0232,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 150,
+        "mean_diff": -0.024929,
+        "median_diff": 0.000511,
+        "mean_ci": [
+          -0.07408,
+          0.021625
+        ],
+        "median_ci": [
+          -0.042135,
+          0.004521
+        ],
+        "wilcoxon_p": 0.1618735408474653,
+        "cliffs_delta": -0.04,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "0.1|B_reliability_flip|R4a_targeted": {
+      "n_pairs": 150,
+      "Q1_decision_divergence_rate": 0.98,
+      "Q2_mean_high_phi_full": 0.0,
+      "Q2_mean_high_phi_no_phi": 0.26,
+      "Q3_full_vs_no_phi": {
+        "n": 150,
+        "mean_diff": -0.030948,
+        "median_diff": -0.006546,
+        "mean_ci": [
+          -0.083669,
+          0.02177
+        ],
+        "median_ci": [
+          -0.033191,
+          -0.000562
+        ],
+        "wilcoxon_p": 0.020260890414287934,
+        "cliffs_delta": -0.0936,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 150,
+        "mean_diff": 0.029601,
+        "median_diff": -4.7e-05,
+        "mean_ci": [
+          -0.031163,
+          0.091997
+        ],
+        "median_ci": [
+          -0.026826,
+          0.005526
+        ],
+        "wilcoxon_p": 0.92373407548977,
+        "cliffs_delta": -0.0296,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "0.1|D_manipulation_flip|R1_missing": {
+      "n_pairs": 150,
+      "Q1_decision_divergence_rate": 0.9333333333333333,
+      "Q2_mean_high_phi_full": 0.06,
+      "Q2_mean_high_phi_no_phi": 2.2,
+      "Q3_full_vs_no_phi": {
+        "n": 150,
+        "mean_diff": -0.005325,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.022516,
+          0.011946
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 0.11335479259272603,
+        "cliffs_delta": 0.010044,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 150,
+        "mean_diff": -0.05123,
+        "median_diff": 0.004556,
+        "mean_ci": [
+          -0.091275,
+          -0.014073
+        ],
+        "median_ci": [
+          0.000375,
+          0.010277
+        ],
+        "wilcoxon_p": 0.9230199691995552,
+        "cliffs_delta": 0.0224,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "0.1|D_manipulation_flip|R2_stale": {
+      "n_pairs": 150,
+      "Q1_decision_divergence_rate": 0.94,
+      "Q2_mean_high_phi_full": 0.04,
+      "Q2_mean_high_phi_no_phi": 2.1266666666666665,
+      "Q3_full_vs_no_phi": {
+        "n": 150,
+        "mean_diff": -0.004105,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.021893,
+          0.012603
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 0.12882676243159258,
+        "cliffs_delta": 0.011289,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 150,
+        "mean_diff": -0.048119,
+        "median_diff": 0.001508,
+        "mean_ci": [
+          -0.081646,
+          -0.017431
+        ],
+        "median_ci": [
+          0.000494,
+          0.010132
+        ],
+        "wilcoxon_p": 0.973805763983837,
+        "cliffs_delta": 0.058667,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "0.1|D_manipulation_flip|R3_misleading": {
+      "n_pairs": 150,
+      "Q1_decision_divergence_rate": 0.9666666666666667,
+      "Q2_mean_high_phi_full": 0.02,
+      "Q2_mean_high_phi_no_phi": 2.22,
+      "Q3_full_vs_no_phi": {
+        "n": 150,
+        "mean_diff": -0.037734,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.0673,
+          -0.012692
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 0.0901613913273246,
+        "cliffs_delta": -0.055022,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 150,
+        "mean_diff": -0.0169,
+        "median_diff": 0.001192,
+        "mean_ci": [
+          -0.050036,
+          0.012518
+        ],
+        "median_ci": [
+          0.000341,
+          0.003062
+        ],
+        "wilcoxon_p": 0.008345044210324865,
+        "cliffs_delta": 0.0948,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "0.1|D_manipulation_flip|R4a_targeted": {
+      "n_pairs": 150,
+      "Q1_decision_divergence_rate": 0.96,
+      "Q2_mean_high_phi_full": 0.06,
+      "Q2_mean_high_phi_no_phi": 2.1,
+      "Q3_full_vs_no_phi": {
+        "n": 150,
+        "mean_diff": -0.013653,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.033713,
+          0.004076
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 0.9703170438016254,
+        "cliffs_delta": 0.015067,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 150,
+        "mean_diff": 0.016799,
+        "median_diff": 0.001409,
+        "mean_ci": [
+          -0.017364,
+          0.050243
+        ],
+        "median_ci": [
+          0.000176,
+          0.00924
+        ],
+        "wilcoxon_p": 0.10358766415557479,
+        "cliffs_delta": 0.162933,
+        "cliffs_interp": "small"
+      }
+    },
+    "0.3|B_reliability_flip|R1_missing": {
+      "n_pairs": 150,
+      "Q1_decision_divergence_rate": 0.96,
+      "Q2_mean_high_phi_full": 0.7066666666666667,
+      "Q2_mean_high_phi_no_phi": 2.8,
+      "Q3_full_vs_no_phi": {
+        "n": 150,
+        "mean_diff": -0.058996,
+        "median_diff": -0.019776,
+        "mean_ci": [
+          -0.088142,
+          -0.030508
+        ],
+        "median_ci": [
+          -0.063013,
+          0.0
+        ],
+        "wilcoxon_p": 0.0007557130461680412,
+        "cliffs_delta": -0.117333,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 150,
+        "mean_diff": -0.056361,
+        "median_diff": -0.035868,
+        "mean_ci": [
+          -0.102072,
+          -0.011632
+        ],
+        "median_ci": [
+          -0.063013,
+          0.020664
+        ],
+        "wilcoxon_p": 0.021163462723094308,
+        "cliffs_delta": -0.088533,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "0.3|B_reliability_flip|R2_stale": {
+      "n_pairs": 150,
+      "Q1_decision_divergence_rate": 0.98,
+      "Q2_mean_high_phi_full": 0.7533333333333333,
+      "Q2_mean_high_phi_no_phi": 2.6733333333333333,
+      "Q3_full_vs_no_phi": {
+        "n": 150,
+        "mean_diff": 0.02637,
+        "median_diff": 0.002987,
+        "mean_ci": [
+          -0.021123,
+          0.075504
+        ],
+        "median_ci": [
+          -0.01812,
+          0.028462
+        ],
+        "wilcoxon_p": 0.47907555237286215,
+        "cliffs_delta": 0.0268,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 150,
+        "mean_diff": 0.008043,
+        "median_diff": 0.032872,
+        "mean_ci": [
+          -0.049051,
+          0.061278
+        ],
+        "median_ci": [
+          -0.005094,
+          0.090829
+        ],
+        "wilcoxon_p": 0.4923863288073882,
+        "cliffs_delta": 0.060667,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "0.3|B_reliability_flip|R3_misleading": {
+      "n_pairs": 150,
+      "Q1_decision_divergence_rate": 0.96,
+      "Q2_mean_high_phi_full": 0.68,
+      "Q2_mean_high_phi_no_phi": 2.6,
+      "Q3_full_vs_no_phi": {
+        "n": 150,
+        "mean_diff": -0.070639,
+        "median_diff": -0.011817,
+        "mean_ci": [
+          -0.123324,
+          -0.01675
+        ],
+        "median_ci": [
+          -0.051016,
+          0.001852
+        ],
+        "wilcoxon_p": 0.013622774201599065,
+        "cliffs_delta": -0.064356,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 150,
+        "mean_diff": 0.049333,
+        "median_diff": -0.003212,
+        "mean_ci": [
+          -0.012256,
+          0.108878
+        ],
+        "median_ci": [
+          -0.018815,
+          0.036335
+        ],
+        "wilcoxon_p": 0.2590652432456507,
+        "cliffs_delta": 0.074933,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "0.3|B_reliability_flip|R4a_targeted": {
+      "n_pairs": 150,
+      "Q1_decision_divergence_rate": 1.0,
+      "Q2_mean_high_phi_full": 0.47333333333333333,
+      "Q2_mean_high_phi_no_phi": 2.16,
+      "Q3_full_vs_no_phi": {
+        "n": 150,
+        "mean_diff": 0.044072,
+        "median_diff": -0.007507,
+        "mean_ci": [
+          -0.005066,
+          0.098859
+        ],
+        "median_ci": [
+          -0.031386,
+          0.015488
+        ],
+        "wilcoxon_p": 0.8123824505371556,
+        "cliffs_delta": 0.063911,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 150,
+        "mean_diff": 0.040882,
+        "median_diff": -0.003526,
+        "mean_ci": [
+          -0.021591,
+          0.09785
+        ],
+        "median_ci": [
+          -0.008581,
+          0.02032
+        ],
+        "wilcoxon_p": 0.49877861952088254,
+        "cliffs_delta": 0.0336,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "0.3|D_manipulation_flip|R1_missing": {
+      "n_pairs": 150,
+      "Q1_decision_divergence_rate": 0.9666666666666667,
+      "Q2_mean_high_phi_full": 1.1266666666666667,
+      "Q2_mean_high_phi_no_phi": 3.546666666666667,
+      "Q3_full_vs_no_phi": {
+        "n": 150,
+        "mean_diff": 0.001375,
+        "median_diff": -9.2e-05,
+        "mean_ci": [
+          -0.014719,
+          0.018756
+        ],
+        "median_ci": [
+          -0.001279,
+          0.0
+        ],
+        "wilcoxon_p": 0.02285270256487105,
+        "cliffs_delta": 0.005378,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 150,
+        "mean_diff": -0.03005,
+        "median_diff": -0.001418,
+        "mean_ci": [
+          -0.05551,
+          -0.002934
+        ],
+        "median_ci": [
+          -0.012949,
+          5e-06
+        ],
+        "wilcoxon_p": 0.024102014849599836,
+        "cliffs_delta": 0.045333,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "0.3|D_manipulation_flip|R2_stale": {
+      "n_pairs": 150,
+      "Q1_decision_divergence_rate": 0.9466666666666667,
+      "Q2_mean_high_phi_full": 1.2266666666666666,
+      "Q2_mean_high_phi_no_phi": 3.3866666666666667,
+      "Q3_full_vs_no_phi": {
+        "n": 150,
+        "mean_diff": 0.001467,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.017111,
+          0.020136
+        ],
+        "median_ci": [
+          0.0,
+          0.0
+        ],
+        "wilcoxon_p": 0.7640830720968462,
+        "cliffs_delta": 0.04,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 150,
+        "mean_diff": -0.048638,
+        "median_diff": 0.000458,
+        "mean_ci": [
+          -0.076271,
+          -0.022218
+        ],
+        "median_ci": [
+          -0.00158,
+          0.002469
+        ],
+        "wilcoxon_p": 0.18999567196905642,
+        "cliffs_delta": 0.0432,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "0.3|D_manipulation_flip|R3_misleading": {
+      "n_pairs": 150,
+      "Q1_decision_divergence_rate": 0.9466666666666667,
+      "Q2_mean_high_phi_full": 1.22,
+      "Q2_mean_high_phi_no_phi": 3.34,
+      "Q3_full_vs_no_phi": {
+        "n": 150,
+        "mean_diff": -0.016148,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.045989,
+          0.011478
+        ],
+        "median_ci": [
+          -1e-06,
+          0.0
+        ],
+        "wilcoxon_p": 0.06949783356155294,
+        "cliffs_delta": -0.0108,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 150,
+        "mean_diff": -0.030804,
+        "median_diff": 0.00043,
+        "mean_ci": [
+          -0.063267,
+          -0.001373
+        ],
+        "median_ci": [
+          1.4e-05,
+          0.00081
+        ],
+        "wilcoxon_p": 0.7420092709975443,
+        "cliffs_delta": -0.045333,
+        "cliffs_interp": "negligible"
+      }
+    },
+    "0.3|D_manipulation_flip|R4a_targeted": {
+      "n_pairs": 150,
+      "Q1_decision_divergence_rate": 0.9733333333333334,
+      "Q2_mean_high_phi_full": 1.1333333333333333,
+      "Q2_mean_high_phi_no_phi": 3.486666666666667,
+      "Q3_full_vs_no_phi": {
+        "n": 150,
+        "mean_diff": 0.001934,
+        "median_diff": 0.0,
+        "mean_ci": [
+          -0.029389,
+          0.031664
+        ],
+        "median_ci": [
+          -0.000695,
+          0.0
+        ],
+        "wilcoxon_p": 0.3681461890715254,
+        "cliffs_delta": -0.013778,
+        "cliffs_interp": "negligible"
+      },
+      "Q4_full_vs_p3": {
+        "n": 150,
+        "mean_diff": 0.015721,
+        "median_diff": -0.001013,
+        "mean_ci": [
+          -0.019136,
+          0.053101
+        ],
+        "median_ci": [
+          -0.003548,
+          0.000505
+        ],
+        "wilcoxon_p": 0.5976371347001025,
+        "cliffs_delta": 0.042267,
+        "cliffs_interp": "negligible"
+      }
+    }
+  }
+}
