@@ -1,0 +1,17 @@
+{
+  "project": "HADES 1.0",
+  "status": "FROZEN",
+  "frozen_commit": "3c236b6",
+  "tag": "hades-1.0-final",
+  "date": "2026-10-07",
+  "claims": {
+    "p5_broad_superiority": {"status": "KILLED", "evidence": "results/phase6_verdict.json, results/phase6_verdict_v2.json"},
+    "cost_attribution": {"status": "SUPPORTED", "evidence": "results/phase7c_cost_attribution_verdict.json#CAG-2"},
+    "reliability_increment": {"status": "NARROW_SMALL", "detail": "B sigma=0.10 only: +0.067 [0.029,0.104], Holm p=0.030, cliffs_delta=0.095", "evidence": "results/phase7c_cost_attribution_verdict.json#CAG-3"},
+    "phi_channel": {"status": "ACTIVE_NOT_SUPPORTIVE", "evidence": "results/phase7c_pilot_analysis.json; results/phase7c_cost_attribution_verdict.json#CAG-4"},
+    "public_cdb_transfer": {"status": "KILLED", "evidence": "STATUS_CDB_SAMPLE_KILLED.md"},
+    "full_cdb": {"status": "DEFERRED", "evidence": "docs/future/cdb_full_access_plan.md"}
+  },
+  "phase_7c_b": "COVERED_BY_7C_A_MAIN (D x 3 sigma x 100 seeds; researcher gave no decision)",
+  "legacy_p3_is_rhat_aware": true
+}
