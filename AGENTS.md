@@ -16,6 +16,7 @@ Researcher: Aakash G.S. Target: IEEE empirical paper. See `README.md` and `docs/
 - HADES 2.0 7K tests: `py -m pytest tests/test_probe_experiment.py -q`
 - HADES 2.0 blinded power calibration: `py scripts/run_probe_pilot.py calibration` (writes seed manifest; once)
 - HADES 2.0 pilot: `py scripts/run_probe_pilot.py pilot` then `py scripts/analyze_probe_pilot.py`
+- Phase 7T robust pilot: `py -m pytest tests/test_robust_acquisition.py -q`; `py scripts/run_robust_pilot.py calibration`, then `pilot`, then `py scripts/analyze_robust_pilot.py`
 
 Do not use `tail`/`head` (not on Windows) — use `| Select-Object -First/Last N`.
 Do not pipe agent long-runs through `Select-Object -First N` — it kills the pipe early. Redirect to file instead.
@@ -105,6 +106,9 @@ docs/
 - Worlds are procedurally generated; never hand-tune worlds, attackers or thresholds after a run.
 - Seeds: dev/tests 0-99, calibration 900000-900039, pilot from 1000000.
 - Pilot kill date **2026-11-11**. **Pilot v2 verdict: KILL** (2026-10-07; PF-3/4/6 fail; `docs/hades2_probe_kill_report.md`).
+- Phase 7T follow-up `phase7t_robust_pilot_v1`: P_RAND_JEIG / P_MINIMAX_JEIG vs P_JOINT_EIG_COST and random on held-out
+  A_DECOY_MIGRATE (`docs/phase7t_robust_acquisition_protocol.md`, gates `docs/phase7t_robust_acquisition_gates.md`).
+  Seeds: calibration 910000-910039, pilot from 2000000. Same kill date 2026-11-11.
 
 ## Gates
 

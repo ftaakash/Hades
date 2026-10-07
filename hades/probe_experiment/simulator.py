@@ -83,6 +83,19 @@ class EpisodeResult:
 SUSPICIOUS = 0.10   # a source is "suspicious" when P(S_q = COMPROMISED | E) >= 0.10 at decision time
 
 
+# Extra attacker families registered by later experiments (phase 7T). Each factory is
+# called as factory(cond, model, truth, world_seed, episode) and returns an object with
+# the Attacker interface. v2 families are untouched.
+EXTRA_ATTACKERS: Dict[str, object] = {}
+
+
+def make_attacker(cond: Condition, model: DefenderModel, truth: EpisodeTruth, world_seed: int, episode: int):
+    if cond.family in EXTRA_ATTACKERS:
+        return EXTRA_ATTACKERS[cond.family](cond, model, truth, world_seed, episode)
+    return Attacker.create(cond.family, cond.budget, model, truth.h_true,
+                           kappa=model.params.get("benign_coupling", 0.0), u_present=truth.u_present)
+
+
 def _emit_query(model: DefenderModel, truth: EpisodeTruth, att: Attacker, q: int, k: int) -> tuple[int, bool]:
     u_forge, u_pick, u_emit = truth.u_query[q, k]
     h = truth.h_true
@@ -113,8 +126,9 @@ def run_episode(policy, model: DefenderModel, cond: Condition, world_seed: int, 
                 actions: Optional[ActionSpace] = None) -> EpisodeResult:
     actions = actions or action_space(model)
     truth = sample_truth(model, world_seed, episode)
-    att = Attacker.create(cond.family, cond.budget, model, truth.h_true,
-                          kappa=model.params.get("benign_coupling", 0.0), u_present=truth.u_present)
+    att = make_attacker(cond, model, truth, world_seed, episode)
+    if hasattr(policy, "reset"):
+        policy.reset(model)
     belief = JointBelief.from_prior(model)
     budget = float(model.budget)
     rng = np.random.default_rng([7_7_2_0, world_seed, episode, sum(map(ord, policy.name))])
@@ -142,6 +156,8 @@ def run_episode(policy, model: DefenderModel, cond: Condition, world_seed: int, 
             counts_p[q] += 1
             att.observe_probe(q)
         belief.update(actions, a, o)
+        if hasattr(policy, "observe"):
+            policy.observe(actions, a, o)      # the policy sees its own outcome, nothing else
         budget -= actions.cost[a]
         log.append(f"{actions.names[a]}={o}")
 
