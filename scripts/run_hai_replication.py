@@ -78,7 +78,7 @@ def main():
     files = {}
     for v in (cfg["dev_version"], *cfg["confirm_versions"]):
         for f in hai.VERSIONS[v]["train"] + hai.VERSIONS[v]["test"]:
-            files[f"{v}/{f}"] = sha256_file(hai.DATA_ROOT / v / f)
+            files[f"{v}/{f}"] = sha256_file(hai.DATA_ROOT / v / f"{f}.csv.gz")
 
     _, dev = build(cfg["dev_version"])
     model = fit_model(dev)
