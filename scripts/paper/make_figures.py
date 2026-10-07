@@ -46,15 +46,15 @@ def forest():
     """Fig. 1: every pre-registered primary contrast, RRR with its pre-registered CI, against the 0.10 threshold."""
     P = "A_COVER+A_MISATTRIB+A_TRUST_HARVEST"
     rows = [
-        ("7L  probe value vs J (PF-1)", c("7L", f"P_PROBE|P_JOINT_EIG_COST|{P}"), "PASS"),
-        ("7L  probe value vs C (PF-3)", c("7L", f"P_PROBE|P_JOINT_HEIG_COST|{P}"), "FAIL"),
-        ("7L  probe value vs J, held-out (PF-6)", c("7L", "P_PROBE|P_JOINT_EIG_COST|A_MISATTRIB"), "FAIL"),
-        ("7T  randomised J vs J (RG-1)", c("7T", "P_RAND_JEIG|P_JOINT_EIG_COST|A_DECOY_MIGRATE"), "FAIL"),
-        ("7T  minimax J vs J (RG-1)", c("7T", "P_MINIMAX_JEIG|P_JOINT_EIG_COST|A_DECOY_MIGRATE"), "FAIL"),
-        ("7U  C vs R (JG-1)", c("7U", "P_JOINT_HEIG_COST|P3_RHAT_COST_LA2|A_COLLUDE_CHEAP"), "PASS"),
-        ("7U  C vs J (JG-2)", c("7U", "P_JOINT_HEIG_COST|P_JOINT_EIG_COST|A_COLLUDE_CHEAP"), "PASS"),
-        ("7V  HAI 21.03: C vs R", NUM["7V"]["hai-21.03"]["contrasts"]["P3_RHAT_COST_LA2"], "INVALID"),
-        ("7V  HAI 21.03: C vs J", NUM["7V"]["hai-21.03"]["contrasts"]["P_JOINT_EIG_COST"], "INVALID"),
+        ("E1  probe value vs J (PF-1)", c("7L", f"P_PROBE|P_JOINT_EIG_COST|{P}"), "PASS"),
+        ("E1  probe value vs C (PF-3)", c("7L", f"P_PROBE|P_JOINT_HEIG_COST|{P}"), "FAIL"),
+        ("E1  probe value vs J, held-out (PF-6)", c("7L", "P_PROBE|P_JOINT_EIG_COST|A_MISATTRIB"), "FAIL"),
+        ("E2  randomised J vs J (RG-1)", c("7T", "P_RAND_JEIG|P_JOINT_EIG_COST|A_DECOY_MIGRATE"), "FAIL"),
+        ("E2  minimax J vs J (RG-1)", c("7T", "P_MINIMAX_JEIG|P_JOINT_EIG_COST|A_DECOY_MIGRATE"), "FAIL"),
+        ("E3  C vs R (JG-1)", c("7U", "P_JOINT_HEIG_COST|P3_RHAT_COST_LA2|A_COLLUDE_CHEAP"), "PASS"),
+        ("E3  C vs J (JG-2)", c("7U", "P_JOINT_HEIG_COST|P_JOINT_EIG_COST|A_COLLUDE_CHEAP"), "PASS"),
+        ("E4  HAI 21.03: C vs R", NUM["7V"]["hai-21.03"]["contrasts"]["P3_RHAT_COST_LA2"], "INVALID"),
+        ("E4  HAI 21.03: C vs J", NUM["7V"]["hai-21.03"]["contrasts"]["P_JOINT_EIG_COST"], "INVALID"),
     ]
     fig, ax = plt.subplots(figsize=(3.45, 2.75))
     y = np.arange(len(rows))[::-1]
@@ -147,14 +147,14 @@ def tables():
     P = "A_COVER+A_MISATTRIB+A_TRUST_HARVEST"
     n = NUM
     rows = [
-        (r"7L & $P$ vs $J$, known families & PF-1 & " + ci(c("7L", f"P_PROBE|P_JOINT_EIG_COST|{P}")) + r" & pass \\"),
-        (r" & $P$ vs $C$, known families & PF-3 & " + ci(c("7L", f"P_PROBE|P_JOINT_HEIG_COST|{P}")) + r" & \textbf{fail} \\"),
+        (r"E1 & $P$ vs $J$, pooled families & PF-1 & " + ci(c("7L", f"P_PROBE|P_JOINT_EIG_COST|{P}")) + r" & pass \\"),
+        (r" & $P$ vs $C$, pooled families & PF-3 & " + ci(c("7L", f"P_PROBE|P_JOINT_HEIG_COST|{P}")) + r" & \textbf{fail} \\"),
         (r" & $P$ vs $J$, held-out misattrib. & PF-6 & " + ci(c("7L", "P_PROBE|P_JOINT_EIG_COST|A_MISATTRIB")) + r" & \textbf{fail} \\"),
-        (r"7T & Rand. $J$ vs $J$, held-out & RG-1 & " + ci(c("7T", "P_RAND_JEIG|P_JOINT_EIG_COST|A_DECOY_MIGRATE")) + r" & \textbf{fail} \\"),
+        (r"E2 & Rand. $J$ vs $J$, held-out & RG-1 & " + ci(c("7T", "P_RAND_JEIG|P_JOINT_EIG_COST|A_DECOY_MIGRATE")) + r" & \textbf{fail} \\"),
         (r" & Minimax $J$ vs $J$, held-out & RG-1 & " + ci(c("7T", "P_MINIMAX_JEIG|P_JOINT_EIG_COST|A_DECOY_MIGRATE")) + r" & \textbf{fail} \\"),
-        (r"7U & $C$ vs $R$, held-out & JG-1 & " + ci(c("7U", "P_JOINT_HEIG_COST|P3_RHAT_COST_LA2|A_COLLUDE_CHEAP")) + r" & pass \\"),
+        (r"E3 & $C$ vs $R$, held-out & JG-1 & " + ci(c("7U", "P_JOINT_HEIG_COST|P3_RHAT_COST_LA2|A_COLLUDE_CHEAP")) + r" & pass \\"),
         (r" & $C$ vs $J$, held-out & JG-2 & " + ci(c("7U", "P_JOINT_HEIG_COST|P_JOINT_EIG_COST|A_COLLUDE_CHEAP")) + r" & pass \\"),
-        (r"7V & $C$ vs $R$, HAI 21.03 & HG-1 & " + ci(n["7V"]["hai-21.03"]["contrasts"]["P3_RHAT_COST_LA2"]) + r" & n/a \\"),
+        (r"E4 & $C$ vs $R$, HAI 21.03 & HG-1 & " + ci(n["7V"]["hai-21.03"]["contrasts"]["P3_RHAT_COST_LA2"]) + r" & n/a \\"),
         (r" & $C$ vs $J$, HAI 21.03 & HG-2 & " + ci(n["7V"]["hai-21.03"]["contrasts"]["P_JOINT_EIG_COST"]) + r" & n/a \\"),
     ]
     (TAB / "tab_primary.tex").write_text("\n".join(rows) + "\n")
@@ -187,6 +187,8 @@ def tables():
                          ("7U", "P_JOINT_HEIG_COST|P_JOINT_EIG_COST|A_COLLUDE_CHEAP", "UJ"),
                          ("7U", "P_JOINT_HEIG_COST|P3_RHAT_COST_LA2|A_MISATTRIB", "URmis"),
                          ("7U", "P_JOINT_HEIG_COST|P_JOINT_EIG_COST|A_TRUST_HARVEST", "UJth"),
+                         ("7U", "P_JOINT_HEIG_COST|P3_RHAT_COST_LA2|A_TRUST_HARVEST", "URth"),
+                         ("7U", "P_JOINT_HEIG_COST|P_JOINT_EIG_COST|CLEAN", "UJclean"),
                          ("7L", f"P_PROBE|P_JOINT_EIG_COST|{P}", "LJ"), ("7L", f"P_PROBE|P_JOINT_HEIG_COST|{P}", "LC"),
                          ("7L", "P_PROBE|P_JOINT_EIG_COST|A_MISATTRIB", "LJmis"),
                          ("7L", "P_PROBE|P_JOINT_EIG_COST|A_COVER", "LJcov"),
@@ -209,6 +211,17 @@ def tables():
             put("V" + s + "lo" + tag, d["contrasts"][x]["lo"], "{:.2f}")
             put("V" + s + "hi" + tag, d["contrasts"][x]["hi"], "{:.2f}")
     put("Vndev", n["7V"]["n_dev"], "{}")
+    put("VPA", n["7V"]["hai-21.03"]["regret"]["P_PROBE"])
+    put("VJregA", n["7V"]["hai-21.03"]["regret"]["P_JOINT_EIG_COST"])
+    put("VCregA", n["7V"]["hai-21.03"]["regret"]["P_JOINT_HEIG_COST"])
+    put("VprA", n["7V"]["hai-21.03"]["regret"]["PRIOR_ONLY"])
+    put("cdR", n["7U"]["cliffs_delta"]["P3_RHAT_COST_LA2"], "{:.2f}")
+    put("cdJ", n["7U"]["cliffs_delta"]["P_JOINT_EIG_COST"], "{:.2f}")
+    for blk, tag in (("7L", "L"), ("7T", "T"), ("7U", "U")):
+        put("calib" + tag, n[blk]["calibration_required"], "{:.0f}")
+        th = {p: v["A_TRUST_HARVEST"] for p, v in n[blk]["regret"].items()}
+        put("thRand" + tag, th["P0_RANDOM_COST_MATCHED"])
+    put("thRandJT", n["7T"]["regret"]["P_RAND_JEIG"]["A_TRUST_HARVEST"])
     put("Vfailh", n["7V"]["model_params"]["p_fail_healthy"], "{:.3f}")
     put("Vfails", n["7V"]["model_params"]["p_fail_spoofed"], "{:.3f}")
     for blk, tag in (("7L", "L"), ("7T", "T"), ("7U", "U")):

@@ -135,6 +135,14 @@ def main():
             checks.append((f"7V {v} vs {x}", nums["7V"][v]["contrasts"][x]["rrr"], s[v]["contrasts"][x]["rrr"]))
             checks.append((f"7V {v} vs {x} CI lower", nums["7V"][v]["contrasts"][x]["lo"], s[v]["contrasts"][x]["ci_lower"]))
 
+    # Quoted alongside the recomputed numbers (read, not recomputed): calibration requirement and Cliff's delta
+    for blk, name in (("7L", "phase7l_probe_pilot_v2"), ("7T", "phase7t_robust_pilot_v1"), ("7U", "phase7u_joint_belief_v1")):
+        man = json.loads((RAW / f"{name}_seed_manifest.json").read_text())
+        req = man["n_required_raw"]
+        nums[blk]["calibration_required"] = max(req.values()) if isinstance(req, dict) else req
+    s = json.loads((STATS / "phase7u_joint_belief_v1_statistics.json").read_text())
+    nums["7U"]["cliffs_delta"] = {x: s["contrasts"][x]["cliffs_delta"] for x in s["contrasts"]}
+
     bad = [(k, a, b) for k, a, b in checks if abs(a - b) > 1e-9]
     nums["checks"] = [{"name": k, "recomputed": a, "committed": b, "match": abs(a - b) <= 1e-9} for k, a, b in checks]
     OUT.parent.mkdir(parents=True, exist_ok=True)

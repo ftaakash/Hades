@@ -68,3 +68,10 @@ halves, with lower regret on clean worlds too.
 The constructive section of the paper is now the scoped joint-belief claim, alongside the two pre-registered negative
 results (probe value, robust acquisition). Replication on real data (e.g. an industrial-control dataset with
 per-sensor attack labels) is the next external-validity step and needs its own protocol.
+
+## Erratum (2026-10-07, found during paper review)
+
+Scope item 2 says the gain is "absent against the policy-aware trust-harvest attacker". That holds only relative to
+P_JOINT_EIG_COST (RRR -0.03, 95% CI [-0.09, 0.03]). Relative to P3_RHAT_COST_LA2 the candidate still reduces
+trust-harvest regret (RRR 0.12, 95% CI [0.07, 0.18]; recomputed by `scripts/paper/recompute_headlines.py`). Random
+acquisition is still lowest there (0.126). Gate outcomes are unaffected (trust-harvest is not a gated cell).

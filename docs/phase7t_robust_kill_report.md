@@ -53,3 +53,9 @@ Per protocol §7 this is reported as a further negative result. The robust-acqui
 HADES 2.0 now has two pre-registered negative results (v2 probe value, 7T robustness), which support a
 negative-results / benchmark-artifact framing rather than a novel-method paper. The HADES 1.0 write-up remains the
 guaranteed output.
+
+## Erratum (2026-10-07, found during paper review)
+
+In the regret table above, the bold on random (0.120) in the trust-harvest column is wrong: the lowest trust-harvest
+regret among the eight policies is P_RAND_JEIG (0.115), as item 2 of the exploratory notes states. Numbers are
+unchanged; only the bolding was wrong. The table is left as first committed.
