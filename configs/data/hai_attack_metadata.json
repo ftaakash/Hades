@@ -1,0 +1,34 @@
+{
+  "source": "HAI technical details (hai_dataset_technical_details.pdf, icsdataset/hai, CC BY-SA 4.0): HAI 20.07 table p.39-41, HAI 21.03 table p.36-38, HAI 22.04 table p.33-35",
+  "transcribed": "2026-10-07, before any replication run; attack order = chronological order of contiguous attack==1 segments in the test files",
+  "spoofed_meaning": "PV target points whose scenario description is 'attempt to maintain/repeat previous sensor value' (stale-value spoofing). Only points that are replication sources are listed.",
+  "process_labels": "20.07 and 21.03: from the attack_P1/P2/P3 columns. 22.04 (no per-process columns): from the target controllers in the manual.",
+  "hai-20.07": {
+    "n_attacks": 38,
+    "spoofed": {"1": ["P1_LIT01"], "3": ["P1_LIT01"], "7": ["P1_PIT01"], "9": ["P1_PIT01"], "10": ["P2_SIT01"],
+                "14": ["P2_SIT01", "P1_PIT01"], "16": ["P2_SIT01"], "17": ["P2_SIT01", "P1_LIT01"], "20": ["P1_LIT01"],
+                "24": ["P1_FT03"], "26": ["P1_PIT01"], "27": ["P1_FT03"], "28": ["P1_PIT01"]}
+  },
+  "hai-21.03": {
+    "n_attacks": 50,
+    "spoofed": {"7": ["P1_PIT01"], "9": ["P1_FT03"], "11": ["P1_FT03"], "13": ["P1_LIT01"], "15": ["P1_PIT01"],
+                "17": ["P2_SIT01"], "18": ["P1_LIT01"], "20": ["P2_SIT01"], "27": ["P1_PIT01"], "33": ["P1_LIT01"],
+                "34": ["P1_LIT01"], "35": ["P1_FT03"], "36": ["P1_LIT01"], "37": ["P2_SIT01", "P1_LIT01"], "40": ["P1_FT03"],
+                "41": ["P1_LIT01"], "44": ["P2_SIT01"], "48": ["P1_LIT01"], "50": ["P1_FT03"]},
+    "notes": "Combination attacks paired as (line above ID, line below ID); every pairing agrees with the attack_P1/P2/P3 columns. A401 is AP03 + AP12 (LIT01 spoofed)."
+  },
+  "hai-22.04": {
+    "n_attacks": 58,
+    "processes": {"1": [1], "2": [1], "3": [1], "4": [3], "5": [1], "6": [1], "7": [1], "8": [1], "9": [1], "10": [2],
+                  "11": [1, 2], "12": [3], "13": [1, 2], "14": [1], "15": [2], "16": [1], "17": [2], "18": [1], "19": [3],
+                  "20": [1], "21": [3], "22": [1], "23": [1], "24": [1], "25": [1, 3], "26": [1], "27": [1, 3], "28": [3],
+                  "29": [1], "30": [1], "31": [1], "32": [1], "33": [1], "34": [3], "35": [2], "36": [1], "37": [2],
+                  "38": [2, 3], "39": [1], "40": [1], "50": [1], "51": [1], "52": [1], "53": [1, 3], "54": [1],
+                  "55": [1, 2], "56": [1, 2], "57": [1, 2], "58": [1]},
+    "spoofed": {"3": ["P1_FT03"], "13": ["P1_PIT01", "P2_SIT01"], "15": ["P2_SIT01"], "16": ["P1_PIT01"], "18": ["P1_PIT01"],
+                "22": ["P1_FT03"], "26": ["P1_LIT01"], "27": ["P1_LIT01"], "28": ["P3_LEVEL"], "30": ["P1_LIT01"],
+                "32": ["P1_PIT01"], "40": ["P1_FT03"], "50": ["P1_FT03", "P1_LIT01"], "55": ["P2_SIT01"], "56": ["P1_PIT01"]},
+    "excluded": ["41", "42", "43", "44", "45", "46", "47", "48", "49"],
+    "notes": "Attacks 41-49 (A407-A415) excluded: the manual's page-35 layout does not identify which primitive lines belong to which ID. A302-A307 targets column is shifted by one row in the PDF; resolved from the scenario names. A307 spoofs P1_TIT01, which is not a source."
+  }
+}

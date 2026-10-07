@@ -18,6 +18,7 @@ Researcher: Aakash G.S. Target: IEEE empirical paper. See `README.md` and `docs/
 - HADES 2.0 pilot: `py scripts/run_probe_pilot.py pilot` then `py scripts/analyze_probe_pilot.py`
 - Phase 7T robust pilot: `py -m pytest tests/test_robust_acquisition.py -q`; `py scripts/run_robust_pilot.py calibration`, then `pilot`, then `py scripts/analyze_robust_pilot.py`
 - Phase 7U joint-belief pilot: `py -m pytest tests/test_joint_belief.py -q`; `py scripts/run_joint_pilot.py calibration`, then `pilot`, then `py scripts/analyze_joint_pilot.py`
+- Phase 7V HAI real-data replication: `py -m pytest tests/test_hai_replication.py -q`; `py scripts/run_hai_replication.py` (once), then `py scripts/analyze_hai_replication.py`
 
 Do not use `tail`/`head` (not on Windows) — use `| Select-Object -First/Last N`.
 Do not pipe agent long-runs through `Select-Object -First N` — it kills the pipe early. Redirect to file instead.
@@ -114,6 +115,10 @@ docs/
   A_COLLUDE_CHEAP (`docs/phase7u_joint_belief_protocol.md`, gates `docs/phase7u_joint_belief_gates.md`).
   Hypothesis is from exploratory 7L/7T data, disclosed. Seeds: calibration 920000-920039, pilot from 3000000.
   **7U verdict: PROCEED** (2026-10-07; RRR 0.27 vs R, 0.22 vs J; scoped, see `docs/phase7u_joint_belief_report.md`).
+- Phase 7V `phase7v_hai_replication_v1`: real-data replication of 7U on the HAI ICS dataset (stale-value PV spoofing as
+  real compromise). Dev HAI 20.07 (model fit), primary HAI 21.03 (verdict), secondary HAI 22.04
+  (`docs/phase7v_hai_replication_protocol.md`, gates `docs/phase7v_hai_replication_gates.md`). Data in
+  `/mnt/project-files/data/hai-*` (not in git). Novelty audit: `docs/hades2_novelty_audit.md`.
 
 ## Gates
 
