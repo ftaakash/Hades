@@ -104,7 +104,7 @@ docs/
   config `configs/experiments/phase7l_probe_pilot_v2.json`. Primary: P_PROBE vs **P_JOINT_EIG_COST**, RRR >= 0.10.
 - Worlds are procedurally generated; never hand-tune worlds, attackers or thresholds after a run.
 - Seeds: dev/tests 0-99, calibration 900000-900039, pilot from 1000000.
-- Pilot kill date **2026-11-11**.
+- Pilot kill date **2026-11-11**. **Pilot v2 verdict: KILL** (2026-10-07; PF-3/4/6 fail; `docs/hades2_probe_kill_report.md`).
 
 ## Gates
 

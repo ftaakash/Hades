@@ -1,0 +1,35 @@
+{
+  "experiment_id": "phase7l_probe_pilot_v2",
+  "verdict": "KILL",
+  "failed_decisive": [
+    "PF-3",
+    "PF-4",
+    "PF-6"
+  ],
+  "gates": {
+    "V-1": true,
+    "PF-1": true,
+    "PF-2": true,
+    "PF-3": false,
+    "PF-4": false,
+    "PF-5": true,
+    "PF-6": false,
+    "PF-7": true,
+    "PF-9": true,
+    "PF-10": true
+  },
+  "primary_rrr": 0.11383174259294582,
+  "primary_ci95": [
+    0.056230286027889195,
+    0.16625536317869474
+  ],
+  "provenance": {
+    "experiment_id": "phase7l_probe_pilot_v2",
+    "git_commit": "eb586c6d170780c19d337fab46dcf8103f361ff6",
+    "git_dirty": false,
+    "config_sha256": "e13220f8fd8aa7c36b9d484e7d8403577b33b18adfa965d1b6b0f8bb650d0fb7",
+    "simulator_version": "probe-sim-1.0",
+    "attacker_version": "probe-attacker-1.0",
+    "policy_version": "probe-policies-1.0"
+  }
+}

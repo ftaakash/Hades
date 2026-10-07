@@ -1,0 +1,423 @@
+{
+  "V-1": {
+    "decisive": "validity",
+    "mean": 0.24104867929061008,
+    "ci95": [
+      0.21433910116675503,
+      0.26901396472647515
+    ],
+    "pass": true
+  },
+  "PF-1": {
+    "decisive": true,
+    "rrr": 0.11383174259294582,
+    "ci95": [
+      0.056230286027889195,
+      0.16625536317869474
+    ],
+    "p_one_sided": 0.00019998000199980003,
+    "n_worlds": 140,
+    "mean_regret_candidate": 0.156673235011398,
+    "mean_regret_comparator": 0.17679851845497938,
+    "wilcoxon_p_one_sided": 2.0024004240451045e-05,
+    "cliffs_delta": 0.13581632653061224,
+    "pass": true
+  },
+  "PF-2": {
+    "decisive": true,
+    "pass": true
+  },
+  "PF-3": {
+    "decisive": true,
+    "contrasts": {
+      "P3_RHAT_COST": {
+        "rrr": 0.2853316676780654,
+        "ci95": [
+          0.23429829925493822,
+          0.3341057855805398
+        ],
+        "p_one_sided": 9.999000099990002e-05,
+        "n_worlds": 140,
+        "mean_regret_candidate": 0.156673235011398,
+        "mean_regret_comparator": 0.2192250977490099,
+        "p_holm": 0.00029997000299970003
+      },
+      "P3_RHAT_COST_LA2": {
+        "rrr": 0.2813695339645017,
+        "ci95": [
+          0.22997092566591942,
+          0.3298513758151182
+        ],
+        "p_one_sided": 9.999000099990002e-05,
+        "n_worlds": 140,
+        "mean_regret_candidate": 0.156673235011398,
+        "mean_regret_comparator": 0.21801641095975854,
+        "p_holm": 0.00029997000299970003
+      },
+      "P_JOINT_HEIG_COST": {
+        "rrr": 0.018256211229074393,
+        "ci95": [
+          -0.024714176446965774,
+          0.061213796686917295
+        ],
+        "p_one_sided": 0.19938006199380062,
+        "n_worlds": 140,
+        "mean_regret_candidate": 0.156673235011398,
+        "mean_regret_comparator": 0.1595866832094165,
+        "p_holm": 0.19938006199380062
+      }
+    },
+    "pass": false
+  },
+  "PF-4": {
+    "decisive": true,
+    "suspicious_probe_episode_rate": 0.5751984126984127,
+    "suspicious_share_of_probes": 0.3460123198276037,
+    "pass": false
+  },
+  "PF-5": {
+    "decisive": true,
+    "vs_no_s": {
+      "rrr": 0.26901377929701964,
+      "ci95": [
+        0.2183727313292377,
+        0.31787091448710164
+      ],
+      "p_one_sided": 9.999000099990002e-05,
+      "n_worlds": 140,
+      "mean_regret_candidate": 0.156673235011398,
+      "mean_regret_comparator": 0.21433131100710395
+    },
+    "gain_vs_primary": 2.817539682101394,
+    "gain_vs_ablation": 8.072130639398832,
+    "pass": true,
+    "no_probe_action_reference": {
+      "rrr": 0.2021607892198265,
+      "ci95": [
+        0.15911549205369221,
+        0.24440159100414072
+      ],
+      "p_one_sided": 9.999000099990002e-05,
+      "n_worlds": 140,
+      "mean_regret_candidate": 0.156673235011398,
+      "mean_regret_comparator": 0.19637194173271305
+    }
+  },
+  "PF-6": {
+    "decisive": true,
+    "heldout": {
+      "rrr": -0.045765577798993595,
+      "ci95": [
+        -0.12722810463202738,
+        0.024845453798477253
+      ],
+      "p_one_sided": 0.8877112288771123,
+      "n_worlds": 140,
+      "mean_regret_candidate": 0.18095416755398322,
+      "mean_regret_comparator": 0.17303511551301454
+    },
+    "adaptive_reported": {
+      "rrr": -0.029256934348103947,
+      "ci95": [
+        -0.15219238606931354,
+        0.08298435058609996
+      ],
+      "p_one_sided": 0.6836316368363163,
+      "n_worlds": 140,
+      "mean_regret_candidate": 0.21283804742784576,
+      "mean_regret_comparator": 0.2067880626547832
+    },
+    "design_reported": {
+      "rrr": 0.4937485117036944,
+      "ci95": [
+        0.41378983082993975,
+        0.5640859235020216
+      ],
+      "p_one_sided": 9.999000099990002e-05,
+      "n_worlds": 140,
+      "mean_regret_candidate": 0.07622749005236505,
+      "mean_regret_comparator": 0.15057237719714042
+    },
+    "pass": false
+  },
+  "PF-7": {
+    "decisive": true,
+    "pass": true
+  },
+  "PF-8": {
+    "decisive": false,
+    "rrr": 0.11383174259294582,
+    "ci95": [
+      0.056230286027889195,
+      0.16625536317869474
+    ],
+    "threshold": 0.1,
+    "ratio_to_threshold": 1.1383174259294582,
+    "cliffs_delta": 0.13581632653061224
+  },
+  "PF-9": {
+    "decisive": true,
+    "clean_regret_diff_P_minus_J": {
+      "mean": -0.022366079217379306,
+      "ci95": [
+        -0.03248386977913663,
+        -0.013067393283108979
+      ]
+    },
+    "pass": true
+  },
+  "PF-10": {
+    "decisive": true,
+    "per_budget": {
+      "1": 0.2732595781603959,
+      "2": 0.09108103680460389,
+      "3": 0.04491795990357894
+    },
+    "halves": {
+      "even": 0.11652057844891384,
+      "odd": 0.11055006681604751
+    },
+    "drop_top_decile": 0.0485726290053784,
+    "pass": true
+  },
+  "phase_map": {
+    "probe_vs_no_probe": {
+      "fraction_better": 0.7357142857142858,
+      "fraction_worse": 0.22142857142857142,
+      "fraction_tied": 0.04285714285714286,
+      "axes": [
+        "compromise_prior",
+        "probe_cost_ratio",
+        "probe_accuracy",
+        "informativeness",
+        "loss_asymmetry"
+      ],
+      "log_axes": [
+        "probe_cost_ratio",
+        "loss_asymmetry"
+      ],
+      "logistic_standardised": {
+        "coef": [
+          1.1197324323054623,
+          -0.22826424308296486,
+          -0.49831105575670265,
+          0.12168324894422203,
+          -0.31039639556175697,
+          -0.07779883679906516
+        ],
+        "se": [
+          0.20830661122554706,
+          0.2049650243174309,
+          0.20976012790276027,
+          0.1985679166554533,
+          0.20280848771661658,
+          0.19820896931000728
+        ]
+      },
+      "grid_compromise_x_probe_cost": [
+        {
+          "compromise_prior_tertile": 0,
+          "log_probe_cost_ratio_tertile": 0,
+          "n": 18,
+          "mean_d": 0.07399974273648727,
+          "fraction_better": 0.8888888888888888
+        },
+        {
+          "compromise_prior_tertile": 0,
+          "log_probe_cost_ratio_tertile": 1,
+          "n": 15,
+          "mean_d": 0.0666227914122561,
+          "fraction_better": 0.9333333333333333
+        },
+        {
+          "compromise_prior_tertile": 0,
+          "log_probe_cost_ratio_tertile": 2,
+          "n": 14,
+          "mean_d": 0.040178570206203044,
+          "fraction_better": 0.5714285714285714
+        },
+        {
+          "compromise_prior_tertile": 1,
+          "log_probe_cost_ratio_tertile": 0,
+          "n": 12,
+          "mean_d": 0.037037831580631765,
+          "fraction_better": 0.6666666666666666
+        },
+        {
+          "compromise_prior_tertile": 1,
+          "log_probe_cost_ratio_tertile": 1,
+          "n": 13,
+          "mean_d": 0.051013774422872964,
+          "fraction_better": 0.7692307692307693
+        },
+        {
+          "compromise_prior_tertile": 1,
+          "log_probe_cost_ratio_tertile": 2,
+          "n": 21,
+          "mean_d": 0.006775158639381905,
+          "fraction_better": 0.6190476190476191
+        },
+        {
+          "compromise_prior_tertile": 2,
+          "log_probe_cost_ratio_tertile": 0,
+          "n": 17,
+          "mean_d": 0.03035249860042907,
+          "fraction_better": 0.7647058823529411
+        },
+        {
+          "compromise_prior_tertile": 2,
+          "log_probe_cost_ratio_tertile": 1,
+          "n": 18,
+          "mean_d": 0.03367111688805423,
+          "fraction_better": 0.7222222222222222
+        },
+        {
+          "compromise_prior_tertile": 2,
+          "log_probe_cost_ratio_tertile": 2,
+          "n": 12,
+          "mean_d": 0.02433314663103629,
+          "fraction_better": 0.6666666666666666
+        }
+      ],
+      "tertile_edges": {
+        "compromise_prior": [
+          0.12616554956539355,
+          0.2632593637180164
+        ],
+        "log_probe_cost_ratio": [
+          -0.6728557434708397,
+          0.03580704134345837
+        ]
+      }
+    },
+    "probe_vs_joint_eig": {
+      "fraction_better": 0.6428571428571429,
+      "fraction_worse": 0.35,
+      "fraction_tied": 0.007142857142857143,
+      "axes": [
+        "compromise_prior",
+        "probe_cost_ratio",
+        "probe_accuracy",
+        "informativeness",
+        "loss_asymmetry"
+      ],
+      "log_axes": [
+        "probe_cost_ratio",
+        "loss_asymmetry"
+      ],
+      "logistic_standardised": {
+        "coef": [
+          0.6049854742863909,
+          0.1428592902827423,
+          -0.10995473462063242,
+          -0.024057937318482527,
+          -0.2848402062626933,
+          0.18717943675757037
+        ],
+        "se": [
+          0.17979205753278668,
+          0.18371927007349365,
+          0.17997618557363435,
+          0.17971916464576976,
+          0.1811976753526985,
+          0.18103383674307416
+        ]
+      },
+      "grid_compromise_x_probe_cost": [
+        {
+          "compromise_prior_tertile": 0,
+          "log_probe_cost_ratio_tertile": 0,
+          "n": 18,
+          "mean_d": 0.03606185440576001,
+          "fraction_better": 0.7777777777777778
+        },
+        {
+          "compromise_prior_tertile": 0,
+          "log_probe_cost_ratio_tertile": 1,
+          "n": 15,
+          "mean_d": 0.021081279466282538,
+          "fraction_better": 0.6666666666666666
+        },
+        {
+          "compromise_prior_tertile": 0,
+          "log_probe_cost_ratio_tertile": 2,
+          "n": 14,
+          "mean_d": 0.017566050559051635,
+          "fraction_better": 0.5714285714285714
+        },
+        {
+          "compromise_prior_tertile": 1,
+          "log_probe_cost_ratio_tertile": 0,
+          "n": 12,
+          "mean_d": 0.006574795618218436,
+          "fraction_better": 0.4166666666666667
+        },
+        {
+          "compromise_prior_tertile": 1,
+          "log_probe_cost_ratio_tertile": 1,
+          "n": 13,
+          "mean_d": 0.01339760738333263,
+          "fraction_better": 0.6153846153846154
+        },
+        {
+          "compromise_prior_tertile": 1,
+          "log_probe_cost_ratio_tertile": 2,
+          "n": 21,
+          "mean_d": -0.0031463643157886062,
+          "fraction_better": 0.5714285714285714
+        },
+        {
+          "compromise_prior_tertile": 2,
+          "log_probe_cost_ratio_tertile": 0,
+          "n": 17,
+          "mean_d": 0.033763748534578454,
+          "fraction_better": 0.7647058823529411
+        },
+        {
+          "compromise_prior_tertile": 2,
+          "log_probe_cost_ratio_tertile": 1,
+          "n": 18,
+          "mean_d": 0.029049162834976622,
+          "fraction_better": 0.6111111111111112
+        },
+        {
+          "compromise_prior_tertile": 2,
+          "log_probe_cost_ratio_tertile": 2,
+          "n": 12,
+          "mean_d": 0.026868412840746314,
+          "fraction_better": 0.75
+        }
+      ],
+      "tertile_edges": {
+        "compromise_prior": [
+          0.12616554956539355,
+          0.2632593637180164
+        ],
+        "log_probe_cost_ratio": [
+          -0.6728557434708397,
+          0.03580704134345837
+        ]
+      }
+    }
+  },
+  "verdict": "KILL",
+  "failed_decisive": [
+    "PF-3",
+    "PF-4",
+    "PF-6"
+  ],
+  "fallback_rate": {
+    "P_PROBE": 0.2253641870244293,
+    "P_PROBE_NO_S": 0.12353996316537785,
+    "P_PROBE_NO_PROBE": 0.2771331808283357
+  },
+  "provenance": {
+    "experiment_id": "phase7l_probe_pilot_v2",
+    "git_commit": "eb586c6d170780c19d337fab46dcf8103f361ff6",
+    "git_dirty": false,
+    "config_sha256": "e13220f8fd8aa7c36b9d484e7d8403577b33b18adfa965d1b6b0f8bb650d0fb7",
+    "simulator_version": "probe-sim-1.0",
+    "attacker_version": "probe-attacker-1.0",
+    "policy_version": "probe-policies-1.0"
+  }
+}
