@@ -1,0 +1,39 @@
+{
+  "experiment_id": "phase7u_joint_belief_v1",
+  "git_commit": "d4f2e75f80b84aa25ab5c562b2df18dc57c8cb76",
+  "git_dirty": false,
+  "config_sha256": "e7a5fef700998dfce7cd4820f0ccd310325e8f2878efc81bb073240ae89913a3",
+  "simulator_version": "probe-sim-1.0",
+  "attacker_version": "probe-attacker-1.0",
+  "policy_version": "probe-policies-1.0",
+  "robust_version": "probe-robust-1.0",
+  "joint_confirm_version": "probe-joint-confirm-1.0",
+  "python": "3.13.16",
+  "numpy": "2.5.3",
+  "utc": "2026-10-07T16:57:58Z",
+  "blinded": true,
+  "calibration_worlds": [
+    920000,
+    920040
+  ],
+  "pairs": {
+    "P_JOINT_HEIG_COST_vs_P3_RHAT_COST_LA2": {
+      "sd_d": 0.12053925172342655,
+      "mean_comparator": 0.17426670347604326
+    },
+    "P_JOINT_HEIG_COST_vs_P_JOINT_EIG_COST": {
+      "sd_d": 0.06640928709996628,
+      "mean_comparator": 0.1684052649497873
+    }
+  },
+  "n_required_raw": {
+    "P_JOINT_HEIG_COST_vs_P3_RHAT_COST_LA2": 431.85073729766117,
+    "P_JOINT_HEIG_COST_vs_P_JOINT_EIG_COST": 140.36273478059766
+  },
+  "n_worlds": 400,
+  "capped": true,
+  "pilot_world_seeds": [
+    3000000,
+    3000400
+  ]
+}
