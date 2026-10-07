@@ -13,6 +13,9 @@ Researcher: Aakash G.S. Target: IEEE empirical paper. See `README.md` and `docs/
 - Baseline vs real CDB: `py scripts/run_baseline_comparison.py` (needs `../cdb` + unpacked dataset, ~28s/reset)
 - Dataset hash: `py scripts/hash_dataset.py`
 - Smoke test: `py scripts/run_smoke.py`
+- HADES 2.0 7K tests: `py -m pytest tests/test_probe_experiment.py -q`
+- HADES 2.0 blinded power calibration: `py scripts/run_probe_pilot.py calibration` (writes seed manifest; once)
+- HADES 2.0 pilot: `py scripts/run_probe_pilot.py pilot` then `py scripts/analyze_probe_pilot.py`
 
 Do not use `tail`/`head` (not on Windows) — use `| Select-Object -First/Last N`.
 Do not pipe agent long-runs through `Select-Object -First N` — it kills the pipe early. Redirect to file instead.
@@ -93,6 +96,15 @@ docs/
 | P7 | Expected error reduction / Thompson | anti-strawman (Settles 2008 §4) |
 | P5 | argmax V(q) / robust_voi | HADES under test |
 | P6 | LLM frozen reference | optional, deferred |
+
+## HADES 2.0 (probe-value falsification, `hades/probe_experiment/`)
+
+- HADES 1.0 is frozen (tag `hades-1.0-final`); 2.0 code lives only in `hades/probe_experiment/`.
+- Protocol `docs/phase7g_probe_value_falsification_protocol.md`, gates `docs/hades2_kill_gates.md`,
+  config `configs/experiments/phase7l_probe_pilot_v2.json`. Primary: P_PROBE vs **P_JOINT_EIG_COST**, RRR >= 0.10.
+- Worlds are procedurally generated; never hand-tune worlds, attackers or thresholds after a run.
+- Seeds: dev/tests 0-99, calibration 900000-900039, pilot from 1000000.
+- Pilot kill date **2026-11-11**.
 
 ## Gates
 
