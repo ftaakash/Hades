@@ -2,286 +2,296 @@
 
 # ⚔️ HADES
 
-### **H**ypothesis-**A**ware **D**ecision making for **E**vidence acquisition under adversarial **S**ecurity telemetry
+### What helps when telemetry lies?
 
-[![Python 3.14](https://img.shields.io/badge/python-3.14-blue?style=flat-square&logo=python)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-350%20passing-brightgreen?style=flat-square)](./tests/)
-[![Phase](https://img.shields.io/badge/phase-5A%20closed-informational?style=flat-square)](./STATUS_CDB_SAMPLE_KILLED.md)
-[![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey?style=flat-square)](./LICENSE)
-[![Target: IEEE](https://img.shields.io/badge/target-IEEE%20empirical-orange?style=flat-square)](./docs/literature_matrix.csv)
+**Pre-registered tests of budgeted evidence acquisition for threat hunting under source compromise**
 
-*A Bayesian evidence-acquisition framework for cyber threat hunting under contaminated, unreliable, or adversarially manipulated telemetry.*
+[![Python 3.14](https://img.shields.io/badge/python-3.14-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![Tests](https://img.shields.io/badge/tests-468%20passing-2ea44f?style=flat-square)](./tests/)
+[![Experiments](https://img.shields.io/badge/pre--registered%20experiments-4-6f42c1?style=flat-square)](#-the-four-experiments)
+[![Paper](https://img.shields.io/badge/paper-IEEE%20draft%20v2-eb6834?style=flat-square)](./paper/manuscript/main.pdf)
+[![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey?style=flat-square)](./pyproject.toml)
+
+[Paper (PDF)](./paper/manuscript/main.pdf) ·
+[Results](#-results-at-a-glance) ·
+[Reproduce](#-reproduce) ·
+[Repository map](#-repository-map) ·
+[History](#-project-history)
 
 </div>
 
 ---
 
-## The Problem
+## 🧭 The question
 
-Security investigations rely on telemetry that can be **incomplete, stale, or actively forged**.
+A threat hunter triaging an alert can afford to read only a few telemetry sources (EDR, Sysmon, auth, DNS, proxy,
+NetFlow, cloud audit, mail gateway), and some of them may be controlled by the attacker
+([ATT&CK T1562, *Impair Defenses*](https://attack.mitre.org/techniques/T1562/)). Which source should be read next, and
+how far should it be believed?
 
-A conventional information-gain (EIG) policy acquires the most *nominally* informative evidence next — without accounting for the possibility that the evidence itself has been corrupted. An attacker who understands this can suppress or forge the exact source the policy most wants to query.
+New acquisition policies usually change several things at once and are tested against the attacker they were designed
+for. HADES instead runs **controlled, pre-registered ablations**:
 
-> **HADES asks: how should uncertainty about telemetry reliability change the value of acquiring that evidence?**
+- every policy shares the same exact posterior over the hypothesis and every source's compromise state, the same
+  Bayes terminal decision, and **exactly the same spend**;
+- policies differ only in how they score the next action (look-ahead **model**, **objective**, horizon);
+- each experiment fixes its comparators, a 10% relative-regret threshold and its gates in a committed protocol, and is
+  scored on an **attacker written after the policies were frozen**.
 
----
-
-## The Approach
-
-HADES models reliability **inside** the Bayesian observation model rather than as a post-hoc penalty. The acquisition objective is:
-
-$$V(q) = \underbrace{\text{EIG}(q \mid \hat{r}, \hat{\phi})}_{\text{reliability-aware gain}} - \lambda \cdot \underbrace{\text{Cost}(q)}_{\text{acquisition cost}}$$
-
-| Symbol | Meaning |
-|--------|---------|
-| `EIG(q)` | Expected Information Gain under *contaminated* likelihood |
-| `r̂` | Estimated operational reliability of source `q` |
-| `φ̂` | Estimated adversarial manipulation risk of source `q` |
-| `λ` | Budget normalisation parameter (pre-registered: `{0.5, 1.0, 2.0}`) |
-
-> **μ is retired.** Manipulation risk enters through the contaminated likelihood function, not as an additive penalty.
+> [!NOTE]
+> The joint belief over hypothesis and source state is classical (GDE, decision-theoretic troubleshooting, Byzantine
+> detection). The contribution is controlled evidence about *which part matters* and where it stops mattering, including
+> two clean negative results. See the [novelty audit](./docs/hades2_novelty_audit.md).
 
 ---
 
-## Research Status
+## 📊 Results at a glance
 
-| Phase | Description | Status |
-|-------|-------------|--------|
-| **0** | Freeze & repair — architecture snapshot | ✅ Complete |
-| **1** | Bayesian belief + contaminated likelihood layer | ✅ Complete |
-| **2** | Policy ladder (P0–P7) as cited baselines | ✅ Complete |
-| **3** | F1/F5 kill-gate sweep on simulator | ✅ **GO** |
-| **4** | Corruption engine (R1–R4) + reliability estimators + integration gate | ✅ **GO** |
-| **5** | CDB transfer gate — public sample | 🔴 KILLED ([details](./STATUS_CDB_SAMPLE_KILLED.md)) |
-| **5+** | CDB transfer — full benchmark access | ⏳ Deferred ([plan](./docs/future/cdb_full_access_plan.md)) |
-| **6** | Main sweep + statistics (Wilcoxon, bootstrap CI, Cliff's δ) | ⛔ Gated |
-| **7** | Hardening, conformal stopping, sensitivity sweeps | ⛔ Gated |
-| **8** | IEEE paper + reproducibility artifact | ⛔ Gated |
+| | Experiment | Idea tested | Primary result (RRR, 95% CI) | Verdict |
+|:-:|---|---|---|:-:|
+| **E1** | `phase7l_probe_pilot_v2` | Value integrity probes by their decision consequences | vs same-model H-info: 0.02 [−0.02, 0.06] | 🔴 **KILL** |
+| **E2** | `phase7t_robust_pilot_v1` | Randomised / minimax acquisition | −0.19 and −0.02 on held-out attacker | 🔴 **KILL** |
+| **E3** | `phase7u_joint_belief_v1` | Hypothesis info under a joint (H, S) model | 0.27 [0.23, 0.30] vs R · 0.22 [0.19, 0.26] vs J | 🟢 **PROCEED** |
+| **E4** | `phase7v_hai_replication_v1` | E3 on real ICS data (HAI) | evidence did not beat the prior-only decision | ⚪ **INVALID** |
 
----
+<p align="center">
+  <img src="paper/manuscript/figures/fig_forest.png" width="560" alt="Forest plot of the primary contrasts of all four experiments against the 0.10 threshold">
+</p>
 
-## Current Standing
+**What survives.** In simulation, scoring evidence by information about the *incident* under a joint model of the
+incident and each source's compromise state cuts regret on a held-out attacker by **27%** relative to
+reliability-weighted information gain and **22%** relative to joint-state information gain.
 
-| Item | Status |
-|------|--------|
-| HADES core (Phases 0–4) | 🟢 **ACTIVE** — F1/F5 passed |
-| Public CDB sample transfer (Phase 5A) | 🔴 **KILLED** — see [`STATUS_CDB_SAMPLE_KILLED.md`](./STATUS_CDB_SAMPLE_KILLED.md) |
-| Full CDB evaluation | 🟡 **DEFERRED** — see [`docs/future/cdb_full_access_plan.md`](./docs/future/cdb_full_access_plan.md) |
-| Test suite | 🟢 350 passed, 0 failed |
-| Working tree | Clean @ `b6d9bcb` (Phase 5A freeze point) |
+**Where it stops.**
+- The gain tracks how closely the attacker's lies match the defender's model: large for cover-up and decoy attackers,
+  small for misattribution.
+- Against an attacker that adapts to the hunter's queries, it survives only relative to reliability weighting, and
+  **random acquisition is the best policy** in every simulated experiment.
+- The real-data attempt on HAI was **invalid** by its own pre-registered check, so the positive result is
+  **simulator-only**.
 
-**Phase 3 kill-gate result (F1/F5):**
+<details>
+<summary><b>The policies</b></summary>
 
-```
-F1 PASS — P5 meaningfully diverges from P3 at low reliability noise (flip ≥ 0.10)
-F5 PASS — divergence does not collapse monotonically as corruption grows
-Clean OK — P5 introduces no drift in zero-corruption baseline scenarios (A, E)
-```
+| Label | Policy | Look-ahead model | Objective |
+|:-:|---|---|---|
+| **C** | `P_JOINT_HEIG_COST` | exact joint P(H, S) | entropy of H |
+| **R** | `P3_RHAT_COST_LA2` | reliability-weighted (r̂·nominal + (1−r̂)·uniform) | entropy of H |
+| **J** | `P_JOINT_EIG_COST` | exact joint P(H, S) | entropy of (H, S), the GDE criterion |
+| **P** | `P_PROBE` | exact joint P(H, S) | decision value (VoI) |
 
-### Research tracks going forward
+All four use a 2-step horizon and divide by cost. References: random (`P0_RANDOM_COST_MATCHED`), cost-blind nominal
+EIG (`P3_NOM`), and in E2 two robust wrappers of J (`P_RAND_JEIG`, `P_MINIMAX_JEIG`).
 
-These two tracks are independent and must not be conflated:
+</details>
 
-**Track 1 — Main HADES research line (active)**
-```
-Phases 0–4 complete
-   ↓
-robustness / reliability-misspecification experiments
-   ↓
-final statistical analysis (Wilcoxon, bootstrap CI, Cliff’s δ)
-   ↓
-paper-quality results
-   ↓
-IEEE submission
-```
+<details>
+<summary><b>The attackers</b></summary>
 
-**Track 2 — Future CDB external-validity experiment (deferred)**
-```
-full CDB dataset access
-   ↓
-telemetry schema audit
-   ↓
-new mapper development + freeze
-   ↓
-fresh held-out transfer gate (T1–T8)
-   ↓
-independent provenance record
-```
+Five procedurally parameterised families, three of them each held out from one experiment's design:
+**cover-up** (design), **misattribution** (held out in E1), **trust-harvest** (adaptive), **decoy-migrate** (held out
+in E2), **collude-cheap** (held out in E3). Worlds are drawn from a frozen distribution; no world, attacker or
+threshold is hand-tuned after a run.
 
-> The current paper does not depend on the unavailable full-CDB benchmark.
-> The future CDB transfer is a well-defined external-validity experiment that can
-> be reported separately once full-data access is obtained.
-
-## Policy Ladder
-
-Each policy is a distinct acquisition strategy, cited to the literature it implements.
-
-| Policy | Strategy | Reference |
-|--------|----------|-----------|
-| **P0** | Random | Baseline floor |
-| **P1** | Fixed heuristic priority | Baseline floor+ |
-| **P2** | argmax relevance\[leading_hyp\]\[s\] | Static adaptive |
-| **P3** | argmax EIG | Naghshvar & Javidi 2013; ECC-AHT 2026 |
-| **P4** | argmax EIG / cost | Cost-aware |
-| **P4b** | argmax EIG(r̂-likelihood) / cost | Settles et al. 2008 |
-| **P7** | Expected error reduction / Thompson | Anti-strawman (Settles 2008 §4) |
-| **P5** | argmax V(q) — robust VoI | **HADES under test** |
+</details>
 
 ---
 
-## Corruption Regimes
+## 🧪 The four experiments
 
-HADES evaluates policies under four qualitatively distinct corruption regimes:
+Each experiment has a protocol, a gate file and a report, all committed before (protocol, gates) or after (report) the
+run. Runners refuse a dirty tree, a changed config or an existing output.
 
-| Regime | Model | What it tests |
-|--------|-------|---------------|
-| **R0** | Clean | Baseline; no corruption |
-| **R1** | Missing (drop rate `p ∈ {0.10, 0.25, 0.50}`) | Availability failure, sensor outage |
-| **R2** | Stale (`0h → 1h → 24h` lag) | Pipeline delay, cached evidence |
-| **R3** | Misleading (contra injection, mild/severe) | Plausible false-positive injection |
-| **R4a** | Targeted — architecture-aware (p_attack) | Attacker suppresses highest-affinity source |
+| | Protocol | Gates | Report | Status file |
+|:-:|---|---|---|---|
+| E1 | [protocol](./docs/phase7g_probe_value_falsification_protocol.md) | [gates](./docs/hades2_kill_gates.md) | [kill report](./docs/hades2_probe_kill_report.md) | [`STATUS_HADES2_PROBE_KILLED.md`](./STATUS_HADES2_PROBE_KILLED.md) |
+| E2 | [protocol](./docs/phase7t_robust_acquisition_protocol.md) | [gates](./docs/phase7t_robust_acquisition_gates.md) | [kill report](./docs/phase7t_robust_kill_report.md) | [`STATUS_HADES2_ROBUST_KILLED.md`](./STATUS_HADES2_ROBUST_KILLED.md) |
+| E3 | [protocol](./docs/phase7u_joint_belief_protocol.md) | [gates](./docs/phase7u_joint_belief_gates.md) | [report](./docs/phase7u_joint_belief_report.md) | — |
+| E4 | [protocol](./docs/phase7v_hai_replication_protocol.md) | [gates](./docs/phase7v_hai_replication_gates.md) | [report](./docs/phase7v_hai_replication_report.md) | [`STATUS_HADES2_HAI_INVALID.md`](./STATUS_HADES2_HAI_INVALID.md) |
 
-Corruption is orthogonal to reliability estimation. A source can be **both** corrupted (R4) **and** mis-estimated (Adversarial estimator), modelling the most challenging threat scenario.
+**Statistics.** Relative regret reduction `RRR = 1 − Σ ȳ(X) / Σ ȳ(Y)` over worlds; percentile paired bootstrap
+(10,000 resamples); a gate passes only if RRR ≥ 0.10 **and** the interval's lower end is above 0. World counts come from
+a blinded power calibration on separate seeds.
 
----
-
-## Reliability Estimator Regimes
-
-| Estimator | Description | Key use case |
-|-----------|-------------|--------------|
-| **Clean** | `r̂ = r_true` (oracle) | Upper-bound baseline |
-| **Noisy** | `r̂ = r_true + N(0, σ)` | Realistic estimation error |
-| **Miscalibrated** | `r̂ = scale·r_true + bias` | Systematic over/under-trust |
-| **Adversarial** | Attacker spoofs `r̂↑ φ̂↓` for high-risk sources | Looks safe, is forgeable |
-
-The explicit misspecification cases tested: `φ_true = 0.70 → φ̂ = 0.20` (under-trust) and `φ̂ = 0.90` (over-caution).
+| Seeds | Range |
+|---|---|
+| dev / tests | 0–99 |
+| E1 calibration · pilot | 900000–900039 · from 1000000 |
+| E2 calibration · pilot | 910000–910039 · from 2000000 |
+| E3 calibration · pilot | 920000–920039 · from 3000000 |
 
 ---
 
-## Repository Structure
+## 📄 Paper
+
+[`paper/manuscript/main.pdf`](./paper/manuscript/main.pdf): *What Helps When Telemetry Lies? Four Pre-Registered
+Tests of Evidence Acquisition under Source Compromise* (IEEEtran, draft v2).
+
+- Every number is a macro generated from the raw outputs; none is typed by hand.
+- Revised after three simulated hostile reviews: [reviews](./docs/paper_review/reviews.md) ·
+  [response](./docs/paper_review/response_and_revisions.md) ·
+  [citation check](./docs/paper_review/citation_check.md) ·
+  [Stage 7 verdict](./docs/paper_stage7_verdict.md) (🟡 proceed after fixes).
 
 ```
-hades-bench-v1/
-├── hades/
-│   ├── belief/          # Bayesian update, EIG, VoI, contaminated likelihood
-│   │   ├── likelihood.py
-│   │   ├── posterior.py
-│   │   ├── value.py     # eig(), voi(), robust_voi()
-│   │   └── relevance.py
-│   ├── benchmark/       # CDB adapter (preserved for future full-CDB eval)
-│   │   ├── obs_mapper.py
-│   │   ├── candidate_extractor.py
-│   │   └── fast_db.py
-│   ├── corruption/      # R1–R4 telemetry corruptors
-│   │   ├── base.py      # Corruptor ABC + ObsContext
-│   │   ├── missing.py   # R1
-│   │   ├── stale.py     # R2
-│   │   ├── misleading.py# R3
-│   │   └── targeted.py  # R4a
-│   ├── reliability/     # Reliability estimation regimes
-│   │   └── estimator.py # Clean / Noisy / Miscalibrated / Adversarial
-│   ├── integration/     # End-to-end pipeline runner
-│   │   └── runner.py    # IntegrationRunner
-│   ├── policies/        # P0–P7 acquisition policies
-│   ├── simulator/       # Synthetic testbed (sub-ms per step, no SQLite)
-│   │   ├── environment.py
-│   │   ├── observations.py
-│   │   └── scenarios.py # 5 canonical scenarios (A–E)
-│   ├── query_menu.py    # 7-source fixed SQL menu
-│   └── harness.py       # CDB run(env, model) contract
-├── scripts/
-│   ├── run_f1_sweep.py  # Phase 3 kill-gate sweep (20 seeds × 4 noise levels × 3 λ)
-│   ├── run_transfer_gate.py  # Phase 5A transfer gate (T1–T8)
-│   ├── run_smoke.py
-│   └── run_baseline_comparison.py
-├── tests/               # 350 tests — all passing
-├── configs/experiments/ # pilot_v1.yaml, main_v1.yaml (frozen before sweeps)
-├── results/raw/         # f1_sweep_*.json (canonical, versioned)
-├── docs/
-│   ├── REFRAME.md       # v0 → v3 architectural change
-│   ├── threat_model.md  # R0–R4 corruption regime definitions
-│   ├── literature_matrix.csv
-│   └── future/
-│       └── cdb_full_access_plan.md  # Future full-CDB evaluation plan
-├── STATUS_CDB_SAMPLE_KILLED.md  # CDB sample transfer kill record
-└── data_manifest/
-    └── benchmark_lock.json  # CDB version + checksum (pinned)
+results/raw/*.json(.gz) ──► scripts/paper/recompute_headlines.py ──► results/processed/paper_numbers.json
+                                   (18/18 checks vs committed statistics)          │
+                                                                                   ▼
+paper/manuscript/main.pdf ◄── pdflatex ◄── tables/numbers.tex, figures/ ◄── scripts/paper/make_figures.py
 ```
 
 ---
 
-## Quick Start
+## 🚀 Reproduce
 
-```bash
-# Clone and install
+> [!TIP]
+> On Windows use `py` (the `python` alias resolves to the Store stub). On Linux/macOS use `python3`.
+
+```powershell
 git clone https://github.com/ftaakash/Hades.git
 cd Hades
+py -m pip install -e .
 
-# Install dependencies (Python 3.14, Windows: use 'py' not 'python')
-pip install -e .
-
-# Run full test suite
+# Full test suite (468 tests)
 py -m pytest tests/ -q
 
-# Run Phase 3 kill-gate sweep (20 seeds, all scenarios)
-py scripts/run_f1_sweep.py --seeds 20 --noise 0,0.10,0.25,0.50
+# Recompute every paper number from raw results, then rebuild figures, tables and the PDF
+py scripts/paper/recompute_headlines.py
+py scripts/paper/make_figures.py
+cd paper/manuscript; pdflatex main; bibtex main; pdflatex main; pdflatex main
+```
 
-# Smoke test (requires ../cdb sibling)
-py scripts/run_smoke.py
+<details>
+<summary><b>Re-running the experiments</b> (refuses to overwrite committed results)</summary>
+
+Each runner writes a calibration manifest once, then the pilot, then a verdict that cannot be overwritten.
+Re-running needs a fresh clone without the committed outputs, or a new experiment ID.
+
+```powershell
+# E1: probe value
+py scripts/run_probe_pilot.py calibration
+py scripts/run_probe_pilot.py pilot
+py scripts/analyze_probe_pilot.py
+
+# E2: robust acquisition
+py scripts/run_robust_pilot.py calibration
+py scripts/run_robust_pilot.py pilot
+py scripts/analyze_robust_pilot.py
+
+# E3: joint belief
+py scripts/run_joint_pilot.py calibration
+py scripts/run_joint_pilot.py pilot
+py scripts/analyze_joint_pilot.py
+
+# E4: HAI replication (needs HAI 20.07 / 21.03 / 22.04, see below)
+py scripts/run_hai_replication.py
+py scripts/analyze_hai_replication.py
+```
+
+HAI is not redistributed here. Download it from [icsdataset/hai](https://github.com/icsdataset/hai) (CC BY-SA 4.0);
+the runner records the SHA-256 of every file it reads.
+
+</details>
+
+---
+
+## 🗂️ Repository map
+
+```
+hades/
+├── probe_experiment/      HADES 2.0: everything behind E1–E4
+│   ├── world.py           procedural world distribution
+│   ├── attacker.py        cover-up, misattribution, trust-harvest attackers
+│   ├── belief.py          exact joint posterior P(H, S | E)
+│   ├── policies.py        C, R, J, P and references
+│   ├── robust.py          randomised / minimax wrappers + decoy-migrate attacker (E2)
+│   ├── joint_confirm.py   collude-cheap attacker (E3)
+│   ├── simulator.py       spend-matched episodes, common random numbers
+│   ├── *_eval.py          frozen gate code per experiment
+│   └── hai*.py            HAI episodes, fitted defender model (E4)
+├── belief/ policies/ simulator/ corruption/ reliability/ benchmark/ ...   HADES 1.0 (frozen)
+scripts/
+├── run_*_pilot.py, analyze_*_pilot.py     experiment runners and gate analysis
+├── run_hai_replication.py, analyze_hai_replication.py
+└── paper/                 recompute_headlines.py, make_figures.py
+configs/experiments/       frozen JSON/YAML configs, one per experiment ID
+results/
+├── raw/                   immutable run outputs (+ seed manifests)
+├── analysis/              statistics and verdict JSON
+└── processed/             paper_numbers.json
+docs/                      protocols, gates, reports, novelty audit, paper review
+paper/manuscript/          main.tex, refs.bib, figures/, tables/
+tests/                     468 tests, including leakage and spend-matching checks
 ```
 
 ---
 
-## Provenance Chain
+## 🕰️ Project history
 
-Every paper claim must trace cleanly:
+<details>
+<summary><b>HADES 1.0</b>: robust value of information (frozen at tag <code>hades-1.0-final</code>)</summary>
+
+HADES 1.0 tested a robust value-of-information policy (P5) with a contaminated likelihood
+`p(e | H, q) = r̂·p_nominal + (1 − r̂)·p_noise`, against a cited policy ladder (P0 random … P4b r̂-weighted EIG/cost),
+corruption regimes R0–R4 and reliability-estimator regimes.
+
+| Finding | Outcome |
+|---|---|
+| P5 broad superiority | 🔴 killed |
+| Cost-awareness effect | 🟢 supported |
+| Reliability increment | 🟡 narrow / small |
+| Manipulation-risk (φ) channel | active, not supportive |
+| Public CDB sample transfer | 🔴 killed ([record](./STATUS_CDB_SAMPLE_KILLED.md)) |
+| Full CDB evaluation | ⏳ deferred ([plan](./docs/future/cdb_full_access_plan.md)) |
+
+Details: [`STATUS_HADES1_FROZEN.md`](./STATUS_HADES1_FROZEN.md) ·
+[`docs/phase7d_hades1_status.md`](./docs/phase7d_hades1_status.md) · [`docs/REFRAME.md`](./docs/REFRAME.md).
+HADES 1.0 code and results are not modified; corrections need a new experiment ID.
+
+</details>
 
 ```
-claim
-  → figure / table
-    → analysis script
-      → processed data
-        → raw run (results/raw/*.json)
-          → config (configs/experiments/*.yaml)
-            → seed
-              → git commit
-                → dataset hash (data_manifest/benchmark_lock.json)
+HADES 1.0 (P5 robust VoI) ──frozen──► HADES 2.0 ─┬─ E1 probe value ............ KILL
+                                                  ├─ E2 robust acquisition ..... KILL
+                                                  ├─ E3 joint belief ........... PROCEED (simulator-only)
+                                                  ├─ E4 HAI replication ........ INVALID
+                                                  └─ Paper draft v2 ............ proceed after fixes
 ```
-
-`main_v1.yaml` is frozen before any sweep. Post-run changes require a new experiment ID.
 
 ---
 
-## Kill Gate Protocol
+## 🔒 Ground rules
 
-| Signal | Action |
-|--------|--------|
-| F1 ~ 0 | Kill method claim → artifact or negative-results paper |
-| F1 pass + collapse at 10–25% noise | Estimator paper reframe |
-| G6 fails | Do not submit as novel-method paper |
-| P5 ≤ P3 on CDB outcomes | K1 kill — P5 behaviorally distinct but not useful |
-| CDB sample obs-class collapse | Kill sample transfer, defer full-CDB ([details](./STATUS_CDB_SAMPLE_KILLED.md)) |
+- Never fabricate results, never rewrite a failed gate as a pass, never hand-tune worlds after a run.
+- Policies read only estimated quantities; ground truth is evaluator-only and leakage tests enforce it.
+- Beliefs are validated to sum to 1 at every step; ties break deterministically.
+- Every claim traces: **claim → figure/table → script → processed data → raw run → config → seed → git commit**.
+- Corrections to committed reports are dated errata, never silent edits.
 
 ---
 
-## Citation
+## 📚 Citation
 
 ```bibtex
-@software{hades2026,
+@misc{gs2026hades,
   author = {G.S., Aakash},
-  title  = {HADES: Budgeted Evidence Acquisition for Cyber Threat Hunting
-            Under Adversarial Telemetry},
+  title  = {What Helps When Telemetry Lies? Four Pre-Registered Tests of
+            Evidence Acquisition under Source Compromise},
   year   = {2026},
-  url    = {https://github.com/ftaakash/Hades}
+  note   = {Draft. Code and data: https://github.com/ftaakash/Hades}
 }
 ```
+
+See also [`CITATION.cff`](./CITATION.cff). If you use the HAI results, please also cite the HAI dataset (Shin et al.,
+CSET 2020 and 2021).
 
 ---
 
 <div align="center">
 
-*HADES is a research prototype. No production deployment. No superiority claims without Phase 5–6 evidence. The publicly available CDB sample transfer was terminated because the exposed sample representation was insufficient for HADES's required observation semantics. Full-CDB evaluation is deferred pending authorized access.*
+*Research prototype, not a production tool. The positive result is simulator-only; no claim of robustness to adaptive
+attackers is made.*
 
-**Researcher:** Aakash G.S. · **Target:** IEEE empirical paper · **Corpus:** [ftaakash/Hades](https://github.com/ftaakash/Hades)
+**Researcher:** Aakash G.S. · gsaakash@outlook.com
 
 </div>

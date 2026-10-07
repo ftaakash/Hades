@@ -80,6 +80,7 @@ def forest():
         ax.spines[s].set_visible(False)
     fig.tight_layout(pad=0.3)
     fig.savefig(FIG / "fig_forest.pdf")
+    fig.savefig(FIG / "fig_forest.png", dpi=200)  # README
     plt.close(fig)
 
 
@@ -106,6 +107,7 @@ def scope():
     ax.legend(frameon=False, fontsize=6, loc="lower right", handlelength=1)
     fig.tight_layout(pad=0.3)
     fig.savefig(FIG / "fig_scope.pdf")
+    fig.savefig(FIG / "fig_scope.png", dpi=200)  # README
     plt.close(fig)
 
 
