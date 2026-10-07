@@ -119,6 +119,8 @@ docs/
   real compromise). Dev HAI 20.07 (model fit), primary HAI 21.03 (verdict), secondary HAI 22.04
   (`docs/phase7v_hai_replication_protocol.md`, gates `docs/phase7v_hai_replication_gates.md`). Data in
   `/mnt/project-files/data/hai-*` (not in git). Novelty audit: `docs/hades2_novelty_audit.md`.
+  **7V verdict: INVALID** (2026-10-07; V-1 fails: mapped evidence does not beat the prior; exploratory J beat C on 21.03;
+  `docs/phase7v_hai_replication_report.md`). 7U stays simulator-only.
 
 ## Gates
 

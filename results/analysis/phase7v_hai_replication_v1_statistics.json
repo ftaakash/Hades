@@ -1,0 +1,364 @@
+{
+  "provenance": {
+    "experiment_id": "phase7v_hai_replication_v1",
+    "git_commit": "84acf1855a63dfb8577efc3341db83b0f72e1e70",
+    "git_dirty": false,
+    "config_sha256": "70d134c15b85c27f0b8ccee40ea3bdab703cf21198b7242e8086ff8ebed1f651",
+    "hai_version": "probe-hai-1.0",
+    "hai_model_version": "probe-hai-model-1.0",
+    "joint_confirm_version": "probe-joint-confirm-1.0",
+    "dev_episodes_sha256": "7ce649ad29ed8fac1ceeba3f8ede6b428fb5740704262045f19ff56b683b3650"
+  },
+  "hai-21.03": {
+    "n_episodes": 100,
+    "n_attack": 50,
+    "n_spoofed_attack": 19,
+    "V-1": {
+      "mean": 0.04000000000000001,
+      "ci95": [
+        -0.041000000000000016,
+        0.11899999999999998
+      ],
+      "pass": false
+    },
+    "HG-4": {
+      "pass": true
+    },
+    "HG-5": {
+      "pass": true
+    },
+    "contrasts": {
+      "P3_RHAT_COST_LA2": {
+        "rrr": 0.09482758620689657,
+        "ci_lower": -0.18421052631578938,
+        "ci_upper": 0.296028880866426,
+        "ci_level": 0.95,
+        "p_one_sided": 0.22507749225077492,
+        "wilcoxon_p_one_sided": 0.29013367825159375,
+        "cliffs_delta": 0.0132,
+        "mean_candidate": 0.21,
+        "mean_comparator": 0.23199999999999998
+      },
+      "P_JOINT_EIG_COST": {
+        "rrr": -0.5555555555555556,
+        "ci_lower": -1.437673611111111,
+        "ci_upper": -0.12195121951219523,
+        "ci_level": 0.95,
+        "p_one_sided": 0.9982001799820018,
+        "wilcoxon_p_one_sided": 0.9948284267167893,
+        "cliffs_delta": -0.1262,
+        "mean_candidate": 0.21,
+        "mean_comparator": 0.135
+      }
+    },
+    "HG-1": {
+      "comparator": "P3_RHAT_COST_LA2",
+      "pass": false,
+      "clearly_below_threshold": false
+    },
+    "HG-2": {
+      "comparator": "P_JOINT_EIG_COST",
+      "pass": false,
+      "clearly_below_threshold": true
+    },
+    "HG-3": {
+      "mean": -0.004,
+      "ci95": [
+        -0.012000000000000002,
+        0.0
+      ],
+      "pass": true
+    },
+    "HG-6": {
+      "halves": {
+        "P3_RHAT_COST_LA2": {
+          "even": 0.22131147540983598,
+          "odd": -0.045454545454545414
+        },
+        "P_JOINT_EIG_COST": {
+          "even": -0.2666666666666666,
+          "odd": -0.9166666666666667
+        }
+      },
+      "pass": false
+    },
+    "regret_table": {
+      "P0_RANDOM_COST_MATCHED": {
+        "all": 0.223,
+        "normal": 0.176,
+        "h1": 0.43478260869565216,
+        "h2": 0.12962962962962962,
+        "spoofed_attack": 0.42105263157894735,
+        "unspoofed_attack": 0.1774193548387097
+      },
+      "P3_NOM": {
+        "all": 0.175,
+        "normal": 0.0,
+        "h1": 0.30434782608695654,
+        "h2": 0.3888888888888889,
+        "spoofed_attack": 0.4473684210526316,
+        "unspoofed_attack": 0.2903225806451613
+      },
+      "P3_RHAT_COST": {
+        "all": 0.23199999999999998,
+        "normal": 0.004,
+        "h1": 0.6956521739130435,
+        "h2": 0.25925925925925924,
+        "spoofed_attack": 0.6052631578947368,
+        "unspoofed_attack": 0.3709677419354839
+      },
+      "P3_RHAT_COST_LA2": {
+        "all": 0.23199999999999998,
+        "normal": 0.004,
+        "h1": 0.6956521739130435,
+        "h2": 0.25925925925925924,
+        "spoofed_attack": 0.6052631578947368,
+        "unspoofed_attack": 0.3709677419354839
+      },
+      "P_JOINT_HEIG_COST": {
+        "all": 0.21,
+        "normal": 0.0,
+        "h1": 0.5217391304347826,
+        "h2": 0.3333333333333333,
+        "spoofed_attack": 0.4473684210526316,
+        "unspoofed_attack": 0.4032258064516129
+      },
+      "P_JOINT_EIG_COST": {
+        "all": 0.135,
+        "normal": 0.0,
+        "h1": 0.30434782608695654,
+        "h2": 0.24074074074074073,
+        "spoofed_attack": 0.39473684210526316,
+        "unspoofed_attack": 0.1935483870967742
+      },
+      "P_PROBE": {
+        "all": 0.105,
+        "normal": 0.0,
+        "h1": 0.17391304347826086,
+        "h2": 0.24074074074074073,
+        "spoofed_attack": 0.21052631578947367,
+        "unspoofed_attack": 0.20967741935483872
+      },
+      "PRIOR_ONLY": {
+        "all": 0.215,
+        "normal": 0.19999999999999996,
+        "h1": 0.5,
+        "h2": 0.0,
+        "spoofed_attack": 0.2631578947368421,
+        "unspoofed_attack": 0.20967741935483872
+      }
+    },
+    "scope_map": {
+      "all": {
+        "P3_RHAT_COST_LA2": 0.09482758620689657,
+        "P_JOINT_EIG_COST": -0.5555555555555556
+      },
+      "normal": {
+        "P3_RHAT_COST_LA2": 1.0,
+        "P_JOINT_EIG_COST": NaN
+      },
+      "h1": {
+        "P3_RHAT_COST_LA2": 0.25,
+        "P_JOINT_EIG_COST": -0.7142857142857142
+      },
+      "h2": {
+        "P3_RHAT_COST_LA2": -0.2857142857142858,
+        "P_JOINT_EIG_COST": -0.3846153846153846
+      },
+      "spoofed_attack": {
+        "P3_RHAT_COST_LA2": 0.26086956521739135,
+        "P_JOINT_EIG_COST": -0.1333333333333333
+      },
+      "unspoofed_attack": {
+        "P3_RHAT_COST_LA2": -0.08695652173913038,
+        "P_JOINT_EIG_COST": -1.0833333333333335
+      }
+    },
+    "verdict": "INVALID",
+    "probes_per_episode": {
+      "P0_RANDOM_COST_MATCHED": 1.67,
+      "P3_NOM": 0.0,
+      "P3_RHAT_COST": 0.0,
+      "P3_RHAT_COST_LA2": 0.0,
+      "P_JOINT_HEIG_COST": 0.0,
+      "P_JOINT_EIG_COST": 0.0,
+      "P_PROBE": 0.0
+    }
+  },
+  "hai-22.04": {
+    "n_episodes": 98,
+    "n_attack": 49,
+    "n_spoofed_attack": 15,
+    "V-1": {
+      "mean": -0.08265306122448979,
+      "ci95": [
+        -0.17244897959183672,
+        0.0040816326530612144
+      ],
+      "pass": false
+    },
+    "HG-4": {
+      "pass": true
+    },
+    "HG-5": {
+      "pass": true
+    },
+    "contrasts": {
+      "P3_RHAT_COST_LA2": {
+        "rrr": 0.014044943820224698,
+        "ci_lower": -0.1556291390728477,
+        "ci_upper": 0.15000318066157758,
+        "ci_level": 0.95,
+        "p_one_sided": 0.4183581641835816,
+        "wilcoxon_p_one_sided": 0.45752629601302874,
+        "cliffs_delta": -0.002603082049146189,
+        "mean_candidate": 0.35816326530612247,
+        "mean_comparator": 0.363265306122449
+      },
+      "P_JOINT_EIG_COST": {
+        "rrr": -0.029325513196480912,
+        "ci_lower": -0.19999999999999996,
+        "ci_upper": 0.1063829787234043,
+        "ci_level": 0.95,
+        "p_one_sided": 0.6835316468353164,
+        "wilcoxon_p_one_sided": 0.6888282860799608,
+        "cliffs_delta": -0.021449396084964597,
+        "mean_candidate": 0.35816326530612247,
+        "mean_comparator": 0.3479591836734694
+      }
+    },
+    "HG-1": {
+      "comparator": "P3_RHAT_COST_LA2",
+      "pass": false,
+      "clearly_below_threshold": false
+    },
+    "HG-2": {
+      "comparator": "P_JOINT_EIG_COST",
+      "pass": false,
+      "clearly_below_threshold": false
+    },
+    "HG-3": {
+      "mean": 0.0,
+      "ci95": [
+        -0.012244897959183675,
+        0.012244897959183675
+      ],
+      "pass": true
+    },
+    "HG-6": {
+      "halves": {
+        "P3_RHAT_COST_LA2": {
+          "even": -0.04819277108433728,
+          "odd": 0.06842105263157894
+        },
+        "P_JOINT_EIG_COST": {
+          "even": -0.060975609756097615,
+          "odd": 0.0
+        }
+      },
+      "pass": false
+    },
+    "regret_table": {
+      "P0_RANDOM_COST_MATCHED": {
+        "all": 0.2612244897959184,
+        "normal": 0.17551020408163265,
+        "h1": 0.4827586206896552,
+        "h2": 0.15,
+        "spoofed_attack": 0.43333333333333335,
+        "unspoofed_attack": 0.3088235294117647
+      },
+      "P3_NOM": {
+        "all": 0.33061224489795915,
+        "normal": 0.00816326530612245,
+        "h1": 0.6896551724137931,
+        "h2": 0.6,
+        "spoofed_attack": 0.7,
+        "unspoofed_attack": 0.6323529411764706
+      },
+      "P3_RHAT_COST": {
+        "all": 0.363265306122449,
+        "normal": 0.012244897959183675,
+        "h1": 0.8620689655172413,
+        "h2": 0.5,
+        "spoofed_attack": 0.8333333333333334,
+        "unspoofed_attack": 0.6617647058823529
+      },
+      "P3_RHAT_COST_LA2": {
+        "all": 0.363265306122449,
+        "normal": 0.012244897959183675,
+        "h1": 0.8620689655172413,
+        "h2": 0.5,
+        "spoofed_attack": 0.8333333333333334,
+        "unspoofed_attack": 0.6617647058823529
+      },
+      "P_JOINT_HEIG_COST": {
+        "all": 0.35816326530612247,
+        "normal": 0.012244897959183675,
+        "h1": 0.7758620689655172,
+        "h2": 0.6,
+        "spoofed_attack": 0.7,
+        "unspoofed_attack": 0.7058823529411765
+      },
+      "P_JOINT_EIG_COST": {
+        "all": 0.3479591836734694,
+        "normal": 0.012244897959183675,
+        "h1": 0.8103448275862069,
+        "h2": 0.5,
+        "spoofed_attack": 0.7333333333333333,
+        "unspoofed_attack": 0.6617647058823529
+      },
+      "P_PROBE": {
+        "all": 0.2969387755102041,
+        "normal": 0.012244897959183675,
+        "h1": 0.6379310344827587,
+        "h2": 0.5,
+        "spoofed_attack": 0.6,
+        "unspoofed_attack": 0.5735294117647058
+      },
+      "PRIOR_ONLY": {
+        "all": 0.24795918367346942,
+        "normal": 0.19999999999999998,
+        "h1": 0.5,
+        "h2": 0.0,
+        "spoofed_attack": 0.3,
+        "unspoofed_attack": 0.29411764705882354
+      }
+    },
+    "scope_map": {
+      "all": {
+        "P3_RHAT_COST_LA2": 0.014044943820224698,
+        "P_JOINT_EIG_COST": -0.029325513196480912
+      },
+      "normal": {
+        "P3_RHAT_COST_LA2": 0.0,
+        "P_JOINT_EIG_COST": 0.0
+      },
+      "h1": {
+        "P3_RHAT_COST_LA2": 0.09999999999999998,
+        "P_JOINT_EIG_COST": 0.04255319148936165
+      },
+      "h2": {
+        "P3_RHAT_COST_LA2": -0.19999999999999996,
+        "P_JOINT_EIG_COST": -0.19999999999999996
+      },
+      "spoofed_attack": {
+        "P3_RHAT_COST_LA2": 0.16000000000000003,
+        "P_JOINT_EIG_COST": 0.045454545454545414
+      },
+      "unspoofed_attack": {
+        "P3_RHAT_COST_LA2": -0.06666666666666665,
+        "P_JOINT_EIG_COST": -0.06666666666666665
+      }
+    },
+    "verdict": "INVALID",
+    "probes_per_episode": {
+      "P0_RANDOM_COST_MATCHED": 1.683673469387755,
+      "P3_NOM": 0.0,
+      "P3_RHAT_COST": 0.0,
+      "P3_RHAT_COST_LA2": 0.0,
+      "P_JOINT_HEIG_COST": 0.0,
+      "P_JOINT_EIG_COST": 0.0,
+      "P_PROBE": 0.0
+    }
+  }
+}
