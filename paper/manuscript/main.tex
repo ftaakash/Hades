@@ -1,0 +1,375 @@
+% HADES 2.0 manuscript. Every number comes from tables/numbers.tex and tables/*.tex, which
+% scripts/paper/make_figures.py generates from results/processed/paper_numbers.json
+% (scripts/paper/recompute_headlines.py, recomputed from results/raw/). Do not type numbers by hand.
+\documentclass[conference]{IEEEtran}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\input{tables/numbers}
+\newcommand{\pol}[1]{\textsf{#1}}
+
+\begin{document}
+
+\title{What Helps When Telemetry Lies?\\Four Pre-Registered Tests of Evidence Acquisition\\under Source Compromise}
+
+\author{\IEEEauthorblockN{Aakash G.S.}
+\IEEEauthorblockA{gsaakash@outlook.com}}
+
+\maketitle
+
+\begin{abstract}
+A threat hunter with a fixed budget must choose which telemetry sources to read, knowing that some of them may be
+controlled by the attacker. Many acquisition rules have been proposed for this setting, but they are rarely compared
+at equal spend, against attackers they were not designed for, with the comparison fixed before the data exist. We run
+four pre-registered experiments that each change one ingredient of a Bayesian acquisition policy while holding the
+shared posterior, the terminal decision, the horizon and the spend fixed. Three run on procedurally generated worlds
+(\numnEL, \numnET\ and \numnEU\ policy-episodes) and one on a public industrial-control dataset. Two ingredients fail their
+gates: valuing integrity probes by their decision consequences adds nothing over hypothesis information under the same
+model (relative regret reduction $\numLC$, 95\% CI [$\numLClo$, $\numLChi$]), and randomised or minimax acquisition does
+not beat a non-robust policy on a held-out attacker ($\numTR$ and $\numTM$). One ingredient passes every gate: scoring
+evidence by hypothesis information under a joint posterior over the hypothesis and every source's compromise state
+cuts regret on a held-out attacker by $\numUR$ [$\numURlo$, $\numURhi$] relative to reliability-weighted information
+gain and by $\numUJ$ [$\numUJlo$, $\numUJhi$] relative to joint-state information gain. The gain is large against
+cover-up and decoy attackers, small against misattribution, and absent against an attacker that adapts to the
+defender's queries, where random acquisition is best. A replication on the HAI dataset was invalid by its own
+pre-registered check: the mapped evidence did not beat a decision made from the prior alone. The joint-belief result
+is therefore simulator-only.
+\end{abstract}
+
+\begin{IEEEkeywords}
+threat hunting, adversarial telemetry, active hypothesis testing, value of information, pre-registration, negative results
+\end{IEEEkeywords}
+
+% ---------------------------------------------------------------------------
+\section{Introduction}
+
+Attackers tamper with the evidence defenders rely on. Log deletion, forwarder sabotage and sensor spoofing are
+catalogued techniques (MITRE ATT\&CK T1562, ``Impair Defenses'' \cite{attackt1562}), and stale-value spoofing of
+process variables is a standard attack on industrial control systems \cite{shin2020hai}. A hunter who investigates an
+alert under a budget therefore faces two coupled questions: which source to read next, and how far to believe it.
+
+Each piece of this problem has a long history. Choosing the next measurement by expected entropy reduction over a
+joint fault model goes back to the General Diagnostic Engine \cite{dekleer1987}; decision-theoretic troubleshooting
+values tests by their effect on the repair decision \cite{heckerman1995}; active sequential hypothesis testing gives
+asymptotically optimal sensing rules \cite{naghshvar2013}; and Byzantine detection studies inference when some sensors
+lie \cite{marano2009,soltanmohammadi2012}. Recent work combines a belief over compromised sensors with active probing in
+cyber-physical control \cite{andersson2026} and learns cost-aware sensor scheduling with a Byzantine detector
+\cite{zhong2025}.
+
+What is missing is a controlled answer to a practical question: \emph{which ingredient of such a policy actually
+reduces decision errors when sources lie?} A new policy usually differs from its baseline in several ways at once
+(belief model, objective, look-ahead, cost handling), is evaluated against the attacker its model assumes, and is
+compared at unequal spend. Any of these can manufacture an apparent gain.
+
+We address this with an ablation discipline rather than a new method. Every policy in this paper shares the same
+exact posterior, the same Bayes terminal decision and exactly the same spend; policies differ only in how they score
+the next action. Each experiment changes one ingredient, names its comparator, fixes a practical threshold
+(a 10\% relative cut in regret) and its kill gates in a committed protocol, and is tested on an attacker written
+after the policies were frozen.
+
+\textbf{Contributions.}
+\begin{enumerate}
+\item A spend-matched, pre-registered testbed for evidence acquisition under source compromise: procedurally
+generated worlds, six attacker families of which two were held out at design time, and frozen gate code
+(Sec.~\ref{sec:setup}).
+\item Two pre-registered negative results. Valuing source-integrity probes by their decision consequences adds no
+robust gain over hypothesis information under the same joint model, and randomised or minimax acquisition loses to
+the non-robust comparator on a held-out attacker (Sec.~\ref{sec:neg}).
+\item One scoped positive result. At equal objective, horizon and cost handling, replacing a reliability-weighted
+belief with a joint belief over hypothesis and source states reduces regret by $\numUR$ on a held-out attacker; we
+report where the gain vanishes (Sec.~\ref{sec:pos}).
+\item A real-data attempt on the HAI industrial-control dataset that failed its own validity check, with the reasons,
+so that the positive result is reported as simulator-only (Sec.~\ref{sec:hai}).
+\end{enumerate}
+
+We do not claim the joint belief model as new; it is classical \cite{dekleer1987,heckerman1995,soltanmohammadi2012}.
+The contribution is the controlled evidence about which ingredient matters, and where it stops mattering.
+
+% ---------------------------------------------------------------------------
+\section{Related Work}
+
+\textbf{Diagnosis and troubleshooting.} GDE selects measurements by minimum expected entropy over component states
+\cite{dekleer1987}; Bayesian-network test selection does the same at scale \cite{zheng2005}; decision-theoretic
+troubleshooting values tests by their effect on the repair decision \cite{heckerman1995}. Faults there are not
+strategic, and observations of healthy components are trusted. Our joint-state objective $J$ is the GDE criterion and
+our decision-value probe $P$ follows the troubleshooting criterion.
+
+\textbf{Sensing with adversarial sources.} Byzantine detection studies fusion when a fraction of sensors lie, mostly
+through error exponents and game equilibria with all sensors observed \cite{marano2009}. Soltanmohammadi et al.\ infer
+node identity jointly with the hypothesis by EM \cite{soltanmohammadi2012}, the closest inference-side match to our
+belief model, but without a choice of which source to read. Andersson and D\'an maintain a Bayesian network over sensor
+attack states and choose a probing input that maximises a KL divergence, with the goal of control recovery
+\cite{andersson2026}. Zhong et al.\ learn sensor scheduling with probing costs and a separate Byzantine detector
+\cite{zhong2025}. MATE estimates per-agent trust as a hidden state for fusion \cite{hallyburton2025}. None of these
+ablates the belief model against the objective at equal spend, or evaluates on attackers written after the policy.
+
+\textbf{Active learning with unreliable oracles.} Proactive learning selects among imperfect, cost-varying oracles
+\cite{donmez2008}; cost-aware active learning divides information by cost \cite{settles2008,settles2009}. Oracle
+noise there is not strategic. Recent work attacks the acquisition step itself \cite{alselect2025,oraclepoison2026};
+it does not study which acquisition rule resists such attacks. Robust Bayesian experimental design optimises the worst
+case over model misspecification \cite{maximinbed2026}, which motivates our minimax candidate.
+
+\textbf{Security operations.} POMDP formulations plan sensing and defence under noisy alerts
+\cite{mccarthy2016,miehling2018} but treat sensor noise as non-strategic. Provenance triage \cite{nodoze2019},
+tamper-evident logging \cite{custos2020} and hunting under anti-forensics \cite{hunteragent2026} motivate our integrity
+probe and our compromised-source model, but do not choose evidence decision-theoretically.
+
+% ---------------------------------------------------------------------------
+\section{Problem and Policies}\label{sec:model}
+
+\textbf{State.} A hidden hypothesis $H\in\{\text{benign},\text{intrusion}_1,\text{intrusion}_2\}$ and, for each of
+$K$ sources, a state $S_q\in\{\text{healthy},\text{degraded},\text{compromised}\}$. A \emph{query} of source $q$
+returns an outcome $o$ indicating a hypothesis; a healthy source reports correctly with probability $\mathrm{acc}_q$, a
+degraded one uniformly, and a compromised one (in the defender's model) returns a forged outcome with probability
+$0.9$: a cover-up (``benign'') under an intrusion, a false flag under benign. A \emph{probe} of $q$ is an integrity
+check (canary, heartbeat or cross-sensor check) that returns PASS or FAIL with state-dependent rates. Compromise is less
+likely under benign activity: $P(S_q{=}C\mid\text{benign})=\kappa\,P(S_q{=}C\mid\text{intrusion})$.
+
+\textbf{Decision and regret.} After the budget is spent, the defender takes $D^*=\arg\max_D\mathbb{E}[U(D,H)\mid E]$
+over \{dismiss, contain, block\}: 0 if correct, $-L_{\text{miss}}$ for dismissing an intrusion, $-0.5L_{\text{miss}}$ for
+the wrong containment, $-1$ for a false alarm. Regret is $U(D^*(H),H)-U(D,H)$ divided by $L_{\text{miss}}$.
+
+\textbf{Shared machinery.} Every policy sees the same exact posterior $P(H,S_1,\dots,S_K\mid E)$, and the simulator,
+not the policy, applies the same Bayes decision. Costs are integers with a fixed budget, and every policy must act while
+it can afford an action, so every policy spends exactly the budget in every episode (checked in every run). Policies
+never see the true hypothesis, source states or attacker identity; leakage tests enforce this.
+
+\textbf{Policies differ only in scoring.} A score has three parts: the \emph{model} used for look-ahead, the
+\emph{objective} credited per outcome, and the \emph{horizon}. With horizon 2 and cost-awareness,
+$\text{score}(a)=\max\big(V_1(a)/c_a,\ \max_b V_2(a,b)/(c_a+c_b)\big)$. The four policies that matter here are:
+\begin{itemize}
+\item $R$ (\pol{P3\_RHAT\_COST\_LA2}): reliability-weighted model. Look-ahead treats a source as
+$\hat r_q\,p_{\text{nom}}+(1-\hat r_q)\,\text{uniform}$, with $\hat r_q$ the current posterior probability that $q$ is
+healthy, and $H$ and $S$ independent. Objective: entropy reduction of $H$.
+\item $C$ (\pol{P\_JOINT\_HEIG\_COST}): exact joint model; objective: entropy reduction of $H$.
+\item $J$ (\pol{P\_JOINT\_EIG\_COST}): exact joint model; objective: entropy reduction of $(H,S)$, the GDE criterion.
+\item $P$ (\pol{P\_PROBE}): exact joint model; objective: expected gain in the Bayes-decision utility (value of
+information), falling back to $H$-information on VoI plateaus.
+\end{itemize}
+All four use horizon 2 and divide by cost. $C$ and $R$ differ only in the belief model; $C$ and $J$ only in the
+objective. References include random acquisition, nominal EIG that ignores cost and compromise (\pol{P3\_NOM}), and,
+in E2, two robust variants of $J$.
+
+% ---------------------------------------------------------------------------
+\section{Experimental Setup}\label{sec:setup}
+
+\textbf{Worlds.} Each unit of analysis is a world drawn from a frozen distribution: $K\sim U\{5..8\}$ sources; source
+accuracy $U(0.45,0.95)$; query cost $U\{1..4\}$; probe-cost ratio log-$U(0.25,2)$; compromise prior $U(0.02,0.40)$ with
+per-source jitter; benign coupling $\kappa\sim U(0,1)$; probe detection $U(0.5,0.99)$ and false-fail $U(0,0.1)$; loss
+ratio $L_{\text{miss}}$ log-$U(1,20)$; budget 12. No world is hand-built.
+
+\textbf{Attackers.} An attacker controls $B\in\{1,2,3\}$ sources and is isolated from the policies. Six families:
+\emph{cover-up} (the design family, matching the defender's model); \emph{misattribution} (targets the most trusted
+sources and pushes the wrong containment); \emph{trust-harvest} (adaptive: honest until queried, then takes the source
+over, lies low after a probe); \emph{decoy-migrate} (held out in E2: a sticky decoy class, migrates when probed);
+\emph{collude-cheap} (held out in E3: controls the cheapest sources, which all tell the same lie). Within a world every
+policy faces the same truths and random numbers (common random numbers), 12 episodes per (world, condition).
+
+\textbf{Endpoint and statistics.} For candidate $X$ and comparator $Y$, $\bar y_w$ is a world's mean normalised regret
+over the primary cells and $\text{RRR}=1-\sum_w\bar y_w(X)/\sum_w\bar y_w(Y)$. A gate passes only if RRR $\ge 0.10$
+\emph{and} the one-sided paired-bootstrap lower bound (10{,}000 resamples, fixed seed) exceeds 0. The number of worlds
+came from a blinded calibration on separate seeds that output only the comparator's mean and the spread of the
+difference. E1's calibration asked for 140 worlds; E2 and E3 asked for more than the pre-registered cap of 400 and ran 400. Each experiment also has a validity check:
+the attacker must raise the regret of nominal EIG, otherwise the run is \emph{invalid}.
+
+\textbf{Pre-registration.} For each experiment the protocol, gates, configuration, gate code and tests were committed
+before any calibration or main run; the runners refuse a dirty tree, a changed configuration or an existing output, and
+the analysis scripts refuse to overwrite a verdict. Table~\ref{tab:exp} lists the four experiments.
+
+\begin{table}[t]
+\centering
+\caption{The four pre-registered experiments. Each changes one ingredient against named comparators.}
+\label{tab:exp}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}llll@{}}
+\toprule
+ & Ingredient tested & Comparators & Units \\
+\midrule
+E1 & decision-valued probing ($P$) & $J$; $R$, $C$ & \numnWL\ worlds \\
+E2 & randomised / minimax acquisition & $J$; random & \numnWT\ worlds \\
+E3 & joint belief model ($C$) & $R$ and $J$ & \numnWU\ worlds \\
+E4 & E3 on real data (HAI) & $R$ and $J$ & \numVnA\ episodes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ---------------------------------------------------------------------------
+\section{Results}
+
+Fig.~\ref{fig:forest} and Table~\ref{tab:primary} show every primary contrast with its pre-registered interval.
+Validity checks passed in E1--E3 and failed in E4; spend matching and leakage gates passed in all four.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig_forest.pdf}
+\caption{Primary contrasts of all four experiments: RRR (marker) and pre-registered CI (bar) against the 0.10
+threshold. ``PASS''/``FAIL'' is the gate on that row; E1 passed its headline gate but failed three others and was
+killed. E4 rows are shown for completeness; the run was invalid. Bars below $-0.65$ are truncated (arrow).}
+\label{fig:forest}
+\end{figure}
+
+\begin{table}[t]
+\centering
+\caption{Primary contrasts. RRR [CI]: 95\% for E1, E3, E4; 97.5\% for E2 (two candidates, Bonferroni).
+$P$: decision-value probe; $C$, $R$, $J$ as in Sec.~\ref{sec:model}.}
+\label{tab:primary}
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+ & Contrast & Gate & RRR [CI] & Result \\
+\midrule
+\input{tables/tab_primary}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Negative results}\label{sec:neg}
+
+\textbf{E1: decision-valued probing.} $P$ beat $J$ on the pooled known attackers (RRR $\numLJ$ [$\numLJlo$, $\numLJhi$]),
+but the experiment was killed by three gates. Against $C$, which uses the same joint model with plain $H$-information,
+the gain vanished ($\numLC$ [$\numLClo$, $\numLChi$]). On the held-out misattribution attacker it was negative
+($\numLJmis$ [$\numLJmislo$, $\numLJmishi$]). The pooled gain came from the design attacker, whose behaviour matches the
+defender's compromised-source model ($\numLJcov$ [$\numLJcovlo$, $\numLJcovhi$]). Probing was also untargeted: only about a
+third of $P$'s probes went to sources the posterior considered suspicious, against a pre-registered floor of one half.
+
+\textbf{E2: robust acquisition.} E1's exploratory data suggested that model-based policies fail when the attacker does
+not match their model. E2 tested two principled fixes, each changing $J$ in one way: sampling actions in proportion to
+their score, and scoring by the worst case over three compromised-source models. On a new held-out attacker neither
+beat $J$: randomisation lost clearly ($\numTR$ [$\numTRlo$, $\numTRhi$]) and the minimax policy tied ($\numTM$
+[$\numTMlo$, $\numTMhi$]) while losing on the known families.
+
+\subsection{Scoped positive result}\label{sec:pos}
+
+\textbf{Origin, disclosed.} In E1 and E2, $C$ had markedly lower regret than both $R$ and $J$ in exploratory tables.
+E3 tested this prospectively, on new world seeds and a new held-out attacker (collude-cheap) written before any E3 run.
+No policy, threshold or world parameter was changed.
+
+\textbf{E3: joint belief.} Every gate passed. On collude-cheap, $C$ reduced regret by $\numUR$ [$\numURlo$, $\numURhi$]
+relative to $R$ and by $\numUJ$ [$\numUJlo$, $\numUJhi$] relative to $J$, with a positive RRR in each attacker budget and
+in both halves of the worlds, and lower regret than $R$ on clean worlds. Because $C$ and $R$ share the objective,
+horizon, cost handling, posterior, decision and spend, the gain is attributable to the look-ahead belief model:
+modelling that a compromised source reports a cover-up, and that its state persists and is correlated with $H$, rather
+than treating it as symmetric noise independent of $H$.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig_scope.pdf}
+\caption{E3 scope map (descriptive, not gated): RRR of $C$ against $R$ (circles) and $J$ (squares) by attacker family,
+95\% CI. The gain is large against cover-up, decoy and colluding attackers, small against misattribution, and absent
+against trust-harvest relative to $J$.}
+\label{fig:scope}
+\end{figure}
+
+\textbf{Where it stops.} Fig.~\ref{fig:scope} and Table~\ref{tab:regret} show the limits, which travel with the claim.
+(i) Against misattribution the gain over $R$ is small ($\numURmis$ [$\numURmislo$, $\numURmishi$]). (ii) Against the
+adaptive trust-harvest attacker there is no gain over $J$ ($\numUJth$ [$\numUJthlo$, $\numUJthhi$]), and random
+acquisition has the lowest regret of all policies; the same held in E1 and E2. (iii) $C$ is not the best policy on
+collude-cheap: nominal EIG, which ignores cost, avoids the cheap sources the attacker controls and does better. The
+pre-registered claim is a comparison among cost-aware policies, not ``best against this attacker''.
+
+\begin{table}[t]
+\centering
+\caption{E3 mean normalised regret by attacker family (\numnWU\ worlds; \numnEU\ policy-episodes in total). Bold: lowest in the column among all seven policies.}
+\label{tab:regret}
+\footnotesize
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Policy & Clean & Cover & Decoy & Collude & Misattr. & Harvest \\
+\midrule
+\input{tables/tab_regret7u}
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ---------------------------------------------------------------------------
+\section{Real-Data Attempt: HAI}\label{sec:hai}
+
+\textbf{Mapping.} HAI is a public hardware-in-the-loop industrial-control dataset with labelled attacks
+\cite{shin2020hai,shin2021hai}; several of its scenarios hold a process variable at a stale value while the process
+moves, which is a real cover-up. We used HAI 20.07 for development (detectors and model fitting, \numVndev\ episodes),
+HAI 21.03 for the verdict and HAI 22.04 as secondary. An episode is one attack segment or a sampled normal window;
+hypotheses are normal, attack confined to the boiler process, or attack touching the other processes. Nine process
+variables and controller outputs are sources. A query reads a source's change alarm over a 30-second window (threshold
+at the 99th percentile of attack-free training data); a probe checks the source against a ridge regression on the
+other points of its process. The $k$-th read of a source returns the $k$-th window, up to six reads. The defender model
+was fitted on development episodes only and applied unchanged; the protocol was committed before any confirmatory
+episode was built, and an in-sample look at the development data was disclosed in it.
+
+\textbf{Outcome: invalid.} The validity check requires nominal EIG to beat a decision taken from the prior alone. It did
+not: on 21.03 the difference was $\numVoneA$ [$\numVoneloA$, $\numVonehiA$] (\numVnA\ episodes, \numVattA\ attacks,
+\numVspA\ with spoofing), and on 22.04 every evidence-reading policy did worse than the prior ($\numVoneB$
+[$\numVoneloB$, $\numVonehiB$]). The comparison of belief models is therefore not tested. Table~\ref{tab:hai} shows
+why: missed boiler attacks dominate regret, no deterministic policy ever probed (the development probe failed
+$\numVfailh$ of healthy and $\numVfails$ of spoofed readings, at twice a query's cost), and the evidence is weak.
+
+\textbf{An exploratory warning.} Although not interpretable under the protocol, on 21.03 $J$ had lower regret than $C$
+($\numVJA$ [$\numVJloA$, $\numVJhiA$]); on 22.04 the two were level ($\numVJB$ [$\numVJloB$, $\numVJhiB$]). If a future
+replication passes the validity check, the E3 result could fail there. We do not re-run E4; a new attempt needs a new
+protocol and a detector that passes the validity check first.
+
+\begin{table}[t]
+\centering
+\caption{E4 (HAI) mean normalised regret, all episodes. The validity check compares nominal EIG with the prior-only
+decision.}
+\label{tab:hai}
+\footnotesize
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Policy & HAI 21.03 & HAI 22.04 \\
+\midrule
+\input{tables/tab_hai}
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ---------------------------------------------------------------------------
+\section{Threats to Validity}
+
+\textbf{External validity.} E1--E3 use one simulator family and one world distribution. The only real-data attempt
+was invalid, and its exploratory direction on 21.03 disagreed with E3. The positive result must be read as
+simulator-only.
+
+\textbf{Model match.} The defender's compromised-source model is the cover-up model. Attackers that lie in that
+direction (cover-up, decoy, collude) are where $C$ gains most; misattribution and adaptive attackers are where it does
+not. Held-out attackers reduce, but do not remove, this bias: the same researcher wrote the policies and the attackers.
+
+\textbf{Exploratory origin.} E3's hypothesis came from E1 and E2 data after their verdicts. E3 is its first
+prospective test, with new seeds and a new attacker; a second independent test has not been done.
+
+\textbf{Construct validity.} Regret is normalised per world and RRR is a ratio of sums, so worlds with large regret
+weigh more. Results are reported per budget and per world half to show the effect is not driven by a few worlds. The
+HAI mapping (change alarms, a regression probe, three coarse hypotheses) is one of many possible and may be too weak.
+
+\textbf{Multiplicity.} Each experiment controls its own error rate (intersection--union across comparators; Bonferroni
+across E2's two candidates). Across the four experiments we report all outcomes, including the failures.
+
+% ---------------------------------------------------------------------------
+\section{Conclusion}
+
+When sources may lie, what helped in our experiments was not a cleverer objective or a robustness wrapper but a better
+look-ahead model: one that represents each source's compromise state jointly with the hypothesis. That result is scoped
+to non-adaptive attackers whose lies resemble the defender's model, it vanishes against an attacker that exploits the
+defender's choices (where random acquisition is best), and it is not yet supported by real data. Decision-valued
+probing and robust acquisition both failed pre-registered tests. We hope the spend-matched, held-out-attacker protocol
+is useful beyond these results: in this problem, three of four ideas that looked good on the data that suggested them
+did not survive a test fixed in advance.
+
+\section*{Artifact Availability}
+Code, protocols, gate code, raw outputs, statistics and verdicts are in the public repository
+\url{https://github.com/ftaakash/Hades} (branch \texttt{claude/hades2-probe-pilot-gemc0j}). Experiment IDs:
+E1 \texttt{phase7l\_probe\_pilot\_v2}, E2 \texttt{phase7t\_robust\_pilot\_v1}, E3 \texttt{phase7u\_joint\_belief\_v1},
+E4 \texttt{phase7v\_hai\_replication\_v1}. Every number in this paper is regenerated from the raw outputs by
+\texttt{scripts/paper/recompute\_headlines.py} and \texttt{scripts/paper/make\_figures.py}. HAI is available from
+\url{https://github.com/icsdataset/hai} under CC BY-SA 4.0.
+
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+\end{document}
