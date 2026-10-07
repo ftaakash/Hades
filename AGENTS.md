@@ -108,7 +108,7 @@ docs/
 - Pilot kill date **2026-11-11**. **Pilot v2 verdict: KILL** (2026-10-07; PF-3/4/6 fail; `docs/hades2_probe_kill_report.md`).
 - Phase 7T follow-up `phase7t_robust_pilot_v1`: P_RAND_JEIG / P_MINIMAX_JEIG vs P_JOINT_EIG_COST and random on held-out
   A_DECOY_MIGRATE (`docs/phase7t_robust_acquisition_protocol.md`, gates `docs/phase7t_robust_acquisition_gates.md`).
-  Seeds: calibration 910000-910039, pilot from 2000000. Same kill date 2026-11-11.
+  Seeds: calibration 910000-910039, pilot from 2000000. **7T verdict: KILL** (2026-10-07; RG-1 fails for both; `docs/phase7t_robust_kill_report.md`).
 
 ## Gates
 
