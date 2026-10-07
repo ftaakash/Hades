@@ -1,0 +1,34 @@
+{
+  "experiment_id": "phase7u_joint_belief_v1",
+  "verdict": "PROCEED",
+  "V-1": true,
+  "JG-1": true,
+  "JG-2": true,
+  "JG-3": true,
+  "JG-4": true,
+  "JG-5": true,
+  "JG-6": true,
+  "rrr": {
+    "P3_RHAT_COST_LA2": {
+      "rrr": 0.2662432809245515,
+      "ci_lower": 0.2285325354806476,
+      "ci_upper": 0.30254841472065747
+    },
+    "P_JOINT_EIG_COST": {
+      "rrr": 0.22283261053809544,
+      "ci_lower": 0.18553495980235157,
+      "ci_upper": 0.26016621315932087
+    }
+  },
+  "provenance": {
+    "experiment_id": "phase7u_joint_belief_v1",
+    "git_commit": "1252b2d67569d5de718860c55d4e647c176c55c6",
+    "git_dirty": false,
+    "config_sha256": "e7a5fef700998dfce7cd4820f0ccd310325e8f2878efc81bb073240ae89913a3",
+    "simulator_version": "probe-sim-1.0",
+    "attacker_version": "probe-attacker-1.0",
+    "policy_version": "probe-policies-1.0",
+    "robust_version": "probe-robust-1.0",
+    "joint_confirm_version": "probe-joint-confirm-1.0"
+  }
+}

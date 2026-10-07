@@ -112,7 +112,8 @@ docs/
   Seeds: calibration 910000-910039, pilot from 2000000. **7T verdict: KILL** (2026-10-07; RG-1 fails for both; `docs/phase7t_robust_kill_report.md`).
 - Phase 7U confirmatory `phase7u_joint_belief_v1`: P_JOINT_HEIG_COST vs P3_RHAT_COST_LA2 and P_JOINT_EIG_COST on held-out
   A_COLLUDE_CHEAP (`docs/phase7u_joint_belief_protocol.md`, gates `docs/phase7u_joint_belief_gates.md`).
-  Hypothesis is from exploratory 7L/7T data, disclosed. Seeds: calibration 920000-920039, pilot from 3000000. Deadline 2026-11-11.
+  Hypothesis is from exploratory 7L/7T data, disclosed. Seeds: calibration 920000-920039, pilot from 3000000.
+  **7U verdict: PROCEED** (2026-10-07; RRR 0.27 vs R, 0.22 vs J; scoped, see `docs/phase7u_joint_belief_report.md`).
 
 ## Gates
 
