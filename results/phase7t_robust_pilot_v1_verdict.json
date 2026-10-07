@@ -1,0 +1,36 @@
+{
+  "experiment_id": "phase7t_robust_pilot_v1",
+  "verdict": "KILL",
+  "passing_candidates": [],
+  "V-1": true,
+  "RG-5": true,
+  "RG-6": true,
+  "candidates": {
+    "P_RAND_JEIG": {
+      "RG-1_vs_joint_eig": false,
+      "RG-2_vs_random": false,
+      "RG-3_known_noninferior": true,
+      "RG-4_clean_noninferior": false,
+      "RG-7_replicable": false,
+      "pass": false
+    },
+    "P_MINIMAX_JEIG": {
+      "RG-1_vs_joint_eig": false,
+      "RG-2_vs_random": true,
+      "RG-3_known_noninferior": false,
+      "RG-4_clean_noninferior": true,
+      "RG-7_replicable": false,
+      "pass": false
+    }
+  },
+  "provenance": {
+    "experiment_id": "phase7t_robust_pilot_v1",
+    "git_commit": "0a2754cccd12e64e86f3a955a3820e5c7b8c874e",
+    "git_dirty": false,
+    "config_sha256": "a6727b05302da8481407a9c98c775e18d1a1a088b142d955f7ee334373e1b5da",
+    "simulator_version": "probe-sim-1.0",
+    "attacker_version": "probe-attacker-1.0",
+    "policy_version": "probe-policies-1.0",
+    "robust_version": "probe-robust-1.0"
+  }
+}

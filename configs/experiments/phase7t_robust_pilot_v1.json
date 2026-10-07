@@ -1,0 +1,192 @@
+{
+ "experiment_id": "phase7t_robust_pilot_v1",
+ "status": "FROZEN",
+ "follows": "phase7l_probe_pilot_v2 (verdict KILL, 2026-10-07); v2 data not reused",
+ "protocol": "docs/phase7t_robust_acquisition_protocol.md",
+ "gates": "docs/phase7t_robust_acquisition_gates.md",
+ "literature_checklist": "docs/phase7t_literature_checklist.md",
+ "pilot_decision_deadline": "2026-11-11",
+ "world_distribution": {
+  "k_min": 5,
+  "k_max": 8,
+  "benign_prior": [
+   0.3,
+   0.8
+  ],
+  "accuracy": [
+   0.45,
+   0.95
+  ],
+  "evidence_cost": [
+   1,
+   4
+  ],
+  "probe_cost_ratio": [
+   0.25,
+   2.0
+  ],
+  "compromise_prior": [
+   0.02,
+   0.4
+  ],
+  "compromise_jitter": [
+   0.5,
+   1.5
+  ],
+  "compromise_cap": 0.6,
+  "benign_coupling": [
+   0.0,
+   1.0
+  ],
+  "degrade_prior": [
+   0.0,
+   0.15
+  ],
+  "probe_detect_compromised": [
+   0.5,
+   0.99
+  ],
+  "probe_false_fail": [
+   0.0,
+   0.1
+  ],
+  "probe_detect_degraded": [
+   0.6,
+   0.99
+  ],
+  "loss_miss": [
+   1.0,
+   20.0
+  ],
+  "loss_false_alarm": 1.0,
+  "misattribution_factor": 0.5,
+  "assumed_forge_rate": 0.9,
+  "budget": 12
+ },
+ "conditions": {
+  "CLEAN": {
+   "family": "NONE",
+   "budget": 0
+  },
+  "A_COVER_B1": {
+   "family": "A_COVER",
+   "budget": 1
+  },
+  "A_COVER_B2": {
+   "family": "A_COVER",
+   "budget": 2
+  },
+  "A_COVER_B3": {
+   "family": "A_COVER",
+   "budget": 3
+  },
+  "A_MISATTRIB_B1": {
+   "family": "A_MISATTRIB",
+   "budget": 1
+  },
+  "A_MISATTRIB_B2": {
+   "family": "A_MISATTRIB",
+   "budget": 2
+  },
+  "A_MISATTRIB_B3": {
+   "family": "A_MISATTRIB",
+   "budget": 3
+  },
+  "A_TRUST_HARVEST_B1": {
+   "family": "A_TRUST_HARVEST",
+   "budget": 1
+  },
+  "A_TRUST_HARVEST_B2": {
+   "family": "A_TRUST_HARVEST",
+   "budget": 2
+  },
+  "A_TRUST_HARVEST_B3": {
+   "family": "A_TRUST_HARVEST",
+   "budget": 3
+  },
+  "A_DECOY_MIGRATE_B1": {
+   "family": "A_DECOY_MIGRATE",
+   "budget": 1
+  },
+  "A_DECOY_MIGRATE_B2": {
+   "family": "A_DECOY_MIGRATE",
+   "budget": 2
+  },
+  "A_DECOY_MIGRATE_B3": {
+   "family": "A_DECOY_MIGRATE",
+   "budget": 3
+  }
+ },
+ "primary_cells": [
+  "A_DECOY_MIGRATE_B1",
+  "A_DECOY_MIGRATE_B2",
+  "A_DECOY_MIGRATE_B3"
+ ],
+ "known_cells": [
+  "A_COVER_B1",
+  "A_COVER_B2",
+  "A_COVER_B3",
+  "A_MISATTRIB_B1",
+  "A_MISATTRIB_B2",
+  "A_MISATTRIB_B3",
+  "A_TRUST_HARVEST_B1",
+  "A_TRUST_HARVEST_B2",
+  "A_TRUST_HARVEST_B3"
+ ],
+ "held_out_attacker": {
+  "family": "A_DECOY_MIGRATE",
+  "forge_rate": 0.8,
+  "probe_evasion": 0.3,
+  "targets": "uniform random",
+  "content": "sticky decoy != true hypothesis",
+  "adaptation": "migrate on probe to most-queried unprobed source"
+ },
+ "episodes_per_world_condition": 12,
+ "policies": [
+  "P0_RANDOM_COST_MATCHED",
+  "P3_NOM",
+  "P3_RHAT_COST",
+  "P_JOINT_HEIG_COST",
+  "P_JOINT_EIG_COST",
+  "P_PROBE",
+  "P_RAND_JEIG",
+  "P_MINIMAX_JEIG"
+ ],
+ "candidates": [
+  "P_RAND_JEIG",
+  "P_MINIMAX_JEIG"
+ ],
+ "comparators": [
+  "P_JOINT_EIG_COST",
+  "P0_RANDOM_COST_MATCHED"
+ ],
+ "practical_threshold_rrr": 0.1,
+ "multiplicity": "Bonferroni over 2 candidates; intersection-union over 2 comparators",
+ "noninferiority": {
+  "known_point": 0.02,
+  "known_upper95": 0.04,
+  "clean_point": 0.01,
+  "clean_upper95": 0.02
+ },
+ "power": {
+  "alpha_one_sided": 0.0125,
+  "power": 0.8,
+  "inflation": 1.15,
+  "n_min": 50,
+  "n_max": 400,
+  "calibration_world_seeds": [
+   910000,
+   910040
+  ],
+  "calibration_blinded": true
+ },
+ "pilot_world_seed_start": 2000000,
+ "development_world_seeds": [
+  0,
+  99
+ ],
+ "bootstrap": {
+  "n": 10000,
+  "seed": 20261007
+ }
+}

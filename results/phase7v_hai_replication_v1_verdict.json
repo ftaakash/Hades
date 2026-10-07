@@ -1,0 +1,50 @@
+{
+  "experiment_id": "phase7v_hai_replication_v1",
+  "verdict": "INVALID",
+  "primary_version": "hai-21.03",
+  "V-1": false,
+  "HG-1": false,
+  "HG-2": false,
+  "HG-3": true,
+  "HG-4": true,
+  "HG-5": true,
+  "HG-6": false,
+  "rrr": {
+    "P3_RHAT_COST_LA2": {
+      "rrr": 0.09482758620689657,
+      "ci_lower": -0.18421052631578938,
+      "ci_upper": 0.296028880866426
+    },
+    "P_JOINT_EIG_COST": {
+      "rrr": -0.5555555555555556,
+      "ci_lower": -1.437673611111111,
+      "ci_upper": -0.12195121951219523
+    }
+  },
+  "secondary": {
+    "version": "hai-22.04",
+    "verdict_if_primary": "INVALID",
+    "rrr": {
+      "P3_RHAT_COST_LA2": {
+        "rrr": 0.014044943820224698,
+        "ci_lower": -0.1556291390728477,
+        "ci_upper": 0.15000318066157758
+      },
+      "P_JOINT_EIG_COST": {
+        "rrr": -0.029325513196480912,
+        "ci_lower": -0.19999999999999996,
+        "ci_upper": 0.1063829787234043
+      }
+    }
+  },
+  "provenance": {
+    "experiment_id": "phase7v_hai_replication_v1",
+    "git_commit": "84acf1855a63dfb8577efc3341db83b0f72e1e70",
+    "git_dirty": false,
+    "config_sha256": "70d134c15b85c27f0b8ccee40ea3bdab703cf21198b7242e8086ff8ebed1f651",
+    "hai_version": "probe-hai-1.0",
+    "hai_model_version": "probe-hai-model-1.0",
+    "joint_confirm_version": "probe-joint-confirm-1.0",
+    "dev_episodes_sha256": "7ce649ad29ed8fac1ceeba3f8ede6b428fb5740704262045f19ff56b683b3650"
+  }
+}

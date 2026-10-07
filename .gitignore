@@ -82,3 +82,11 @@ implementation_plan.md
 HADES_2.0_Implementation_and_Research_Plan_REVISED.md
 HADES_Phase_6-8_Detailed_Plan.md
 HADES_Phase_7C_Phi_Channel_Implementation_Plan.md
+
+# LaTeX build artifacts
+paper/manuscript/*.aux
+paper/manuscript/*.log
+paper/manuscript/*.bbl
+paper/manuscript/*.blg
+paper/manuscript/*.out
+paper/manuscript/build.log

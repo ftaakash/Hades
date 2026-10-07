@@ -1,0 +1,48 @@
+{
+  "experiment_id": "phase7t_robust_pilot_v1",
+  "git_commit": "7d29e866d21f268b7181be454822468986d4cd25",
+  "git_dirty": false,
+  "config_sha256": "a6727b05302da8481407a9c98c775e18d1a1a088b142d955f7ee334373e1b5da",
+  "simulator_version": "probe-sim-1.0",
+  "attacker_version": "probe-attacker-1.0",
+  "policy_version": "probe-policies-1.0",
+  "robust_version": "probe-robust-1.0",
+  "python": "3.13.16",
+  "numpy": "2.5.3",
+  "utc": "2026-10-07T13:32:08Z",
+  "blinded": true,
+  "calibration_worlds": [
+    910000,
+    910040
+  ],
+  "pairs": {
+    "P_RAND_JEIG_vs_P_JOINT_EIG_COST": {
+      "sd_d": 0.07266338766414522,
+      "mean_comparator": 0.10425241094989941
+    },
+    "P_RAND_JEIG_vs_P0_RANDOM_COST_MATCHED": {
+      "sd_d": 0.07215840403675543,
+      "mean_comparator": 0.1547430560771838
+    },
+    "P_MINIMAX_JEIG_vs_P_JOINT_EIG_COST": {
+      "sd_d": 0.05926889993448315,
+      "mean_comparator": 0.10425241094989941
+    },
+    "P_MINIMAX_JEIG_vs_P0_RANDOM_COST_MATCHED": {
+      "sd_d": 0.08821846183437694,
+      "mean_comparator": 0.1547430560771838
+    }
+  },
+  "n_required_raw": {
+    "P_RAND_JEIG_vs_P_JOINT_EIG_COST": 531.0197924945915,
+    "P_RAND_JEIG_vs_P0_RANDOM_COST_MATCHED": 237.6857468542942,
+    "P_MINIMAX_JEIG_vs_P_JOINT_EIG_COST": 353.29147586601573,
+    "P_MINIMAX_JEIG_vs_P0_RANDOM_COST_MATCHED": 355.26159688279887
+  },
+  "n_worlds": 400,
+  "capped": true,
+  "pilot_world_seeds": [
+    2000000,
+    2000400
+  ]
+}

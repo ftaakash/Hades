@@ -13,6 +13,12 @@ Researcher: Aakash G.S. Target: IEEE empirical paper. See `README.md` and `docs/
 - Baseline vs real CDB: `py scripts/run_baseline_comparison.py` (needs `../cdb` + unpacked dataset, ~28s/reset)
 - Dataset hash: `py scripts/hash_dataset.py`
 - Smoke test: `py scripts/run_smoke.py`
+- HADES 2.0 7K tests: `py -m pytest tests/test_probe_experiment.py -q`
+- HADES 2.0 blinded power calibration: `py scripts/run_probe_pilot.py calibration` (writes seed manifest; once)
+- HADES 2.0 pilot: `py scripts/run_probe_pilot.py pilot` then `py scripts/analyze_probe_pilot.py`
+- Phase 7T robust pilot: `py -m pytest tests/test_robust_acquisition.py -q`; `py scripts/run_robust_pilot.py calibration`, then `pilot`, then `py scripts/analyze_robust_pilot.py`
+- Phase 7U joint-belief pilot: `py -m pytest tests/test_joint_belief.py -q`; `py scripts/run_joint_pilot.py calibration`, then `pilot`, then `py scripts/analyze_joint_pilot.py`
+- Phase 7V HAI real-data replication: `py -m pytest tests/test_hai_replication.py -q`; `py scripts/run_hai_replication.py` (once), then `py scripts/analyze_hai_replication.py`
 
 Do not use `tail`/`head` (not on Windows) — use `| Select-Object -First/Last N`.
 Do not pipe agent long-runs through `Select-Object -First N` — it kills the pipe early. Redirect to file instead.
@@ -93,6 +99,28 @@ docs/
 | P7 | Expected error reduction / Thompson | anti-strawman (Settles 2008 §4) |
 | P5 | argmax V(q) / robust_voi | HADES under test |
 | P6 | LLM frozen reference | optional, deferred |
+
+## HADES 2.0 (probe-value falsification, `hades/probe_experiment/`)
+
+- HADES 1.0 is frozen (tag `hades-1.0-final`); 2.0 code lives only in `hades/probe_experiment/`.
+- Protocol `docs/phase7g_probe_value_falsification_protocol.md`, gates `docs/hades2_kill_gates.md`,
+  config `configs/experiments/phase7l_probe_pilot_v2.json`. Primary: P_PROBE vs **P_JOINT_EIG_COST**, RRR >= 0.10.
+- Worlds are procedurally generated; never hand-tune worlds, attackers or thresholds after a run.
+- Seeds: dev/tests 0-99, calibration 900000-900039, pilot from 1000000.
+- Pilot kill date **2026-11-11**. **Pilot v2 verdict: KILL** (2026-10-07; PF-3/4/6 fail; `docs/hades2_probe_kill_report.md`).
+- Phase 7T follow-up `phase7t_robust_pilot_v1`: P_RAND_JEIG / P_MINIMAX_JEIG vs P_JOINT_EIG_COST and random on held-out
+  A_DECOY_MIGRATE (`docs/phase7t_robust_acquisition_protocol.md`, gates `docs/phase7t_robust_acquisition_gates.md`).
+  Seeds: calibration 910000-910039, pilot from 2000000. **7T verdict: KILL** (2026-10-07; RG-1 fails for both; `docs/phase7t_robust_kill_report.md`).
+- Phase 7U confirmatory `phase7u_joint_belief_v1`: P_JOINT_HEIG_COST vs P3_RHAT_COST_LA2 and P_JOINT_EIG_COST on held-out
+  A_COLLUDE_CHEAP (`docs/phase7u_joint_belief_protocol.md`, gates `docs/phase7u_joint_belief_gates.md`).
+  Hypothesis is from exploratory 7L/7T data, disclosed. Seeds: calibration 920000-920039, pilot from 3000000.
+  **7U verdict: PROCEED** (2026-10-07; RRR 0.27 vs R, 0.22 vs J; scoped, see `docs/phase7u_joint_belief_report.md`).
+- Phase 7V `phase7v_hai_replication_v1`: real-data replication of 7U on the HAI ICS dataset (stale-value PV spoofing as
+  real compromise). Dev HAI 20.07 (model fit), primary HAI 21.03 (verdict), secondary HAI 22.04
+  (`docs/phase7v_hai_replication_protocol.md`, gates `docs/phase7v_hai_replication_gates.md`). Data in
+  `/mnt/project-files/data/hai-*` (not in git). Novelty audit: `docs/hades2_novelty_audit.md`.
+  **7V verdict: INVALID** (2026-10-07; V-1 fails: mapped evidence does not beat the prior; exploratory J beat C on 21.03;
+  `docs/phase7v_hai_replication_report.md`). 7U stays simulator-only.
 
 ## Gates
 

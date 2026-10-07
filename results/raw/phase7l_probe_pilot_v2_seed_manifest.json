@@ -1,0 +1,26 @@
+{
+  "experiment_id": "phase7l_probe_pilot_v2",
+  "git_commit": "a88c60c98624a69448aad9f921e2a478b178cfc5",
+  "git_dirty": false,
+  "config_sha256": "e13220f8fd8aa7c36b9d484e7d8403577b33b18adfa965d1b6b0f8bb650d0fb7",
+  "simulator_version": "probe-sim-1.0",
+  "attacker_version": "probe-attacker-1.0",
+  "policy_version": "probe-policies-1.0",
+  "python": "3.13.16",
+  "numpy": "2.5.3",
+  "utc": "2026-10-07T12:41:05Z",
+  "blinded": true,
+  "calibration_worlds": [
+    900000,
+    900040
+  ],
+  "sd_world_diff": 0.07181023869253211,
+  "mean_regret_comparator": 0.18296200865109474,
+  "n_required_raw": 139.04533298176858,
+  "n_worlds": 140,
+  "capped": false,
+  "pilot_world_seeds": [
+    1000000,
+    1000140
+  ]
+}
